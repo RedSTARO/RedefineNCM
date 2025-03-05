@@ -8,8 +8,8 @@ data class userPlaylist(
 
 data class userPlaylistEach(
     val creator: userPlaylistEachCreator,
-    val trackCount: Int,
-    val playCount: Int,
+    val trackCount: Long,
+    val playCount: Long,
     val name: String,
     val id: Long,
     val userId: Long,
