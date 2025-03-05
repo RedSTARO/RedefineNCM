@@ -1,6 +1,7 @@
 package com.redstar.redefinencm
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,9 +42,18 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    cookieLogin(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    if (LocalContext.current.getSharedPreferences("user", Context.MODE_PRIVATE).getString("cookie", "").isNullOrBlank()) {
+                        val intent = Intent(LocalContext.current, MainActivity::class.java)
+                        LocalContext.current.startActivity(intent)
+                    }
+                    else{
+                        val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+                        cookieLogin(
+                            retrofit,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
+
                 }
             }
         }
@@ -71,16 +81,14 @@ class LoginActivity : ComponentActivity() {
 //}
 
 @Composable
-fun cookieLogin(modifier: Modifier = Modifier) {
+fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val coroutineScope = rememberCoroutineScope()
     var cookie by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }
     var uid by remember { mutableStateOf(0L) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -115,7 +123,7 @@ fun cookieLogin(modifier: Modifier = Modifier) {
                 errorMessage = ""
                 coroutineScope.launch {
                     try {
-                        val userAccount = retrofit.userAccount(cookie)
+                        val userAccount = retrofit.userAccount()
                         userName = userAccount.account.userName
                         uid = userAccount.account.id
                     } catch (e: Exception) {
@@ -152,6 +160,9 @@ fun cookieLogin(modifier: Modifier = Modifier) {
 //                TODO: https://developer.android.google.cn/topic/libraries/architecture/datastore?hl=zh-cn#prefs-vs-proto
                 apply()
             }
+            // Jump to Main Activity
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
         }
     }
 }
