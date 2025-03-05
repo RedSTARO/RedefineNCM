@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -42,16 +44,20 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    println("NOW IN LOGIN ACTIVITY")
+                    println(LocalContext.current.getSharedPreferences("user", Context.MODE_PRIVATE).getString("cookie", ""))
                     if (LocalContext.current.getSharedPreferences("user", Context.MODE_PRIVATE).getString("cookie", "").isNullOrBlank()) {
-                        val intent = Intent(LocalContext.current, MainActivity::class.java)
-                        LocalContext.current.startActivity(intent)
-                    }
-                    else{
+                        println("Jump to Cookie Login")
                         val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                         cookieLogin(
                             retrofit,
                             modifier = Modifier.padding(innerPadding)
                         )
+                    }
+                    else{
+                        println("Jump to Main Activity")
+                        val intent = Intent(LocalContext.current, MainActivity::class.java)
+                        LocalContext.current.startActivity(intent)
                     }
 
                 }
@@ -60,25 +66,6 @@ class LoginActivity : ComponentActivity() {
     }
 }
 
-//@Composable
-//fun Greeting(name: String, modifier: Modifier = Modifier) {
-//    val context = LocalContext.current
-//    val scope = rememberCoroutineScope()
-//    var userName by remember { mutableStateOf("Loading...") }
-//
-//    LaunchedEffect(Unit) {
-//        scope.launch {
-//            val ret = RetrofitInstance.retrofit.create(NCMApi::class.java)
-//            val userAccount = withContext(Dispatchers.IO) { ret.userAccount() }
-//            userName = userAccount.account.userName
-//        }
-//    }
-//
-//    Text(
-//        text = userName,
-//        modifier = modifier
-//    )
-//}
 
 @Composable
 fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
@@ -167,11 +154,32 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier){
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var cookie by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
+    var uid by remember { mutableStateOf(0L) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+    coroutineScope.launch(Dispatchers.IO) {
+        val unikey = retrofit.loginQrKey().data.unikey
+        val qrImg = retrofit.loginQrCreate(unikey, true)
+        println("TEST")
+        println(unikey)
+        println(qrImg)
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     RedefineNCMTheme {
-//        Greeting("Android")
+        cookieLogin(retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java))
     }
 }

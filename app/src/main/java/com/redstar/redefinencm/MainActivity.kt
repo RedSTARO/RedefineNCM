@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    println("NOW IN MAIN ACTIVITY")
                     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                     val context = LocalContext.current
                     var uid by remember { mutableLongStateOf(0L) }
