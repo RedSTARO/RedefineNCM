@@ -16,7 +16,7 @@ interface NCMApi {
     suspend fun loginQrKey(): loginQrKey
 
     @GET("/login/qr/create")
-    suspend fun loginQrCreate(@Query("unikey") unikey: String, @Query("qrimg") qrimg: Boolean): loginQrCreate
+    suspend fun loginQrCreate(@Query("key") key: String, @Query("qrimg") qrimg: Boolean): loginQrCreate
 
     @GET("/daily_signin") // This will always return 302
     suspend fun dailysignin(@Query("type") type: Int): dailysignin

@@ -3,10 +3,24 @@ package com.redstar.redefinencm
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.PopupWindow
+import android.util.Base64
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.withContext
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.ByteArrayInputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,17 +39,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,23 +68,27 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    println("NOW IN LOGIN ACTIVITY")
-                    println(LocalContext.current.getSharedPreferences("user", Context.MODE_PRIVATE).getString("cookie", ""))
-                    if (LocalContext.current.getSharedPreferences("user", Context.MODE_PRIVATE).getString("cookie", "").isNullOrBlank()) {
-                        println("Jump to Cookie Login")
-                        val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                        cookieLogin(
-                            retrofit,
-                            modifier = Modifier.padding(innerPadding)
-                        )
+                    val cookie = runBlocking {
+                        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey("cookie")] ?: ""
                     }
-                    else{
-                        println("Jump to Main Activity")
-                        val intent = Intent(LocalContext.current, MainActivity::class.java)
-                        LocalContext.current.startActivity(intent)
+                    println(cookie)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        println("NOW IN LOGIN ACTIVITY")
+                        if (cookie.isNullOrBlank()) {
+                            println("Jump to Login")
+                            val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+                            cookieLogin(retrofit)
+                            qrLogin(retrofit)
+                        }
                     }
-
                 }
+
             }
         }
     }
@@ -69,11 +97,9 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+    LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var cookie by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
-    var uid by remember { mutableStateOf(0L) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     Column(
@@ -110,9 +136,7 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                 errorMessage = ""
                 coroutineScope.launch {
                     try {
-                        val userAccount = retrofit.userAccount()
-                        userName = userAccount.account.userName
-                        uid = userAccount.account.id
+                        checkLoggedInAndJump(retrofit, cookie)
                     } catch (e: Exception) {
                         errorMessage = "登录失败：${e.message}"
                     } finally {
@@ -140,38 +164,50 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
-        if (uid.toString().isNotEmpty()) {
-            val sharedPreferences = context.getSharedPreferences("user", Context.MODE_PRIVATE)
-            with(sharedPreferences.edit()) {
-                putString("cookie", cookie)
-//                TODO: https://developer.android.google.cn/topic/libraries/architecture/datastore?hl=zh-cn#prefs-vs-proto
-                apply()
-            }
-            // Jump to Main Activity
-            val intent = Intent(context, MainActivity::class.java)
-            context.startActivity(intent)
-        }
     }
 }
 
 @Composable
 fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier){
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var cookie by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
-    var uid by remember { mutableStateOf(0L) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(Unit) {
-    coroutineScope.launch(Dispatchers.IO) {
         val unikey = retrofit.loginQrKey().data.unikey
-        val qrImg = retrofit.loginQrCreate(unikey, true)
-        println("TEST")
-        println(unikey)
-        println(qrImg)
+        val qrImg = retrofit.loginQrCreate(unikey, true).data.qrimg.substringAfter("base64,")
+        bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(Base64.decode(qrImg, Base64.DEFAULT)))
+    }
+    if(!bitmap?.toString().isNullOrBlank()){
+        println("Render qr")
+        Image(bitmap = bitmap!!.asImageBitmap(), contentDescription = "QR Code", modifier = Modifier.size(300.dp))
+    }
+    else{
+        Text("请等待二维码生成")
+    }
+
+    // TODO: Check scan status
+}
+
+suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String){
+    val context = RedefineNCMApplication.getApplicationContext() as Context
+    if (retrofit.loginStatus().data.code == 200) {
+        // Save cookie
+        println(cookie)
+        println(retrofit.loginStatus().data.account)
+        if(!retrofit.loginStatus().data.account.nickname.isNullOrBlank()){
+//             定义键
+        val COOKIE_KEY = stringPreferencesKey("cookie")
+        // 写入数据
+            context.dataStore.edit { preferences ->
+                preferences[COOKIE_KEY] = cookie
         }
+//             Jump to Main Activity
+        val intent = Intent(context, MainActivity::class.java)
+        context.startActivity(intent)
+        }
+        else{
+            throw Exception("Cookie 无效")
+        }
+
     }
 }
 
