@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -56,6 +57,7 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -80,6 +82,7 @@ class LoginActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         println("NOW IN LOGIN ACTIVITY")
+//                        cookieLogin( RetrofitInstance.retrofit.create(NCMApi::class.java)) // TODO: TEST, REMOVE ME
                         if (cookie.isNullOrBlank()) {
                             println("Jump to Login")
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
@@ -97,7 +100,7 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
-    LocalContext.current
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var cookie by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -136,7 +139,7 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                 errorMessage = ""
                 coroutineScope.launch {
                     try {
-                        checkLoggedInAndJump(retrofit, cookie)
+                        checkLoggedInAndJump(retrofit, cookie, context)
                     } catch (e: Exception) {
                         errorMessage = "登录失败：${e.message}"
                     } finally {
@@ -168,32 +171,83 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier){
+fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var unikey by remember { mutableStateOf("") }
+    var gotCookie by remember { mutableStateOf(false) }
+    var scanStatus by remember { mutableStateOf("Generating Code") }
+    var cookie by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope() // 独立的协程作用域
+
+    // 获取二维码
     LaunchedEffect(Unit) {
-        val unikey = retrofit.loginQrKey().data.unikey
-        val qrImg = retrofit.loginQrCreate(unikey, true).data.qrimg.substringAfter("base64,")
-        bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(Base64.decode(qrImg, Base64.DEFAULT)))
-    }
-    if(!bitmap?.toString().isNullOrBlank()){
-        println("Render qr")
-        Image(bitmap = bitmap!!.asImageBitmap(), contentDescription = "QR Code", modifier = Modifier.size(300.dp))
-    }
-    else{
-        Text("请等待二维码生成")
+        try {
+            val keyResponse = retrofit.loginQrKey()
+            unikey = keyResponse.data.unikey
+
+            val qrImg = retrofit.loginQrCreate(unikey, true).data.qrimg.substringAfter("base64,")
+            val qrBytes = Base64.decode(qrImg, Base64.DEFAULT)
+            bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(qrBytes))
+
+            scanStatus = "Scan QR Code to log in" // 更新状态
+        } catch (e: Exception) {
+            scanStatus = "Failed to generate QR Code"
+            println("Error generating QR code: ${e.message}")
+        }
     }
 
-    // TODO: Check scan status
+    // UI 渲染
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        bitmap?.asImageBitmap()?.let {
+            Image(bitmap = it, contentDescription = "QR Code", modifier = Modifier.size(300.dp))
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = scanStatus, fontSize = 18.sp, color = Color.Black)
+    }
+
+    // 轮询检查扫码状态
+    LaunchedEffect(unikey) {
+        coroutineScope.launch {
+            while (!gotCookie) {
+                try {
+                    val response = retrofit.loginQrCheck(unikey)
+                    when (response.code) {
+                        800 -> {
+                            scanStatus = "QR Code Expired. Generating new one..."
+                            unikey = "" // 触发二维码刷新
+                        }
+                        801, 802 -> {
+                            scanStatus = response.message
+                        }
+                        803 -> {
+                            cookie = response.cookie
+                            gotCookie = true
+                            scanStatus = "Login Successful!"
+                            checkLoggedInAndJump(retrofit, cookie, context)
+                        }
+                    }
+                    delay(2000)
+                } catch (e: Exception) {
+                    println("Error checking QR status: ${e.message}")
+                }
+            }
+        }
+    }
 }
 
-suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String){
-    val context = RedefineNCMApplication.getApplicationContext() as Context
-    if (retrofit.loginStatus().data.code == 200) {
+suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context){
+//    val context = RedefineNCMApplication.getApplicationContext() as Context
+    if (retrofit.loginStatus(cookie).data.code == 200) {
         // Save cookie
         println(cookie)
-        println(retrofit.loginStatus().data.account)
-        if(!retrofit.loginStatus().data.account.nickname.isNullOrBlank()){
+        println(retrofit.loginStatus(cookie).data.profile.nickname)
+        if(!retrofit.loginStatus(cookie).data.profile.nickname.isNullOrBlank()){
 //             定义键
         val COOKIE_KEY = stringPreferencesKey("cookie")
         // 写入数据

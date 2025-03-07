@@ -1,5 +1,7 @@
 package com.redstar.redefinencm.api.data
 
+import android.provider.ContactsContract
+
 data class loginStatus(
 //    {"data":{"code":200,"account":
 //    {"id":2131348937,"userName":"1_********284","type":1,"status":0,"whitelistAuthority":0,
@@ -22,10 +24,15 @@ data class loginStatus(
 data class loginStatusData(
     val code: Int,
     val account: loginStatusAccount,
+    val profile: loginStatusProfile,
 )
 
 data class loginStatusAccount(
+    val id: Long,
+)
+
+data class loginStatusProfile(
     val nickname: String,
     val avatarUrl: String,
-    val backgroundUrl: String,
+    val backgroundUrl: String
 )

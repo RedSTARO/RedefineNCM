@@ -10,13 +10,16 @@ interface NCMApi {
     suspend fun userAccount(): userAccount
 
     @GET("/login/status")
-    suspend fun loginStatus(): loginStatus
+    suspend fun loginStatus(@Query("cookie") cookie: String): loginStatus
 
     @GET("/login/qr/key")
     suspend fun loginQrKey(): loginQrKey
 
     @GET("/login/qr/create")
     suspend fun loginQrCreate(@Query("key") key: String, @Query("qrimg") qrimg: Boolean): loginQrCreate
+
+    @GET("/login/qr/check")
+    suspend fun loginQrCheck(@Query("key") key: String): loginQrCheck
 
     @GET("/daily_signin") // This will always return 302
     suspend fun dailysignin(@Query("type") type: Int): dailysignin

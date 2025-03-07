@@ -2,7 +2,11 @@ package com.redstar.redefinencm.api
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.dataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -42,7 +46,6 @@ object RetrofitInstance {
                     .addHeader("cookie", COOKIE)
                     .build()
             }
-
             // 执行请求
             chain.proceed(newRequest)
         }
@@ -60,6 +63,7 @@ fun getRealIP(): String {
 }
 
 fun getCookie(): String {
-    val context = RedefineNCMApplication.getApplicationContext() as Context
-    return context.getSharedPreferences("user", MODE_PRIVATE).getString("cookie", "")!!
+    return runBlocking {
+        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey("cookie")] ?: ""
+    }
 }
