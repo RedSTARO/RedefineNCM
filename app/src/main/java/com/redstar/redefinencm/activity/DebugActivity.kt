@@ -1,4 +1,4 @@
-package com.redstar.redefinencm
+package com.redstar.redefinencm.activity
 
 import android.content.Context
 import android.os.Bundle
@@ -13,14 +13,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import okhttp3.Cookie
 
 class DebugActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,9 +35,9 @@ class DebugActivity: ComponentActivity() {
 
 @Composable
 fun showAllSettingsData(moodifier: Modifier = Modifier){
-    val content = RedefineNCMApplication.getApplicationContext() as Context
+    val content = RedefineNCMApplication.Companion.getApplicationContext() as Context
     val datas = runBlocking {
-        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()
+        ((RedefineNCMApplication.Companion.getApplicationContext() as Context)).dataStore.data.first()
     }
     Text(
         text = datas.toString(),

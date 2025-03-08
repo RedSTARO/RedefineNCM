@@ -66,5 +66,6 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.navigation.compose)
 
 }

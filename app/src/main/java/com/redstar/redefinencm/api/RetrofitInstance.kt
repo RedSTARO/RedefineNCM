@@ -1,10 +1,8 @@
 package com.redstar.redefinencm.api
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.dataStore
+import com.redstar.redefinencm.activity.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient

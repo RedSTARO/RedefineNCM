@@ -27,6 +27,9 @@ interface NCMApi {
     @GET("/user/playlist")
     suspend fun userPlaylist(@Query("uid") uid: Long): userPlaylist
 
+    @GET("/playlist/detail")
+    suspend fun playlistDetail(@Query("id") id: Long): playlistDetail
+
     @GET("song/url/v1")
     suspend fun songUrlV1(@Query("id") id: List<Long> ,@Query("level") level: String): songUrlV1
 //    standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, dolby => 杜比全景声, jymaster => 超清母带

@@ -20,4 +20,5 @@ data class  userPlaylistEachCreator(
     val avatarUrl: String,
     val backgroundUrl: String,
     val userId: Long,
+    val nickname: String
 )
