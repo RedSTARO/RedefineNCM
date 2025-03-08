@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.api.NCMApi
+import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -27,7 +29,8 @@ class DebugActivity: ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    showAllSettingsData(Modifier.padding(innerPadding))
+//                    showAllSettingsData(Modifier.padding(innerPadding))
+                    showUrlStatus(Modifier.padding(innerPadding))
                 }}}
     }
 }
@@ -42,5 +45,11 @@ fun showAllSettingsData(moodifier: Modifier = Modifier){
         text = datas.toString(),
         modifier = Modifier.horizontalScroll(rememberScrollState())
     )
+}
 
+@Composable
+fun showUrlStatus(modifier: Modifier = Modifier){
+    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+    val text = runBlocking { retrofit.songUrlV1(listOf(5264842), "jymaster").data[0].type }
+    Text(text = text.toString(), modifier = modifier)
 }

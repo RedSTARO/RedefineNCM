@@ -7,7 +7,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +32,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import com.redstar.redefinencm.api.data.userPlaylistEach
 
 
@@ -60,20 +66,27 @@ fun showUserPlaylist(retrofit: NCMApi,uid: Long, modifier: Modifier = Modifier) 
         coroutineScope.launch {
             val userPlaylist = retrofit.userPlaylist(uid)
             Log.d("TEST", userPlaylist.code.toString() + userPlaylist.more + userPlaylist.playlist)
-            if (userPlaylist.code == 200) {
-                for (playlist in userPlaylist.playlist) {
-                    println(playlist.name + playlist.trackCount)
-                }
-                playlist = userPlaylist.playlist
-            }
-
+            playlist = userPlaylist.playlist
         }
     }
-    if (playlist.isNotEmpty()) {
-        Text(text = playlist[0].name, modifier = modifier)
-    } else {
-        Text(text = "播放列表为空", modifier = modifier)
+
+    println(playlist)
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(playlist) { userPlaylistEach ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Text(
+                    text = userPlaylistEach.name,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     }
+
 
 }
 
