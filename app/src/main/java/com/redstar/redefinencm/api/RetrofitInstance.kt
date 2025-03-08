@@ -35,19 +35,17 @@ object RetrofitInstance {
                     .build()
             }
 
-            // 如果 URL 包含 "NoCookieUrl"，不添加 Cookie 参数
-            val newRequest = if (NoCookieUrl.any { originalUrl.encodedPath.contains(it) }) {
-                original.newBuilder()
-                    .url(newUrl)
-                    .build()
-            } else {
-                original.newBuilder()
-                    .url(newUrl)
-                    .addHeader("cookie", COOKIE)
+            // 如果 URL 包含 "NoCookieUrl"，则不添加 cookie 参数
+            if (!TimestampUrl.any { originalUrl.encodedPath.contains(it) }) {
+                newUrl = newUrl.newBuilder()
+                    .addQueryParameter("cookie", COOKIE)
                     .build()
             }
-            // 执行请求
-            chain.proceed(newRequest)
+
+
+            chain.proceed(original.newBuilder()
+                .url(newUrl)
+                .build())
         }
         .build()
 
