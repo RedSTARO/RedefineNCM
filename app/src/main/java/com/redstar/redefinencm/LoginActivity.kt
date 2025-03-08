@@ -89,6 +89,12 @@ class LoginActivity : ComponentActivity() {
                             cookieLogin(retrofit)
                             qrLogin(retrofit)
                         }
+                        else{
+//                            TODO: Add a new splash screen
+                            println("Jump to Main")
+                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            startActivity(intent)
+                        }
                     }
                 }
 
