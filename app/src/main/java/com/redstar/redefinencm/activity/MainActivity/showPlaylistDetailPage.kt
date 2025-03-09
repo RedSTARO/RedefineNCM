@@ -3,6 +3,7 @@ package com.redstar.redefinencm.activity.MainActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,7 +42,7 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
         playlistDetail = retrofit.playlistDetail(songlistID)
         playlistSongs = retrofit.playlistTrackAll(songlistID)
     }
-    Column {
+    Column(Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
