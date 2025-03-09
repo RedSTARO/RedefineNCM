@@ -9,6 +9,8 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+//TODO: Move to Cache-Then-Network
+
 object RetrofitInstance {
     private const val BASE_URL = "https://ncm.tryagain.fun/"
     private val REAL_IP = getRealIP()

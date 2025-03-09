@@ -2,23 +2,23 @@ package com.redstar.redefinencm.api
 
 import com.redstar.redefinencm.api.data.*
 import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface NCMApi {
     @GET("/user/account")
     suspend fun userAccount(): userAccount
 
-    @GET("/login/status")
+    @POST("/login/status")
     suspend fun loginStatus(@Query("cookie") cookie: String): loginStatus
 
-    @GET("/login/qr/key")
+    @POST("/login/qr/key")
     suspend fun loginQrKey(): loginQrKey
 
-    @GET("/login/qr/create")
+    @POST("/login/qr/create")
     suspend fun loginQrCreate(@Query("key") key: String, @Query("qrimg") qrimg: Boolean): loginQrCreate
 
-    @GET("/login/qr/check")
+    @POST("/login/qr/check")
     suspend fun loginQrCheck(@Query("key") key: String): loginQrCheck
 
     @GET("/daily_signin") // This will always return 302
