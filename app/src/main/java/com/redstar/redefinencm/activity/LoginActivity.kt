@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import java.io.ByteArrayInputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -66,7 +67,7 @@ class LoginActivity : ComponentActivity() {
                     val cookie = runBlocking {
                         ((RedefineNCMApplication.Companion.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey("cookie")] ?: ""
                     }
-                    println(cookie)
+                    Log.d("Login", "Cookie: $cookie")
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -74,17 +75,15 @@ class LoginActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        println("NOW IN LOGIN ACTIVITY")
-//                        cookieLogin( RetrofitInstance.retrofit.create(NCMApi::class.java)) // TODO: TEST, REMOVE ME
                         if (cookie.isNullOrBlank()) {
-                            println("Jump to Login")
+                            Log.d("Login", "No Cookie, login")
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                             cookieLogin(retrofit)
                             qrLogin(retrofit)
                         }
                         else{
 //                            TODO: Add a new splash screen
-                            println("Jump to Main")
+                            Log.d("Login", "Got cookie, jump to main")
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(intent)
                         }
@@ -193,7 +192,7 @@ fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
             scanStatus = "Scan QR Code to log in" // 更新状态
         } catch (e: Exception) {
             scanStatus = "Failed to generate QR Code"
-            println("Error generating QR code: ${e.message}")
+            Log.d("Login", "qrLogin, Error generating QR code: ${e.message}")
         }
     }
 
@@ -233,7 +232,7 @@ fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                     }
                     delay(2000)
                 } catch (e: Exception) {
-                    println("Error checking QR status: ${e.message}")
+                    Log.d("Login", "qrLogin, Error checking QR status: ${e.message}")
                 }
             }
         }
@@ -244,8 +243,7 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 //    val context = RedefineNCMApplication.getApplicationContext() as Context
     if (retrofit.loginStatus(cookie).data.code == 200) {
         // Save cookie
-        println(cookie)
-        println(retrofit.loginStatus(cookie).data.profile.nickname)
+        Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
         if(!retrofit.loginStatus(cookie).data.profile.nickname.isNullOrBlank()){
 //             定义键
         val COOKIE_KEY = stringPreferencesKey("cookie")

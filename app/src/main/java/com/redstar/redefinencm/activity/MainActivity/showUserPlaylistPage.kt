@@ -28,8 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -39,7 +37,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavController, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
 
@@ -54,13 +51,12 @@ fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavControlle
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(playlist) { userPlaylistEach ->
-            println(userPlaylistEach.name)
-            println(userPlaylistEach.id)
+            Log.d("showUserPlaylistPage", userPlaylistEach.name + userPlaylistEach.id)
             if (userPlaylistEach.name.contains("喜欢的音乐")) {
-                println("FIND FAVOURITE MUSIC")
+                Log.d("showUserPlaylistPage", "Hit SP List: ${userPlaylistEach.name}")
                 playlistCard(userPlaylistEach, "fav", navController, modifier)
             }else if(userPlaylistEach.name.contains("私人雷达")) {
-                println("FIND PRIVATE RADAR")
+                Log.d("showUserPlaylistPage", "Hit SP List: ${userPlaylistEach.name}")
                 playlistCard(userPlaylistEach, "radar", navController, modifier)
             }
             else {

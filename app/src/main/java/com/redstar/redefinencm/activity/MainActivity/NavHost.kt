@@ -1,13 +1,12 @@
 package com.redstar.redefinencm.activity.MainActivity
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.redstar.redefinencm.activity.MainActivity.*
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import androidx.compose.runtime.mutableStateOf
@@ -18,12 +17,12 @@ import androidx.compose.runtime.*
 fun MainScreen() {
     // 创建一个 NavController 实例
     val navController = rememberNavController()
-    println("NOW IN MAIN ACTIVITY")
+    Log.d("Main", "MainStartup, Nav Controller: $navController")
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-    val context = LocalContext.current
     var uid by remember { mutableStateOf(0L) }
     LaunchedEffect(Unit) {
         uid = retrofit.userAccount().account.id
+        Log.d("Main", "UID: $uid")
     }
 
     // 使用 NavHost 管理导航
@@ -41,7 +40,7 @@ fun MainScreen() {
 
         composable("playlistDetailPage/{songId}") { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId")
-            // 播放页
+            Log.d("Main", "Song ID: $songId")
             showPlaylistDetailPage(
                 retrofit = retrofit,
                 songlistID = songId!!.toLong(),
