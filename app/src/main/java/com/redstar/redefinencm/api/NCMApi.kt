@@ -27,6 +27,9 @@ interface NCMApi {
     @GET("/user/playlist")
     suspend fun userPlaylist(@Query("uid") uid: Long): userPlaylist
 
+    @GET("/playlist/track/all")
+    suspend fun playlistTrackAll(@Query("id") id: Long): playlistTrackAll
+
     @GET("/playlist/detail")
     suspend fun playlistDetail(@Query("id") id: Long): playlistDetail
 
