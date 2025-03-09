@@ -245,13 +245,10 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
         // Save cookie
         Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
         if(!retrofit.loginStatus(cookie).data.profile.nickname.isNullOrBlank()){
-//             定义键
-        val COOKIE_KEY = stringPreferencesKey("cookie")
-        // 写入数据
             context.dataStore.edit { preferences ->
-                preferences[COOKIE_KEY] = cookie
+                preferences[stringPreferencesKey("cookie")] = cookie
         }
-//             Jump to Main Activity
+//        Jump to MainActivity
         val intent = Intent(context, MainActivity::class.java)
         context.startActivity(intent)
         }

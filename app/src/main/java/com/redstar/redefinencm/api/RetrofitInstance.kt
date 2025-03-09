@@ -36,7 +36,7 @@ object RetrofitInstance {
             }
 
             // 如果 URL 包含 "NoCookieUrl"，则不添加 cookie 参数
-            if (!TimestampUrl.any { originalUrl.encodedPath.contains(it) }) {
+            if (!NoCookieUrl.any { originalUrl.encodedPath.contains(it) }) {
                 newUrl = newUrl.newBuilder()
                     .addQueryParameter("cookie", COOKIE)
                     .build()
