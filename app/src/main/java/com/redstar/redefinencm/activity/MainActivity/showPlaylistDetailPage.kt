@@ -107,7 +107,7 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
 
                         // 封面图片
                         AsyncImage(
-                            model = song.al?.picUrl,
+                            model = song.al.picUrl,
                             contentDescription = "Album Cover",
                             modifier = Modifier
                                 .size(60.dp) // 增大图片尺寸
@@ -123,12 +123,12 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                                 style = MaterialTheme.typography.titleMedium // 使用更合适的字体
                             )
                             Text(
-                                text = song.ar?.getOrNull(0)?.name ?: "未知歌手",
+                                text = song.ar.getOrNull(0)?.name ?: "未知歌手",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f) // 颜色稍浅
                             )
                             Text(
-                                text = song.al?.name ?: "未知专辑",
+                                text = song.al.name,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) // 更浅的颜色
                             )
