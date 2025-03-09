@@ -44,7 +44,7 @@ fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavControlle
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             val userPlaylist = retrofit.userPlaylist(uid)
-            Log.d("TEST", userPlaylist.code.toString() + userPlaylist.more + userPlaylist.playlist)
+            Log.d("showUserPlaylistPage", userPlaylist.code.toString() + userPlaylist.more + userPlaylist.playlist)
             playlist = userPlaylist.playlist
         }
     }
