@@ -9,6 +9,9 @@ interface NCMApi {
     @GET("/user/account")
     suspend fun userAccount(): userAccount
 
+    @GET("/user/detail")
+    suspend fun userDetail(@Query("uid") uid: Long): userDetail
+
     @POST("/login/status")
     suspend fun loginStatus(@Query("cookie") cookie: String): loginStatus
 

@@ -1,17 +1,21 @@
 package com.redstar.redefinencm.activity.MainActivity
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -28,6 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -38,32 +46,93 @@ import kotlinx.coroutines.launch
 @Composable
 fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavController, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
+    var userPlaylist by remember { mutableStateOf<userPlaylist?>(null) }
     var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
+    var userDetail by remember { mutableStateOf<userDetail?>(null) }
+    val scrollState = rememberScrollState() // 监听滚动状态
+
 
     // 异步加载用户的播放列表
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val userPlaylist = retrofit.userPlaylist(uid)
-            Log.d("showUserPlaylistPage", userPlaylist.code.toString() + userPlaylist.more + userPlaylist.playlist)
-            playlist = userPlaylist.playlist
+            userPlaylist = retrofit.userPlaylist(uid)
+            userDetail = retrofit.userDetail(uid)
+            Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
+            Log.d("showUserPlaylistPage", userPlaylist!!.code.toString() + userPlaylist!!.playlist)
+            playlist = userPlaylist!!.playlist
         }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(playlist) { userPlaylistEach ->
-            Log.d("showUserPlaylistPage", userPlaylistEach.name + userPlaylistEach.id)
-            if (userPlaylistEach.name.contains("喜欢的音乐")) {
-                Log.d("showUserPlaylistPage", "Hit SP List: ${userPlaylistEach.name}")
-                playlistCard(userPlaylistEach, "fav", navController, modifier)
-            }else if(userPlaylistEach.name.contains("私人雷达")) {
-                Log.d("showUserPlaylistPage", "Hit SP List: ${userPlaylistEach.name}")
-                playlistCard(userPlaylistEach, "radar", navController, modifier)
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp) // 背景固定高度，避免拉伸
+        ) {
+            AsyncImage(
+                model = userDetail?.profile?.backgroundUrl,
+                contentDescription = "User Background",
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Crop // 确保图片填充整个 Box
+
+            )
+
+            // 半透明遮罩，提升文字可读性
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f))
+                        )
+                    )
+            )
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AsyncImage(
+                    model = userDetail?.profile?.avatarUrl,
+                    contentDescription = "User Avatar",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .border(3.dp, Color.White, CircleShape)
+                )
+
+                Text(
+                    text = userDetail?.profile?.nickname ?: "Unknown User",
+                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                Text(
+                    text = "ID: ${userDetail?.profile?.userId ?: "N/A"}",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.8f))
+                )
             }
-            else {
-                playlistCard(userPlaylistEach, "no", navController, modifier)
+        }
+
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(playlist) { userPlaylistEach ->
+                playlistCard(
+                    userPlaylistEach,
+                    when {
+                        userPlaylistEach.name.contains("喜欢的音乐") -> "fav"
+                        userPlaylistEach.name.contains("私人雷达") -> "radar"
+                        else -> "no"
+                    },
+                    navController,
+                    modifier
+                )
             }
         }
     }
+
 }
 
 @Composable

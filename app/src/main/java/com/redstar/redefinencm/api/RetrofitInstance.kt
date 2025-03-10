@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.api
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.dataStore
@@ -42,6 +43,7 @@ object RetrofitInstance {
                     .build()
             }
 
+            Log.d("RetrofitInstance", newUrl.toString())
 
             chain.proceed(original.newBuilder()
                 .url(newUrl)
