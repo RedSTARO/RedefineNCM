@@ -1,10 +1,17 @@
 package com.redstar.redefinencm.services
 
+import androidx.core.net.toUri
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import com.redstar.redefinencm.api.NCMApi
+import com.redstar.redefinencm.api.RetrofitInstance
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class playbackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
@@ -15,8 +22,21 @@ class playbackService : MediaSessionService() {
         // 初始化 ExoPlayer
         player = ExoPlayer.Builder(this).build()
 
-        // test onlY
-        addMediaItemFromUri(uri = "http://m10.music.126.net/20250313200112/9faf4f6e5a64bfac59b3f07cbe4fffbd/ymusic/0fd6/4f65/43ed/a8772889f38dfcb91c04da915b301617.mp3?vuutv=JS601U/JkdN1WLE1Q2JtNBMGtFaNWpdeIkkh234vNStnEpweLKjw6FQtJpJHklp+FMk49GFJC4nzukzLUCoSrkvOkWjSqGivCWgIwQfBhi0=")
+        // TODO: test only, REMOVE ME
+        CoroutineScope(Dispatchers.IO).launch {
+            val exampled =  RetrofitInstance.retrofit.create(NCMApi::class.java).songDetail(
+                listOf(1379848038)).songs[0]
+            val exampleu = RetrofitInstance.retrofit.create(NCMApi::class.java).songUrlV1(listOf(1379848038), "jymaster").data[0]
+            println(exampleu)
+            withContext(Dispatchers.Main) {
+                addMediaItemFromUri(
+                    exampleu.url,
+                    exampled.name,
+                    exampled.al.name,
+                    exampled.al.picUrl
+                )
+            }
+        }
 
         // 创建 MediaSession
         mediaSession = MediaSession.Builder(this, player).build()
@@ -35,14 +55,15 @@ class playbackService : MediaSessionService() {
         super.onDestroy()
     }
 
-    fun addMediaItemFromUri(uri: String){
+    fun addMediaItemFromUri(uri: String, name: String, alName: String, picUrl: String) {
         // 设置媒体内容（示例）
         val mediaItem = MediaItem.Builder()
             .setUri(uri) // 替换为实际的音频URL
             .setMediaMetadata(
                 MediaMetadata.Builder()
-                    .setTitle("示例歌曲")
-                    .setArtist("示例艺术家")
+                    .setTitle(name)
+                    .setArtist(alName)
+                    .setArtworkUri(picUrl.toUri())
                     .build()
             )
             .build()
