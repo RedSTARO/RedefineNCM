@@ -112,6 +112,8 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
             Box(Modifier.fillMaxWidth(),
                 Alignment.Center){
                 Button(onClick = {
+                    mediaController?.stop()
+                    mediaController?.clearMediaItems()
                     CoroutineScope(Dispatchers.IO).launch {
                         val songDetails = retrofit.playlistTrackAll(songlistID).songs
                         val songList = songDetails.map { it.id }
@@ -138,12 +140,10 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                                 mediaController?.addMediaItem(mediaItem)
                             }
                         }
-                        withContext(Dispatchers.Main) {
-                            mediaController?.prepare()
-                            mediaController?.play()
-                        }
                     }
-
+                    mediaController?.setShuffleModeEnabled(true)
+                    mediaController?.prepare()
+                    mediaController?.play()
 
                 }) {
                     Text(text = "播放全部")
