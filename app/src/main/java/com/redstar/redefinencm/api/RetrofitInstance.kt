@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 //TODO: Move to Cache-Then-Network
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://ncm.tryagain.fun/"
+    private val BASE_URL = getBaseUrl()
     private val REAL_IP = getRealIP()
     private val COOKIE = getCookie()
     private val NoCookieUrl = listOf("login")
@@ -66,6 +66,16 @@ fun getRealIP(): String {
 
 fun getCookie(): String {
     return runBlocking {
-        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey("cookie")] ?: ""
+        (RedefineNCMApplication.getApplicationContext() as Context).dataStore.data.first()[stringPreferencesKey(
+            "cookie"
+        )] ?: ""
+    }
+}
+
+fun getBaseUrl(): String {
+    return runBlocking {
+        (RedefineNCMApplication.getApplicationContext() as Context).dataStore.data.first()[stringPreferencesKey(
+            "server"
+        )] ?: ""
     }
 }
