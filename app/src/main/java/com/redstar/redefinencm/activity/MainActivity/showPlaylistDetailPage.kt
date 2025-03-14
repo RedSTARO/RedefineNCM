@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.activity.MainActivity
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +85,16 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
             }
+
+            Box(Modifier.fillMaxWidth(),
+                Alignment.Center){
+                Button(onClick = {}) {
+                    Text(text = "播放全部")
+                }
+            }
+
+            Spacer(Modifier.padding(16.dp))
+
         }
         LazyColumn {
             itemsIndexed(playlistSongs?.songs ?: emptyList()) { index, song ->
