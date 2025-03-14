@@ -13,11 +13,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.MoreExecutors
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.services.playbackService
-
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
-
 
 
 class MainActivity : ComponentActivity() {
@@ -46,15 +45,11 @@ class MainActivity : ComponentActivity() {
         }
         val sessionToken = SessionToken(this, ComponentName(this, playbackService::class.java))
         val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-//        controllerFuture.addListener(
-//            {
-//                // Call controllerFuture.get() to retrieve the MediaController.
-//                // MediaController implements the Player interface, so it can be
-//                // attached to the PlayerView UI component.
-//                playerView.setPlayer(controllerFuture.get())
-//            },
-//            MoreExecutors.directExecutor()
-//        )
+        controllerFuture.addListener({
+            // MediaController is available here with controllerFuture.get()
+
+        }, MoreExecutors.directExecutor())
+
     }
 
     override fun onStop() {

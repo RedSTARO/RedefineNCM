@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.activity.MainActivity
 
+import android.content.ComponentName
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,18 +29,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
+import com.redstar.redefinencm.services.playbackService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
 fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: NavController, modifier: Modifier = Modifier) {
     var playlistDetail by remember { mutableStateOf<playlistDetail?>(null) }
     var playlistSongs by remember { mutableStateOf<playlistTrackAll?>(null) }
+    val context = LocalContext.current
+    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+
+    LaunchedEffect(Unit) {
+        val sessionToken =
+            SessionToken(context, ComponentName(context, playbackService::class.java))
+        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        mediaController = controllerFuture.await()
+    }
 //    var playUrls by remember { mutableStateOf<songUrlV1?>(null) }
     LaunchedEffect(Unit) {
         playlistDetail = retrofit.playlistDetail(songlistID)
@@ -89,7 +111,41 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
 
             Box(Modifier.fillMaxWidth(),
                 Alignment.Center){
-                Button(onClick = {}) {
+                Button(onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val songDetails = retrofit.playlistTrackAll(songlistID).songs
+                        val songList = songDetails.map { it.id }
+                        val songUrlMap = retrofit.songUrlV1(songList, "jymaster").data.associateBy(
+                            { it.id },
+                            { it.url })
+
+                        val songInfoMap =
+                            songDetails.associateBy({ it.id }, { it to songUrlMap[it.id] })
+                        for (eachSong in songInfoMap) {
+                            val mediaItem = MediaItem.Builder()
+                                .setUri(eachSong.value.second)
+                                .setMediaMetadata(
+                                    MediaMetadata.Builder()
+                                        .setTitle(eachSong.value.first.name)
+                                        .setArtist(
+                                            eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手"
+                                        )
+                                        .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
+                                        .build()
+                                )
+                                .build()
+                            withContext(Dispatchers.Main) {
+                                mediaController?.addMediaItem(mediaItem)
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            mediaController?.prepare()
+                            mediaController?.play()
+                        }
+                    }
+
+
+                }) {
                     Text(text = "播放全部")
                 }
             }
