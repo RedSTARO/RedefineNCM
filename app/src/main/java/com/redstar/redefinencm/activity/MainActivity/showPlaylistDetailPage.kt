@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.activity.MainActivity
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.data.*
-
+import com.redstar.redefinencm.api.data.playlistDetail
+import com.redstar.redefinencm.api.data.playlistTrackAll
 
 
 @Composable
@@ -104,7 +105,12 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                         .padding(horizontal = 16.dp, vertical = 8.dp),  // 添加间距
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // 提供阴影
                     shape = RoundedCornerShape(12.dp), // 圆角
-                    onClick = { } // 点击事件
+                    onClick = {
+                        Log.d(
+                            "showPlaylistDetail",
+                            "Selected Song ${song.name} with id ${song.id}"
+                        )
+                    } // 点击事件
                 ) {
                     Row(
                         modifier = Modifier
