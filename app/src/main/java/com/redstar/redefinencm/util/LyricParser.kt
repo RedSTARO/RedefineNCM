@@ -1,6 +1,7 @@
 package com.redstar.redefinencm.util
 
 import android.util.Log
+import com.redstar.redefinencm.BuildConfig
 import java.io.BufferedReader
 import java.io.StringReader
 import java.util.regex.Matcher
@@ -11,6 +12,10 @@ class LyricParser {
         private const val TAG = "LyricParser"
 
         fun parse(lyric: String): LinkedHashMap<Long?, String?> {
+            var startTime = 0L
+            if (BuildConfig.DEBUG) {
+                startTime = System.currentTimeMillis()
+            }
             val lyricPair = LinkedHashMap<Long?, String?>()
             val regexWord = Regex(".*](.*)")
             val regexTime = Regex("\\[([0-9.:]*)]")
@@ -18,7 +23,9 @@ class LyricParser {
             var line: String? = ""
             while (reader.readLine()?.also { line = it } != null) {
                 line?.let {
-                    Log.d(TAG, "Origin line: $it")
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Origin line: $it")
+                    }
                     val matchWord = regexWord.find(it)
                     val word = matchWord?.groups?.get(1)?.value
                     val matchTime = regexTime.findAll(it)
@@ -26,9 +33,15 @@ class LyricParser {
                         val timeString = item.groups[1]?.value
                         val time = parseTimeString(timeString ?: "")
                         lyricPair[time] = word
-                        Log.d(TAG, "Time:$time , Content: $word")
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Time:$time , Content: $word")
+                        }
                     }
                 }
+            }
+            if (BuildConfig.DEBUG) {
+                val costTime = System.currentTimeMillis() - startTime
+                Log.d(TAG, "Parse completed! Total time cost: $costTime ms")
             }
             reader.close()
             return lyricPair
