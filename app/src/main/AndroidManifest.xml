@@ -49,6 +49,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.NowPlayingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.RedefineNCM">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".services.playbackService"
             android:foregroundServiceType="mediaPlayback"

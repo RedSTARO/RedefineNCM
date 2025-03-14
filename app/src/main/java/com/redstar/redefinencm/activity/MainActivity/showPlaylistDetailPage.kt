@@ -62,7 +62,7 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
     }
-//    var playUrls by remember { mutableStateOf<songUrlV1?>(null) }
+
     LaunchedEffect(Unit) {
         playlistDetail = retrofit.playlistDetail(songlistID)
         playlistSongs = retrofit.playlistTrackAll(songlistID)
@@ -141,7 +141,7 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                             }
                         }
                     }
-                    mediaController?.setShuffleModeEnabled(true)
+//                    mediaController?.setShuffleModeEnabled(true)
                     mediaController?.prepare()
                     mediaController?.play()
 
