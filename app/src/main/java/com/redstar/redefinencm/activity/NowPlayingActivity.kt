@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import coil.compose.AsyncImage
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.guava.await
@@ -71,6 +72,9 @@ fun PlaybackController() {
         ) {
             // TODO: NowPlaying
             Text(text = "当前播放", fontSize = 20.sp, style = MaterialTheme.typography.headlineSmall)
+            Text(text = mediaController?.mediaMetadata?.title.toString())
+            Text(text = mediaController?.mediaMetadata?.artist.toString())
+            AsyncImage(model = mediaController?.mediaMetadata?.artworkUri, contentDescription = null)
 
             Spacer(modifier = Modifier.height(20.dp))
 
