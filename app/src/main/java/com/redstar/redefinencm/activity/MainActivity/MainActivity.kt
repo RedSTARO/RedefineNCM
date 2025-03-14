@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.services.playbackService
 
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
@@ -40,7 +41,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        Log.d("MainActivity", "onStart")
+        if (BuildConfig.DEBUG) {
+            Log.d("MainActivity", "onStart")
+        }
         val sessionToken = SessionToken(this, ComponentName(this, playbackService::class.java))
         val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
 //        controllerFuture.addListener(

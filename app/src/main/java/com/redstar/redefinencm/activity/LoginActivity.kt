@@ -45,6 +45,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import kotlinx.coroutines.flow.first
@@ -67,7 +68,9 @@ class LoginActivity : ComponentActivity() {
                     val cookie = runBlocking {
                         ((RedefineNCMApplication.Companion.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey("cookie")] ?: ""
                     }
-                    Log.d("Login", "Cookie: $cookie")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("Login", "Cookie: $cookie")
+                    }
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -76,14 +79,18 @@ class LoginActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         if (cookie.isNullOrBlank()) {
-                            Log.d("Login", "No Cookie, login")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("Login", "No Cookie, login")
+                            }
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                             cookieLogin(retrofit)
                             qrLogin(retrofit)
                         }
                         else{
 //                            TODO: Add a new splash screen
-                            Log.d("Login", "Got cookie, jump to main")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("Login", "Got cookie, jump to main")
+                            }
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(intent)
                         }

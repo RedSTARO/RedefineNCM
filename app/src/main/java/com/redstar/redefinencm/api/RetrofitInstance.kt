@@ -2,6 +2,7 @@ package com.redstar.redefinencm.api
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.dataStore
 import kotlinx.coroutines.flow.first
@@ -42,8 +43,9 @@ object RetrofitInstance {
                     .addQueryParameter("cookie", COOKIE)
                     .build()
             }
-
-            Log.d("RetrofitInstance", newUrl.toString())
+            if (BuildConfig.DEBUG) {
+                Log.d("RetrofitInstance", newUrl.toString())
+            }
 
             chain.proceed(original.newBuilder()
                 .url(newUrl)

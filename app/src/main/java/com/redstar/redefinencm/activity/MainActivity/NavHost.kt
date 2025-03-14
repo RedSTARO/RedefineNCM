@@ -11,18 +11,23 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
+import com.redstar.redefinencm.BuildConfig
 
 
 @Composable
 fun MainScreen() {
     // 创建一个 NavController 实例
     val navController = rememberNavController()
-    Log.d("Main", "MainStartup, Nav Controller: $navController")
+    if (BuildConfig.DEBUG) {
+        Log.d("Main", "MainStartup, Nav Controller: $navController")
+    }
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     var uid by remember { mutableStateOf<Long?>(null) }
     LaunchedEffect(Unit) {
         uid = retrofit.userAccount().account.id
-        Log.d("Main", "UID: $uid")
+        if (BuildConfig.DEBUG) {
+            Log.d("Main", "UID: $uid")
+        }
     }
 
     if (uid != null) {
@@ -41,7 +46,9 @@ fun MainScreen() {
 
             composable("playlistDetailPage/{songId}") { backStackEntry ->
                 val songId = backStackEntry.arguments?.getString("songId")
-                Log.d("Main", "Song ID: $songId")
+                if (BuildConfig.DEBUG) {
+                    Log.d("Main", "SongList ID: $songId")
+                }
                 showPlaylistDetailPage(
                     retrofit = retrofit,
                     songlistID = songId!!.toLong(),

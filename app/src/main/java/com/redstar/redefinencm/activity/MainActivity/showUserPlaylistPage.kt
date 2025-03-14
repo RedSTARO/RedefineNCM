@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.*
 import kotlinx.coroutines.launch
@@ -57,8 +58,13 @@ fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavControlle
         coroutineScope.launch {
             userPlaylist = retrofit.userPlaylist(uid)
             userDetail = retrofit.userDetail(uid)
-            Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
-            Log.d("showUserPlaylistPage", userPlaylist!!.code.toString() + userPlaylist!!.playlist)
+            if (BuildConfig.DEBUG) {
+                Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
+                Log.d(
+                    "showUserPlaylistPage",
+                    userPlaylist!!.code.toString() + userPlaylist!!.playlist
+                )
+            }
             playlist = userPlaylist!!.playlist
         }
     }
