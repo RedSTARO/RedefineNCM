@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
 
 class NowPlayingActivity : ComponentActivity() {
@@ -72,11 +76,22 @@ class NowPlayingActivity : ComponentActivity() {
 fun PlaybackController() {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val context = RedefineNCMApplication.getApplicationContext() as Context
+    val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
+    val metadata by metadataFlow.collectAsState()
 
     LaunchedEffect(Unit) {
         val sessionToken = SessionToken(context, ComponentName(context, playbackService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
+        mediaController?.let { controller ->
+            val listener = object : Player.Listener {
+                override fun onMediaMetadataChanged(metadata: MediaMetadata) {
+                    metadataFlow.value = metadata
+                }
+            }
+            controller.addListener(listener)
+            metadataFlow.value = controller.mediaMetadata // 初始化
+        }
     }
 
     Card(
@@ -91,15 +106,13 @@ fun PlaybackController() {
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // TODO: NowPlaying
             Text(text = "当前播放", fontSize = 20.sp, style = MaterialTheme.typography.headlineSmall)
-            Text(text = mediaController?.mediaMetadata?.title.toString())
-            Text(text = mediaController?.mediaMetadata?.artist.toString())
-            AsyncImage(model = mediaController?.mediaMetadata?.artworkUri, contentDescription = null)
+            Text(text = metadata?.title?.toString() ?: "未知标题")
+            Text(text = metadata?.artist?.toString() ?: "未知艺术家")
+            AsyncImage(model = metadata?.artworkUri, contentDescription = "专辑封面")
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 播放/暂停按钮
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.SpaceEvenly
@@ -107,48 +120,46 @@ fun PlaybackController() {
                 Button(
                     onClick = { mediaController?.pause() },
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = "暂停")
-                }
+                ) { Text(text = "暂停") }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = { mediaController?.play() },
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = "播放")
-                }
+                ) { Text(text = "播放") }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = { mediaController?.seekToNext() },
                     modifier = Modifier.weight(1f)
-                ){
-                    Text(text = "下一首")
-                }
+                ) { Text(text = "下一首") }
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Button(
                     onClick = { mediaController?.seekToPrevious() },
                     modifier = Modifier.weight(1f)
-                ){
-                    Text(text = "上一首")
-                }
+                ) { Text(text = "上一首") }
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Button(
-                    onClick = {},
+                    onClick = { /* TODO: 添加到喜欢 */ },
                     modifier = Modifier.weight(1f)
-                ){
-                    Text(text = "添加到喜欢")
-                }
+                ) { Text(text = "添加到喜欢") }
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Button(
-                    onClick = {mediaController?.setShuffleModeEnabled(!mediaController!!.shuffleModeEnabled)},
+                    onClick = {
+                        mediaController?.setShuffleModeEnabled(
+                            !mediaController?.shuffleModeEnabled!!
+                        )
+                    },
                     modifier = Modifier.weight(1f)
-                ){
-                    Text(text = "随机")
-                }
+                ) { Text(text = "随机") }
             }
         }
     }
