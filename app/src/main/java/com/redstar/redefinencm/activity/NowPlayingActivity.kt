@@ -1,29 +1,38 @@
 package com.redstar.redefinencm.activity
 
+import android.R
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,6 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.MediaMetadata
@@ -55,13 +69,26 @@ class NowPlayingActivity : ComponentActivity() {
             RedefineNCMTheme {
                 Scaffold(
                     topBar = {
-                        CenterAlignedTopAppBar(title = { Text("Now Playing") })
-                    }
+                        CenterAlignedTopAppBar(
+                            title = {
+                                Text(
+                                    "Now Playing",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            },
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.background
                 ) { paddingValues ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues),
+                            .padding(paddingValues)
+                            .background(MaterialTheme.colorScheme.background),
                         contentAlignment = Alignment.Center
                     ) {
                         PlaybackController()
@@ -95,72 +122,139 @@ fun PlaybackController() {
     }
 
     Card(
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(24.dp), // 更大圆角，更现代
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 增强阴影
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
-            .fillMaxWidth(0.85f)
+            .fillMaxWidth(0.9f) // 稍微增加宽度占比
             .padding(16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(24.dp) // 增加内边距
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "当前播放", fontSize = 20.sp, style = MaterialTheme.typography.headlineSmall)
-            Text(text = metadata?.title?.toString() ?: "未知标题")
-            Text(text = metadata?.artist?.toString() ?: "未知艺术家")
-            AsyncImage(model = metadata?.artworkUri, contentDescription = "专辑封面")
+            // 专辑封面
+            AsyncImage(
+                model = metadata?.artworkUri,
+                contentDescription = "专辑封面",
+                modifier = Modifier
+                    .size(200.dp) // 固定大小，突出封面
+                    .clip(RoundedCornerShape(12.dp)) // 圆角封面
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
+            // 歌曲信息
+            Text(
+                text = metadata?.title?.toString() ?: "未知标题",
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+            Text(
+                text = metadata?.artist?.toString() ?: "未知艺术家",
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 控制按钮
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 上一首
+                PlaybackButton(
+                    onClick = { mediaController?.seekToPrevious() },
+                    icon = painterResource(R.drawable.ic_media_previous),
+                    contentDescription = "上一首"
+                )
+
+                // 播放/暂停
+                PlaybackButton(
+                    onClick = { if (mediaController?.isPlaying == true) mediaController?.pause() else mediaController?.play() },
+                    icon = painterResource(
+                        if (mediaController?.isPlaying == true) R.drawable.ic_media_pause
+                        else R.drawable.ic_media_play
+                    ),
+                    contentDescription = "播放/暂停",
+                    modifier = Modifier.size(64.dp), // 更大按钮突出主操作
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+
+                // 下一首
+                PlaybackButton(
+                    onClick = { mediaController?.seekToNext() },
+                    icon = painterResource(R.drawable.ic_media_next),
+                    contentDescription = "下一首"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 次级按钮
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { mediaController?.pause() },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "暂停") }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = { mediaController?.play() },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "播放") }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = { mediaController?.seekToNext() },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "下一首") }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = { mediaController?.seekToPrevious() },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "上一首") }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
                     onClick = { /* TODO: 添加到喜欢 */ },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "添加到喜欢") }
-
-                Spacer(modifier = Modifier.width(16.dp))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("喜欢", color = MaterialTheme.colorScheme.onSecondary) }
 
                 Button(
                     onClick = {
-                        mediaController?.setShuffleModeEnabled(
-                            !mediaController?.shuffleModeEnabled!!
-                        )
+                        mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!)
                     },
-                    modifier = Modifier.weight(1f)
-                ) { Text(text = "随机") }
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
             }
         }
     }
+}
+
+@Composable
+fun PlaybackButton(
+    onClick: () -> Unit,
+    icon: Painter,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.size(48.dp), // 默认大小
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopAppBarDefaults.centerAlignedTopAppBarColors(
+    containerColor: Color,
+    titleContentColor: Color
+): TopAppBarColors {
+    return centerAlignedTopAppBarColors(
+        containerColor = containerColor,
+        titleContentColor = titleContentColor
+    )
 }
