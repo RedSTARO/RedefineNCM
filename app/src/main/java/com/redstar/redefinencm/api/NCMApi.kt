@@ -1,6 +1,18 @@
 package com.redstar.redefinencm.api
 
-import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.api.data.dailysignin
+import com.redstar.redefinencm.api.data.innerVersion
+import com.redstar.redefinencm.api.data.loginQrCheck
+import com.redstar.redefinencm.api.data.loginQrCreate
+import com.redstar.redefinencm.api.data.loginQrKey
+import com.redstar.redefinencm.api.data.loginStatus
+import com.redstar.redefinencm.api.data.playlistDetail
+import com.redstar.redefinencm.api.data.playlistTrackAll
+import com.redstar.redefinencm.api.data.songDetail
+import com.redstar.redefinencm.api.data.songUrlV1
+import com.redstar.redefinencm.api.data.userAccount
+import com.redstar.redefinencm.api.data.userDetail
+import com.redstar.redefinencm.api.data.userPlaylist
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -42,4 +54,7 @@ interface NCMApi {
 
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): songDetail
+
+    @GET("/inner/version")
+    suspend fun innerVersion(): innerVersion
 }
