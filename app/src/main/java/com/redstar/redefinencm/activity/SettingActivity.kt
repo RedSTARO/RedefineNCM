@@ -148,10 +148,14 @@ fun serverItem() {
 
     Button(onClick = {
         coroutineScope.launch(Dispatchers.IO) {
-            code = retrofit.innerVersion().code
-            data = retrofit.innerVersion().data.version
+            try {
+                code = retrofit.innerVersion(settingValue + "inner/version").code
+                data = retrofit.innerVersion(settingValue + "inner/version").data.version
+            } catch (e: Exception) {
+                code = 0
+                data = e.message.toString()
+            }
         }
-
         if (settingValue.isNotEmpty()) {
             saveToDataStore(settingValue)
         }
@@ -161,6 +165,8 @@ fun serverItem() {
 
     if (code == 200) {
         Text("Server version: $data, OK")
+    } else {
+        Text("Error: $code, message: $data")
     }
 
 }

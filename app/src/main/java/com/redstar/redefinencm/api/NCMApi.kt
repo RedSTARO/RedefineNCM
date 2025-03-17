@@ -16,6 +16,7 @@ import com.redstar.redefinencm.api.data.userPlaylist
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 interface NCMApi {
     @GET("/user/account")
@@ -55,6 +56,7 @@ interface NCMApi {
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): songDetail
 
-    @GET("/inner/version")
-    suspend fun innerVersion(): innerVersion
+    @GET
+    //@GET("/inner/version")
+    suspend fun innerVersion(@Url url: String): innerVersion
 }
