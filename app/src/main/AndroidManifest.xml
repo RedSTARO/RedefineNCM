@@ -63,7 +63,7 @@
             android:name=".services.playbackService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
-            android:permission="TODO">
+            android:permission="android.permission.FOREGROUND_SERVICE"> <!-- To avoid Warning:(62, 10) Exported service does not require permission -->
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
