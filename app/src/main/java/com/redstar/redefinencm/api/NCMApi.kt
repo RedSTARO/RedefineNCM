@@ -6,6 +6,7 @@ import com.redstar.redefinencm.api.data.loginQrCheck
 import com.redstar.redefinencm.api.data.loginQrCreate
 import com.redstar.redefinencm.api.data.loginQrKey
 import com.redstar.redefinencm.api.data.loginStatus
+import com.redstar.redefinencm.api.data.lyric
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
 import com.redstar.redefinencm.api.data.songDetail
@@ -58,6 +59,9 @@ interface NCMApi {
 
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): songDetail
+
+    @GET("/lyric")
+    suspend fun lyric(@Query("id") id: Long): lyric
 
     //@GET("/inner/version")
     @GET
