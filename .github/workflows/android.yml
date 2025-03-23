@@ -53,7 +53,7 @@ jobs:
 
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v') # 仅在 tag 推送时执行
+    if: startsWith(github.ref, 'refs/tags/v') # Only on tag pushed
     runs-on: ubuntu-latest
 
     steps:
@@ -72,7 +72,7 @@ jobs:
           files: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
           tag_name: ${{ github.ref_name }}
           release_name: "Release ${{ github.ref_name }}"
-          body: "自动构建的 Release 版本 🎉"
+          body: "Auto build Release Version! 🎉"
           draft: false
           prerelease: true
         env:
