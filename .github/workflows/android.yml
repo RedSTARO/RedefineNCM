@@ -3,6 +3,7 @@ name: Android CI
 on:
   push:
     branches: [ "master" ]
+    tags: [ "v*" ] # 当 tag 以 "v" 开头时触发
   pull_request:
     branches: [ "master" ]
 
@@ -24,7 +25,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK
+      - name: Build APK
         run: ./gradlew assembleRelease
 
       - name: Sign APK
@@ -36,12 +37,43 @@ jobs:
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          # override default build-tools version (33.0.0)
+          BUILD_TOOLS_VERSION: "34.0.0"
+
 
       - name: Rename Signed APK
         run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
 
-      - name: Upload Release APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RedefineNCM_${{ github.ref_name }}
           path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') # 仅在 tag 推送时执行
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download APK from Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: RedefineNCM_${{ github.ref_name }}
+          path: app/build/outputs/apk/release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+          tag_name: ${{ github.ref_name }}
+          release_name: "Release ${{ github.ref_name }}"
+          body: "自动构建的 Release 版本 🎉"
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
