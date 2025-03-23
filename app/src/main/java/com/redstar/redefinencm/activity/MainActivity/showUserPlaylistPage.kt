@@ -35,22 +35,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.api.data.userDetail
+import com.redstar.redefinencm.api.data.userPlaylist
+import com.redstar.redefinencm.api.data.userPlaylistEach
 import kotlinx.coroutines.launch
 
 @Composable
-fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavController, modifier: Modifier = Modifier) {
+fun showUserPlaylistPage(
+    retrofit: NCMApi,
+    uid: Long,
+    navController: NavController,
+) {
     val coroutineScope = rememberCoroutineScope()
     var userPlaylist by remember { mutableStateOf<userPlaylist?>(null) }
     var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
     var userDetail by remember { mutableStateOf<userDetail?>(null) }
-    val scrollState = rememberScrollState() // 监听滚动状态
+    rememberScrollState() // 监听滚动状态
 
 
     // 异步加载用户的播放列表
@@ -132,8 +137,7 @@ fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavControlle
                         userPlaylistEach.name.contains("私人雷达") -> "radar"
                         else -> "no"
                     },
-                    navController,
-                    modifier
+                    navController
                 )
             }
         }
@@ -142,7 +146,11 @@ fun showUserPlaylistPage(retrofit: NCMApi, uid: Long,navController: NavControlle
 }
 
 @Composable
-fun playlistCard(userPlaylistEach: userPlaylistEach,specialCard: String, navController: NavController, modifier: Modifier = Modifier){
+fun playlistCard(
+    userPlaylistEach: userPlaylistEach,
+    specialCard: String,
+    navController: NavController,
+) {
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp) // 设置卡片之间的间距
@@ -188,10 +196,9 @@ fun playlistCard(userPlaylistEach: userPlaylistEach,specialCard: String, navCont
                 )
             }
             // TODO: Special cards
-            if (specialCard == "fav"){
+            if (specialCard == "fav") {
                 Text(text = "心动模式todo")
-            }
-            else if (specialCard == "radar"){
+            } else if (specialCard == "radar") {
                 Text(text = "私人雷达todo")
             }
         }

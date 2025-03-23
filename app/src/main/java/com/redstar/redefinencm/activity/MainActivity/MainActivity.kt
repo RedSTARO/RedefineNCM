@@ -103,7 +103,12 @@ class MainActivity : ComponentActivity() {
                             onClick = {
                                 // 启动 NowPlayingActivity
                                 val context = this
-                                context.startActivity(Intent(context, NowPlayingActivity::class.java))
+                                context.startActivity(
+                                    Intent(
+                                        context,
+                                        NowPlayingActivity::class.java
+                                    )
+                                )
                             },
                             modifier = Modifier
                                 .size(100.dp)
@@ -157,8 +162,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                     showPlaylistDetailPage(
                                         retrofit = retrofit,
-                                        songlistID = songId!!.toLong(),
-                                        navController = navController
+                                        songlistID = songId!!.toLong()
                                     )
                                 }
                             }

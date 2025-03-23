@@ -36,7 +36,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.playlistDetail
@@ -50,7 +49,10 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: NavController, modifier: Modifier = Modifier) {
+fun showPlaylistDetailPage(
+    songlistID: Long,
+    retrofit: NCMApi,
+) {
     var playlistDetail by remember { mutableStateOf<playlistDetail?>(null) }
     var playlistSongs by remember { mutableStateOf<playlistTrackAll?>(null) }
     val context = LocalContext.current
@@ -109,8 +111,10 @@ fun showPlaylistDetailPage(songlistID: Long, retrofit: NCMApi,navController: Nav
                 )
             }
 
-            Box(Modifier.fillMaxWidth(),
-                Alignment.Center){
+            Box(
+                Modifier.fillMaxWidth(),
+                Alignment.Center
+            ) {
                 Button(onClick = {
                     mediaController?.stop()
                     mediaController?.clearMediaItems()

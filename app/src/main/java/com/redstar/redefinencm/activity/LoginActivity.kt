@@ -81,15 +81,14 @@ class LoginActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        if (cookie.isNullOrBlank()) {
+                        if (cookie.isBlank()) {
                             if (BuildConfig.DEBUG) {
                                 Log.d("Login", "No Cookie, login")
                             }
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                             cookieLogin(retrofit)
 //                            qrLogin(retrofit) // Disabled QR login due to 高使用门槛 :>
-                        }
-                        else{
+                        } else {
 //                            TODO: Add a new splash screen
                             if (BuildConfig.DEBUG) {
                                 Log.d("Login", "Got cookie, jump to main")
@@ -179,7 +178,7 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
+fun qrLogin(retrofit: NCMApi) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var unikey by remember { mutableStateOf("") }
     var gotCookie by remember { mutableStateOf(false) }
@@ -230,9 +229,11 @@ fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                             scanStatus = "QR Code Expired. Generating new one..."
                             unikey = "" // 触发二维码刷新
                         }
+
                         801, 802 -> {
                             scanStatus = response.message
                         }
+
                         803 -> {
                             cookie = response.cookie
                             gotCookie = true
@@ -249,20 +250,19 @@ fun qrLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
     }
 }
 
-suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context){
+suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context) {
 //    val context = RedefineNCMApplication.getApplicationContext() as Context
     if (retrofit.loginStatus(cookie).data.code == 200) {
         // Save cookie
         Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
-        if(!retrofit.loginStatus(cookie).data.profile.nickname.isNullOrBlank()){
+        if (retrofit.loginStatus(cookie).data.profile.nickname.isNotBlank()) {
             context.dataStore.edit { preferences ->
                 preferences[stringPreferencesKey("cookie")] = cookie
-        }
+            }
 //        Jump to MainActivity
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
-        }
-        else{
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        } else {
             throw Exception("Cookie 无效")
         }
 

@@ -1,4 +1,5 @@
 package com.redstar.redefinencm.api
+
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -47,9 +48,11 @@ object RetrofitInstance {
                 Log.d("RetrofitInstance", newUrl.toString())
             }
 
-            chain.proceed(original.newBuilder()
-                .url(newUrl)
-                .build())
+            chain.proceed(
+                original.newBuilder()
+                    .url(newUrl)
+                    .build()
+            )
         }
         .build()
 

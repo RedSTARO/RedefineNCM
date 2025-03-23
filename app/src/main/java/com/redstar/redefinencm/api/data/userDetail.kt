@@ -7,7 +7,7 @@ data class userDetail(
     val profile: userDetailProfile,
     val code: Int,
 
-)
+    )
 
 data class userDetailProfile(
     val avatarUrl: String,

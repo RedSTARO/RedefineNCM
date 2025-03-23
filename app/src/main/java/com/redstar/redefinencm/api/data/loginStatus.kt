@@ -1,7 +1,5 @@
 package com.redstar.redefinencm.api.data
 
-import android.provider.ContactsContract
-
 data class loginStatus(
 //    {"data":{"code":200,"account":
 //    {"id":2131348937,"userName":"1_********284","type":1,"status":0,"whitelistAuthority":0,

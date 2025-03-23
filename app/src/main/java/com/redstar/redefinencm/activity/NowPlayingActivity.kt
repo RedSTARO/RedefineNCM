@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity
 
-import android.R
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
@@ -31,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -107,7 +105,8 @@ fun PlaybackController() {
     val metadata by metadataFlow.collectAsState()
 
     LaunchedEffect(Unit) {
-        val sessionToken = SessionToken(context, ComponentName(context, playbackService::class.java))
+        val sessionToken =
+            SessionToken(context, ComponentName(context, playbackService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
         mediaController?.let { controller ->
@@ -174,7 +173,7 @@ fun PlaybackController() {
                 // 上一首
                 PlaybackButton(
                     onClick = { mediaController?.seekToPrevious() },
-                    icon = painterResource(R.drawable.ic_media_previous),
+                    icon = painterResource(android.R.drawable.ic_media_previous), // TODO: 替换图标
                     contentDescription = "上一首"
                 )
 
@@ -182,8 +181,8 @@ fun PlaybackController() {
                 PlaybackButton(
                     onClick = { if (mediaController?.isPlaying == true) mediaController?.pause() else mediaController?.play() },
                     icon = painterResource(
-                        if (mediaController?.isPlaying == true) R.drawable.ic_media_pause
-                        else R.drawable.ic_media_play
+                        if (mediaController?.isPlaying == true) android.R.drawable.ic_media_pause
+                        else android.R.drawable.ic_media_play
                     ),
                     contentDescription = "播放/暂停",
                     modifier = Modifier.size(64.dp), // 更大按钮突出主操作
@@ -193,7 +192,7 @@ fun PlaybackController() {
                 // 下一首
                 PlaybackButton(
                     onClick = { mediaController?.seekToNext() },
-                    icon = painterResource(R.drawable.ic_media_next),
+                    icon = painterResource(android.R.drawable.ic_media_next),
                     contentDescription = "下一首"
                 )
             }
@@ -245,16 +244,4 @@ fun PlaybackButton(
             modifier = Modifier.size(24.dp)
         )
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun TopAppBarDefaults.centerAlignedTopAppBarColors(
-    containerColor: Color,
-    titleContentColor: Color
-): TopAppBarColors {
-    return centerAlignedTopAppBarColors(
-        containerColor = containerColor,
-        titleContentColor = titleContentColor
-    )
 }

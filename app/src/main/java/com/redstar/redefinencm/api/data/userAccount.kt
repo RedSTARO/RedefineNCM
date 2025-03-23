@@ -8,6 +8,7 @@ data class userAccount(
     val account: userAccountData,
 //    val profile: Any?
 )
+
 data class userAccountData(
     val id: Long,
     val userName: String,

@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,22 +17,24 @@ import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
-class DebugActivity: ComponentActivity() {
+class DebugActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    showAllSettingsData(Modifier.padding(innerPadding))
+                    showAllSettingsData()
 //                    showUrlStatus(Modifier.padding(innerPadding))
-                }}}
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun showAllSettingsData(moodifier: Modifier = Modifier){
-    val content = RedefineNCMApplication.getApplicationContext() as Context
+fun showAllSettingsData() {
+    RedefineNCMApplication.getApplicationContext() as Context
     val datas = runBlocking {
         ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()
     }
