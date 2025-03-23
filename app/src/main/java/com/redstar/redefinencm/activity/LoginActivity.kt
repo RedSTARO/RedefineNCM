@@ -87,7 +87,7 @@ class LoginActivity : ComponentActivity() {
                             }
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                             cookieLogin(retrofit)
-                            qrLogin(retrofit)
+//                            qrLogin(retrofit) // Disabled QR login due to 高使用门槛 :>
                         }
                         else{
 //                            TODO: Add a new splash screen

@@ -56,7 +56,7 @@ interface NCMApi {
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): songDetail
 
-    @GET
     //@GET("/inner/version")
+    @GET
     suspend fun innerVersion(@Url url: String): innerVersion
 }
