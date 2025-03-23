@@ -138,6 +138,9 @@ fun serverItem() {
         value = settingValue, // 使用 settingValue 作为输入框的值
         onValueChange = { newValue ->
             settingValue = newValue // 更新本地状态
+            if (!settingValue.endsWith("/")) {
+                settingValue = "$settingValue/"
+            }
         },
         modifier = Modifier
             .fillMaxWidth()
