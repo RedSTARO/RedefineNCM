@@ -32,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -208,34 +207,32 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                 ) { innerPadding ->
-                    Surface {
-                        if (uid != null) {
-                            // 使用 NavHost 管理导航
-                            NavHost(
-                                navController = navController,  // 传入 NavController 实例
-                                startDestination = "my"       // 指定开始的页面
-                            ) {
-                                composable("my") {
-                                    ShowUserPlaylistPage(
-                                        retrofit = retrofit,
-                                        uid = uid!!,
-                                        navController = navController
-                                    )
+                    if (uid != null) {
+                        // 使用 NavHost 管理导航
+                        NavHost(
+                            navController = navController,  // 传入 NavController 实例
+                            startDestination = "my",
+                            Modifier.padding(innerPadding)// 指定开始的页面
+                        ) {
+                            composable("my") {
+                                ShowUserPlaylistPage(
+                                    retrofit = retrofit,
+                                    uid = uid!!,
+                                    navController = navController
+                                )
+                            }
+                            composable("home") {
+                                PlaceHolderScreen()
+                            }
+                            composable("playlistDetailPage/{songId}") { backStackEntry ->
+                                val songId = backStackEntry.arguments?.getString("songId")
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Main", "SongList ID: $songId")
                                 }
-                                composable("home") {
-                                    PlaceHolderScreen()
-                                }
-
-                                composable("playlistDetailPage/{songId}") { backStackEntry ->
-                                    val songId = backStackEntry.arguments?.getString("songId")
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d("Main", "SongList ID: $songId")
-                                    }
-                                    ShowPlaylistDetailPage(
-                                        retrofit = retrofit,
-                                        songlistID = songId!!.toLong()
-                                    )
-                                }
+                                ShowPlaylistDetailPage(
+                                    retrofit = retrofit,
+                                    songlistID = songId!!.toLong()
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.padding(innerPadding))
