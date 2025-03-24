@@ -8,14 +8,26 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,7 +41,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -59,7 +74,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 var mediaController by remember { mutableStateOf<MediaController?>(null) }
-                val context = RedefineNCMApplication.getApplicationContext() as Context
+                val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+                LocalContext.current
+                val context = LocalContext.current
                 val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
                 val metadata by metadataFlow.collectAsState()
                 val navController = rememberNavController()
@@ -83,9 +100,12 @@ class MainActivity : ComponentActivity() {
                         Log.d("Main", "UID: $uid")
                     }
                     val sessionToken =
-                        SessionToken(context, ComponentName(context, playbackService::class.java))
+                        SessionToken(
+                            applicationContext,
+                            ComponentName(applicationContext, playbackService::class.java)
+                        )
                     val controllerFuture =
-                        MediaController.Builder(context, sessionToken).buildAsync()
+                        MediaController.Builder(applicationContext, sessionToken).buildAsync()
                     mediaController = controllerFuture.await()
                     mediaController?.let { controller ->
                         val listener = object : Player.Listener {
@@ -99,23 +119,74 @@ class MainActivity : ComponentActivity() {
                 }
                 Scaffold(
                     floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = {
-                                // 启动 NowPlayingActivity
-                                val context = this
-                                context.startActivity(
-                                    Intent(
-                                        context,
-                                        NowPlayingActivity::class.java
-                                    )
-                                )
-                            },
+                        Card(
                             modifier = Modifier
-                                .size(100.dp)
+                                .size(width = 250.dp, height = 100.dp)
                                 .padding(16.dp),
-                            containerColor = MaterialTheme.colorScheme.primary
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
                         ) {
-                            AsyncImage(model = metadata?.artworkUri, contentDescription = null)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(0.7f),
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = metadata?.title.toString(),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    // 播放控制按钮
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        IconButton(onClick = { mediaController?.seekToPrevious() }) {
+                                            Icon(
+                                                imageVector = Icons.Default.KeyboardArrowLeft,
+                                                contentDescription = "Previous"
+                                            )
+                                        }
+                                        IconButton(onClick = { if (mediaController?.isPlaying == true) mediaController?.pause() else mediaController?.play() }) {
+                                            Icon(
+                                                imageVector = if (mediaController?.isPlaying == true) Icons.Default.Home else Icons.Default.PlayArrow,
+                                                contentDescription = "Play/Pause"
+                                            )
+                                        }
+                                        IconButton(onClick = { mediaController?.seekToNext() }) {
+                                            Icon(
+                                                imageVector = Icons.Default.KeyboardArrowRight,
+                                                contentDescription = "Next"
+                                            )
+                                        }
+                                    }
+
+                                }
+                                AsyncImage(
+                                    model = metadata?.artworkUri,
+                                    contentDescription = "Album art",
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .fillMaxSize()
+                                        .clickable(onClick = {
+                                            // 启动 NowPlayingActivity
+                                            context.startActivity(
+                                                Intent(
+                                                    context,
+                                                    NowPlayingActivity::class.java
+                                                )
+                                            )
+                                        })
+                                )
+                            }
                         }
                     },
                     bottomBar = {
