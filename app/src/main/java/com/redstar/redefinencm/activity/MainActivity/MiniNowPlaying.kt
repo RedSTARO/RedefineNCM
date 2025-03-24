@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaMetadata
@@ -82,67 +83,73 @@ fun MiniNowPlaying(context: Context) {
             containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            verticalArrangement = Arrangement.Center,
         ) {
-            Column(
+            Text(
+                text = metadata?.title.toString(),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(0.7f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = metadata?.title.toString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                // 播放控制按钮
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(onClick = { mediaController?.seekToPrevious() }) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowLeft,
-                            contentDescription = "Previous"
-                        )
-                    }
-                    IconButton(onClick = {
-                        if (isPlaying) mediaController?.pause() else mediaController?.play()
-                        isPlaying = mediaController?.isPlaying == true
-                    }) {
-                        Icon(
-                            imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
-                            contentDescription = "Play/Pause"
-                        )
-                    }
-                    IconButton(onClick = { mediaController?.seekToNext() }) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "Next"
-                        )
-                    }
-                }
-
-            }
-            AsyncImage(
-                model = metadata?.artworkUri,
-                contentDescription = "Album art",
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .fillMaxSize()
-                    .clickable(onClick = {
-                        // 启动 NowPlayingActivity
-                        context.startActivity(
-                            Intent(
-                                context,
-                                NowPlayingActivity::class.java
-                            )
-                        )
-                    })
+                textAlign = TextAlign.Center
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // 播放控制按钮
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = { mediaController?.seekToPrevious() }) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowLeft,
+                                contentDescription = "Previous"
+                            )
+                        }
+                        IconButton(onClick = {
+                            if (isPlaying) mediaController?.pause() else mediaController?.play()
+                            isPlaying = mediaController?.isPlaying == true
+                        }) {
+                            Icon(
+                                imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
+                                contentDescription = "Play/Pause"
+                            )
+                        }
+                        IconButton(onClick = { mediaController?.seekToNext() }) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Next"
+                            )
+                        }
+                    }
+
+                }
+                AsyncImage(
+                    model = metadata?.artworkUri,
+                    contentDescription = "Album art",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .fillMaxSize()
+                        .clickable(onClick = {
+                            // 启动 NowPlayingActivity
+                            context.startActivity(
+                                Intent(
+                                    context,
+                                    NowPlayingActivity::class.java
+                                )
+                            )
+                        })
+                )
+            }
         }
     }
 }
