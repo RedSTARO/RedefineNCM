@@ -79,9 +79,7 @@ class MainActivity : ComponentActivity() {
                 val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
                 val metadata by metadataFlow.collectAsState()
                 val navController = rememberNavController()
-                if (BuildConfig.DEBUG) {
-                    Log.d("Main", "MainStartup, Nav Controller: $navController")
-                }
+                var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
                 val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                 var uid by remember { mutableStateOf<Long?>(null) }
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -154,9 +152,12 @@ class MainActivity : ComponentActivity() {
                                                 contentDescription = "Previous"
                                             )
                                         }
-                                        IconButton(onClick = { if (mediaController?.isPlaying == true) mediaController?.pause() else mediaController?.play() }) {
+                                        IconButton(onClick = {
+                                            if (isPlaying) mediaController?.pause() else mediaController?.play()
+                                            isPlaying = mediaController?.isPlaying == true
+                                        }) {
                                             Icon(
-                                                imageVector = if (mediaController?.isPlaying == true) Icons.Default.Home else Icons.Default.PlayArrow,
+                                                imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
                                                 contentDescription = "Play/Pause"
                                             )
                                         }
