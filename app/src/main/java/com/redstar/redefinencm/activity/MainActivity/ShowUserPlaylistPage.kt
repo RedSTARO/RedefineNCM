@@ -46,7 +46,7 @@ import com.redstar.redefinencm.api.data.userPlaylistEach
 import kotlinx.coroutines.launch
 
 @Composable
-fun showUserPlaylistPage(
+fun ShowUserPlaylistPage(
     retrofit: NCMApi,
     uid: Long,
     navController: NavController,
@@ -130,7 +130,7 @@ fun showUserPlaylistPage(
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(playlist) { userPlaylistEach ->
-                playlistCard(
+                PlaylistCard(
                     userPlaylistEach,
                     when {
                         userPlaylistEach.name.contains("喜欢的音乐") -> "fav"
@@ -146,7 +146,7 @@ fun showUserPlaylistPage(
 }
 
 @Composable
-fun playlistCard(
+fun PlaylistCard(
     userPlaylistEach: userPlaylistEach,
     specialCard: String,
     navController: NavController,

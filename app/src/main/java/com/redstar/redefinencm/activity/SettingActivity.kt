@@ -56,10 +56,10 @@ class SettingActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(innerPadding)
                         ) {
-                            serverItem()
+                            ServerItem()
                             Spacer(modifier = Modifier.height(16.dp))
                             Spacer(modifier = Modifier.height(16.dp))
-                            textItem("cookie", "Account Cookie")
+                            TextItem("cookie", "Account Cookie")
 
                         }
                     }
@@ -71,7 +71,7 @@ class SettingActivity : ComponentActivity() {
 
 
 @Composable
-fun textItem(settingItemKey: String, hintText: String) {
+fun TextItem(settingItemKey: String, hintText: String) {
     // 使用 remember 来保持状态
     var settingValue by remember { mutableStateOf("") }
 
@@ -111,7 +111,7 @@ fun textItem(settingItemKey: String, hintText: String) {
 }
 
 @Composable
-fun serverItem() {
+fun ServerItem() {
     val settingItemKey = "server"
     val hintText = "Server"
     var settingValue by remember { mutableStateOf("") }

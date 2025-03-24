@@ -24,7 +24,7 @@ class DebugActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    showAllSettingsData()
+                    ShowAllSettingsData()
 //                    showUrlStatus(Modifier.padding(innerPadding))
                 }
             }
@@ -33,7 +33,7 @@ class DebugActivity : ComponentActivity() {
 }
 
 @Composable
-fun showAllSettingsData() {
+fun ShowAllSettingsData() {
     RedefineNCMApplication.getApplicationContext() as Context
     val datas = runBlocking {
         ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()

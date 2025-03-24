@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = "my"       // 指定开始的页面
                             ) {
                                 composable("my") {
-                                    showUserPlaylistPage(
+                                    ShowUserPlaylistPage(
                                         retrofit = retrofit,
                                         uid = uid!!,
                                         navController = navController
@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity() {
                                     if (BuildConfig.DEBUG) {
                                         Log.d("Main", "SongList ID: $songId")
                                     }
-                                    showPlaylistDetailPage(
+                                    ShowPlaylistDetailPage(
                                         retrofit = retrofit,
                                         songlistID = songId!!.toLong()
                                     )

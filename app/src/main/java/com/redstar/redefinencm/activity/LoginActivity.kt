@@ -86,7 +86,7 @@ class LoginActivity : ComponentActivity() {
                                 Log.d("Login", "No Cookie, login")
                             }
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                            cookieLogin(retrofit)
+                            CookieLogin(retrofit)
 //                            qrLogin(retrofit) // Disabled QR login due to 高使用门槛 :>
                         } else {
 //                            TODO: Add a new splash screen
@@ -106,7 +106,7 @@ class LoginActivity : ComponentActivity() {
 
 
 @Composable
-fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
+fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var cookie by remember { mutableStateOf("") }
@@ -178,7 +178,7 @@ fun cookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun qrLogin(retrofit: NCMApi) {
+fun QrLogin(retrofit: NCMApi) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var unikey by remember { mutableStateOf("") }
     var gotCookie by remember { mutableStateOf(false) }
@@ -274,6 +274,6 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 @Composable
 fun GreetingPreview() {
     RedefineNCMTheme {
-        cookieLogin(retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java))
+        CookieLogin(retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java))
     }
 }

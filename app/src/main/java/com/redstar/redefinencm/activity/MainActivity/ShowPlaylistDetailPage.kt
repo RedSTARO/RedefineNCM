@@ -49,7 +49,7 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun showPlaylistDetailPage(
+fun ShowPlaylistDetailPage(
     songlistID: Long,
     retrofit: NCMApi,
 ) {
