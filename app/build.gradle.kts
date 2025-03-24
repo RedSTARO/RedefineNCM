@@ -75,4 +75,5 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.session)
     implementation(libs.kotlinx.coroutines.guava)
+    implementation(libs.androidx.palette)
 }

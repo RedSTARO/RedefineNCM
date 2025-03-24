@@ -3,6 +3,7 @@ package com.redstar.redefinencm.activity.MainActivity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,17 +34,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.NowPlayingActivity
 import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
 
@@ -54,6 +59,7 @@ fun MiniNowPlaying(context: Context) {
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
+    var themeColor by remember { mutableStateOf(Color.Gray) }
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -81,7 +87,7 @@ fun MiniNowPlaying(context: Context) {
             .padding(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = themeColor
         )
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -127,7 +133,10 @@ fun MiniNowPlaying(context: Context) {
             }
 
             AsyncImage(
-                model = metadata?.artworkUri,
+                model = ImageRequest.Builder(context)
+                    .data(metadata?.artworkUri) // 使用metadata中的URI
+                    .crossfade(true)
+                    .build(),
                 contentDescription = "Album art",
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
@@ -140,7 +149,15 @@ fun MiniNowPlaying(context: Context) {
                                 NowPlayingActivity::class.java
                             )
                         )
-                    })
+                    }),
+                onSuccess = { result ->
+                    themeColor = ImageParser().imageThemeColor(result.result.drawable.toBitmap())
+                    Log.d("AlbumArt", "Image theme color: $themeColor")
+                },
+                onError = { error ->
+                    Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    themeColor = Color.Gray
+                }
             )
         }
     }
