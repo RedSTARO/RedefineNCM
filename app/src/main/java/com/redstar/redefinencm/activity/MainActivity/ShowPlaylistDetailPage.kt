@@ -139,13 +139,13 @@ fun ShowPlaylistDetailPage(
                                         .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
                                         .build()
                                 )
+                                .setMediaId(eachSong.value.first.id.toString())
                                 .build()
                             withContext(Dispatchers.Main) {
                                 mediaController?.addMediaItem(mediaItem)
                             }
                         }
                     }
-//                    mediaController?.setShuffleModeEnabled(true)
                     mediaController?.prepare()
                     mediaController?.play()
 
