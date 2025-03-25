@@ -60,7 +60,6 @@ class SettingActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.height(16.dp))
                             Spacer(modifier = Modifier.height(16.dp))
                             TextItem("cookie", "Account Cookie")
-
                         }
                     }
                 }
@@ -111,7 +110,7 @@ fun TextItem(settingItemKey: String, hintText: String) {
 }
 
 @Composable
-fun ServerItem() {
+fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
     val settingItemKey = "server"
     val hintText = "Server"
     var settingValue by remember { mutableStateOf("") }
@@ -127,6 +126,7 @@ fun ServerItem() {
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
     }
 
+    Column(modifier = Modifier.padding(16.dp)) {
     // 处理 TextField 输入框更新
     OutlinedTextField(
         label = { Text(hintText) },
@@ -143,26 +143,27 @@ fun ServerItem() {
             .height(64.dp), // 保证文本框固定高度
         singleLine = true // 确保文本框单行显示
     )
-
-    Button(onClick = {
-        coroutineScope.launch(Dispatchers.IO) {
-            try {
-                Log.d("SettingActivity", "Save server at $settingValue")
-                saveToDataStore(settingItemKey, settingValue, context)
-                status = checkServerAvailable(settingValue)
-                data = checkServerVersion(settingValue)
-            } catch (e: Exception) {
-                data = e.message.toString()
+        Button(onClick = {
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    Log.d("SettingActivity", "Save server at $settingValue")
+                    saveToDataStore(settingItemKey, settingValue, context)
+                    status = checkServerAvailable(settingValue)
+                    data = checkServerVersion(settingValue)
+                } catch (e: Exception) {
+                    data = e.message.toString()
+                }
             }
+        }) {
+            Text("Check server at $settingValue")
         }
-    }) {
-        Text("Check server at $settingValue")
-    }
 
-    if (status) {
-        Text("Server version: $data, OK")
-    } else {
-        Text("Server unavailable, message: $data")
+        if (status) {
+            Text("Server version: $data, OK")
+            gotServerCallback(settingValue)
+        } else {
+            Text("Server unavailable, message: $data")
+        }
     }
 }
 

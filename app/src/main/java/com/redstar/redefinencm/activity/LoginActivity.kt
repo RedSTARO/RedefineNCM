@@ -66,36 +66,51 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val cookie = runBlocking {
-                        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey(
-                            "cookie"
-                        )] ?: ""
+                    var cookie by remember { mutableStateOf("") }
+                    var gotServer by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        cookie = runBlocking {
+                            ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey(
+                                "cookie"
+                            )] ?: ""
+                        }
+                        gotServer = runBlocking {
+                            ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey(
+                                "server"
+                            )] ?: ""
+                        }.isNotBlank()
                     }
+
                     if (BuildConfig.DEBUG) {
                         Log.d("Login", "Cookie: $cookie")
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        if (cookie.isBlank()) {
-                            if (BuildConfig.DEBUG) {
-                                Log.d("Login", "No Cookie, login")
-                            }
-                            val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                            CookieLogin(retrofit)
+
+                    if (gotServer) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if (cookie.isBlank()) {
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Login", "No Cookie, login")
+                                }
+                                val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+                                CookieLogin(retrofit)
 //                            qrLogin(retrofit) // Disabled QR login due to 高使用门槛 :>
-                        } else {
+                            } else {
 //                            TODO: Add a new splash screen
-                            if (BuildConfig.DEBUG) {
-                                Log.d("Login", "Got cookie, jump to main")
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Login", "Got cookie, jump to main")
+                                }
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                startActivity(intent)
                             }
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            startActivity(intent)
                         }
+                    } else {
+                        ServerItem({ gotServer = true }) // This from SettingActivity
                     }
                 }
 
