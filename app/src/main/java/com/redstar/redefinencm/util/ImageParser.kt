@@ -4,12 +4,9 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class ImageParser {
-    fun imageThemeColor(hardwareBitmap: Bitmap): Color =
-        runBlocking(Dispatchers.Default) { // Using blocking coroutine due to Palette API is a blocking API
+    fun imageThemeColor(hardwareBitmap: Bitmap, perferStyle: Int = 0): Color {
             var themeColor = Color(0xFF808080)
             Log.d(
                 "imageThemeColor",
@@ -23,12 +20,18 @@ class ImageParser {
             )
 
             val palette = Palette.from(softwareBitmap).generate() // 同步生成Palette
-            val muted = palette?.mutedSwatch?.rgb?.let { Color(it) }
-            val vibrant = palette?.vibrantSwatch?.rgb?.let { Color(it) }
-            val dominant = palette?.dominantSwatch?.rgb?.let { Color(it) }
+        val muted = palette.mutedSwatch?.rgb?.let { Color(it) }
+        val vibrant = palette.vibrantSwatch?.rgb?.let { Color(it) }
+        val dominant = palette.dominantSwatch?.rgb?.let { Color(it) }
 
-            themeColor = (muted ?: vibrant ?: dominant ?: Color(0xFF808080)).copy(alpha = 1.0f)
-            Log.d("imageThemeColor", "Theme color: $themeColor")
-            themeColor // 返回提取的颜色
+        if (perferStyle == 0) {
+            themeColor = muted ?: vibrant ?: dominant ?: themeColor
+        } else if (perferStyle == 1) {
+            themeColor = vibrant ?: muted ?: dominant ?: themeColor
+        } else if (perferStyle == 2) {
+            themeColor = dominant ?: vibrant ?: muted ?: themeColor
         }
+            Log.d("imageThemeColor", "Theme color: $themeColor")
+        return themeColor // 返回提取的颜色
+    }
 }
