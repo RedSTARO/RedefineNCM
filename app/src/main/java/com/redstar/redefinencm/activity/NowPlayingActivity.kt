@@ -3,6 +3,7 @@ package com.redstar.redefinencm.activity
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -47,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
@@ -61,6 +63,7 @@ import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.lyric
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.util.LyricParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,6 +116,7 @@ fun PlaybackController() {
     val context = RedefineNCMApplication.getApplicationContext() as Context
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
+    var themeColor by remember { mutableStateOf(Color.Gray) }
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -133,10 +137,12 @@ fun PlaybackController() {
     Card(
         shape = RoundedCornerShape(24.dp), // 更大圆角，更现代
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 增强阴影
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .fillMaxWidth(0.9f) // 稍微增加宽度占比
-            .padding(16.dp)
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = themeColor
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -151,7 +157,15 @@ fun PlaybackController() {
                 modifier = Modifier
                     .size(200.dp) // 固定大小，突出封面
                     .clip(RoundedCornerShape(12.dp)) // 圆角封面
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                onSuccess = { result ->
+                    themeColor = ImageParser().imageThemeColor(result.result.drawable.toBitmap())
+                    Log.d("AlbumArt", "Image theme color: $themeColor")
+                },
+                onError = { error ->
+                    Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    themeColor = Color.Gray
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
