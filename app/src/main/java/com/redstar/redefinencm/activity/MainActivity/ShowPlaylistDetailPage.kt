@@ -29,8 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -41,6 +43,7 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
 import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.guava.await
@@ -57,15 +60,13 @@ fun ShowPlaylistDetailPage(
     var playlistSongs by remember { mutableStateOf<playlistTrackAll?>(null) }
     val context = LocalContext.current
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    var themeColor by remember { mutableStateOf(Color.Gray) }
 
     LaunchedEffect(Unit) {
         val sessionToken =
             SessionToken(context, ComponentName(context, playbackService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
-    }
-
-    LaunchedEffect(Unit) {
         playlistDetail = retrofit.playlistDetail(songlistID)
         playlistSongs = retrofit.playlistTrackAll(songlistID)
     }
@@ -75,7 +76,10 @@ fun ShowPlaylistDetailPage(
                 .fillMaxWidth()
                 .padding(16.dp), // 增加外边距
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 提升阴影
-            shape = RoundedCornerShape(12.dp) // 圆角
+            shape = RoundedCornerShape(12.dp), // 圆角
+            colors = CardDefaults.cardColors(
+                containerColor = themeColor
+            ),
         ) {
             Column(
                 modifier = Modifier
@@ -89,7 +93,16 @@ fun ShowPlaylistDetailPage(
                     contentDescription = "Playlist Cover",
                     modifier = Modifier
                         .size(120.dp) // 适当加大封面
-                        .clip(RoundedCornerShape(12.dp)) // 让封面有圆角
+                        .clip(RoundedCornerShape(12.dp)), // 让封面有圆角
+                    onSuccess = { result ->
+                        themeColor =
+                            ImageParser().imageThemeColor(result.result.drawable.toBitmap())
+                        Log.d("AlbumArt", "Image theme color: $themeColor")
+                    },
+                    onError = { error ->
+                        Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                        themeColor = Color.Gray
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(12.dp)) // 适当增加间距
