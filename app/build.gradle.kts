@@ -76,4 +76,6 @@ dependencies {
     implementation(libs.androidx.media3.session)
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.androidx.palette)
+    implementation(libs.lyric.getter.api)
 }
+
