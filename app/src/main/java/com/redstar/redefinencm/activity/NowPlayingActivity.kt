@@ -53,23 +53,14 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
-import com.google.common.util.concurrent.MoreExecutors
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.data.lyric
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
-import com.redstar.redefinencm.util.LyricParser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
-import kotlinx.coroutines.launch
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -243,35 +234,17 @@ fun PlaybackController() {
                 ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
             }
 
-            var lyric by remember { mutableStateOf<lyric?>(null) }
 
             Button(onClick = {
-                val future = mediaController?.sendCustomCommand(
+                mediaController?.sendCustomCommand(
                     SessionCommand("LYRIC_COMMAND", Bundle.EMPTY),
                     Bundle.EMPTY
                 )
-                val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                CoroutineScope(Dispatchers.IO).launch {
-                    lyric =
-                        retrofit.lyric(mediaController?.currentMediaItem?.mediaId?.toLong() ?: 0L)
-                    val lyMap = LyricParser.parse(lyric?.lrc?.lyric ?: "")
-                    println(lyMap)
-                }
-                future?.addListener(
-                    {
-                        val result = future.get() // Access the result here
-                        if (result.resultCode == SessionResult.RESULT_SUCCESS) {
-                            print(result)
-                            println("Lyric command executed successfully")
-                        } else {
-                            println("Lyric command failed with code: ${result.resultCode}")
-                        }
-                    },
-                    MoreExecutors.directExecutor()
-                )
             }) {
-                Text("Get Lyric")
+                Text("Start Log Lyric")
             }
+
+
         }
     }
 }
