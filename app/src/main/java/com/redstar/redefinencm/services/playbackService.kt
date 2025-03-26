@@ -129,8 +129,7 @@ class playbackService : MediaSessionService() {
     private var lyricJob: Job? = null
 
     private fun startLyricSync() {
-        var perviousLyric = "This is just a random text"
-        lyricJob?.cancel() // 取消之前的任务，避免重复
+        lyricJob?.cancel() // Cancel any previous tasks to avoid duplicates
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
@@ -139,15 +138,14 @@ class playbackService : MediaSessionService() {
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 val currentLyric = getCurrentLyric(currentPosition)
                 if (currentLyric != null) {
-                    if (currentLyric != perviousLyric) {
-                        Log.d("PlaybackService", "Current Lyric: $currentLyric")
-                    }
+                    Log.d("PlaybackService", "Current Lyric: $currentLyric")
+                    lyricCallback?.onLyricUpdated(currentLyric) // Send the lyric to the callback
                 }
-                perviousLyric = currentLyric.toString()
-                delay(500)
+                delay(200)
             }
         }
     }
+
 
 
     /**
@@ -164,4 +162,15 @@ class playbackService : MediaSessionService() {
         }
         return lastLyric
     }
+}
+
+private var lyricCallback: LyricCallback? = null
+
+fun setLyricCallback(callback: LyricCallback) {
+    lyricCallback = callback
+}
+
+
+interface LyricCallback {
+    fun onLyricUpdated(lyric: String)
 }

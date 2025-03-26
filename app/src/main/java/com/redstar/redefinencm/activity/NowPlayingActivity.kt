@@ -56,7 +56,9 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.services.LyricCallback
 import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.services.setLyricCallback
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,6 +110,7 @@ fun PlaybackController() {
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
+    var currentLyric by remember { mutableStateOf<String>("") }
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -124,6 +127,13 @@ fun PlaybackController() {
             metadataFlow.value = controller.mediaMetadata // 初始化
         }
     }
+
+    // 设置歌词更新的回调
+    setLyricCallback(object : LyricCallback {
+        override fun onLyricUpdated(lyric: String) {
+            currentLyric = lyric // 更新当前歌词
+        }
+    })
 
     Card(
         shape = RoundedCornerShape(24.dp), // 更大圆角，更现代
@@ -243,6 +253,15 @@ fun PlaybackController() {
             }) {
                 Text("Start Log Lyric")
             }
+
+            // 歌词显示
+            Text(
+                text = currentLyric, // 显示当前歌词
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
 
         }
