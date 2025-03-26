@@ -74,6 +74,20 @@ class SettingActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.height(16.dp))
                             Spacer(modifier = Modifier.height(16.dp))
                             TextItem("cookie", "Account Cookie")
+//                            standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, dolby => 杜比全景声, jymaster => 超清母带
+                            val soundQuality = mapOf(
+                                "standard" to "标准",
+                                "higher" to "较高",
+                                "exhigh" to "极高",
+                                "lossless" to "无损",
+                                "hires" to "Hi-Res",
+                                "jyeffect" to "高清环绕声",
+                                "sky" to "沉浸环绕声",
+                                "dolby" to "杜比全景声",
+                                "jymaster" to "超清母带"
+                            )
+                            SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
+                            SelectItem("downloadQuality", "Music Quality Download", soundQuality)
                         }
                     }
                 }
@@ -98,22 +112,16 @@ fun TextItem(settingItemKey: String, hintText: String) {
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
     }
 
-    // 保存到 dataStore
-    val saveToDataStore: (String) -> Unit = { newValue ->
-        scope.launch {
-            context.dataStore.edit { preferences ->
-                preferences[stringPreferencesKey(settingItemKey)] = newValue
-            }
-        }
-    }
-
     // 处理 TextField 输入框更新
     OutlinedTextField(
         label = { Text(hintText) },
         value = settingValue, // 使用 settingValue 作为输入框的值
         onValueChange = { newValue ->
             settingValue = newValue // 更新本地状态
-            saveToDataStore(newValue) // 保存新的值到 dataStore
+            scope.launch {
+                saveToDataStore(settingItemKey, newValue, context) // 保存新的值到 dataStore
+            }
+
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -124,11 +132,17 @@ fun TextItem(settingItemKey: String, hintText: String) {
 }
 
 @Composable
-fun SelectItem(settingItemKey: String, hintText: String, item: List<String>) {
+fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<String, String>) {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(settingItemKey) {
+        itemSelected = context.dataStore.data
+            .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
+        itemSelected = valueAndItemMap[itemSelected] ?: hintText
+    }
 
     Card(
         modifier = Modifier
@@ -171,11 +185,11 @@ fun SelectItem(settingItemKey: String, hintText: String, item: List<String>) {
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth()
         ) {
-            item.forEach { option ->
+            valueAndItemMap.forEach { (value, item) ->
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(item) },
                     onClick = {
-                        itemSelected = option
+                        itemSelected = value
                         expanded = false
                         coroutineScope.launch(Dispatchers.IO) {
                             saveToDataStore(settingItemKey, itemSelected, context)

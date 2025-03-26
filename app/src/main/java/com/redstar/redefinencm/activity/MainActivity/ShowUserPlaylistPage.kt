@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -35,15 +34,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.activity.dataStore
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.userDetail
 import com.redstar.redefinencm.api.data.userPlaylist
 import com.redstar.redefinencm.api.data.userPlaylistEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
 
 @Composable
 fun ShowUserPlaylistPage(
@@ -51,45 +53,44 @@ fun ShowUserPlaylistPage(
     uid: Long,
     navController: NavController,
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    rememberCoroutineScope()
     var userPlaylist by remember { mutableStateOf<userPlaylist?>(null) }
     var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
     var userDetail by remember { mutableStateOf<userDetail?>(null) }
-    rememberScrollState() // 监听滚动状态
+    var soundQuality by remember { mutableStateOf("standard") }
+    val context = LocalContext.current
 
 
-    // 异步加载用户的播放列表
     LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            userPlaylist = retrofit.userPlaylist(uid)
-            userDetail = retrofit.userDetail(uid)
-            if (BuildConfig.DEBUG) {
-                Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
-                Log.d(
-                    "showUserPlaylistPage",
-                    userPlaylist!!.code.toString() + userPlaylist!!.playlist
-                )
-            }
-            playlist = userPlaylist!!.playlist
+        userPlaylist = retrofit.userPlaylist(uid)
+        userDetail = retrofit.userDetail(uid)
+        if (BuildConfig.DEBUG) {
+            Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
+            Log.d(
+                "showUserPlaylistPage",
+                userPlaylist!!.code.toString() + userPlaylist!!.playlist
+            )
         }
+        playlist = userPlaylist!!.playlist
+        soundQuality = context.dataStore.data
+            .firstOrNull()?.get(stringPreferencesKey("onlinePlayQuality")) ?: "standard"
+
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp) // 背景固定高度，避免拉伸
+                .height(250.dp)
         ) {
             AsyncImage(
                 model = userDetail?.profile?.backgroundUrl,
                 contentDescription = "User Background",
                 modifier = Modifier
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop // 确保图片填充整个 Box
+                contentScale = ContentScale.Crop
 
             )
-
-            // 半透明遮罩，提升文字可读性
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -153,46 +154,43 @@ fun PlaylistCard(
 ) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp) // 设置卡片之间的间距
-            .fillMaxWidth(), // 设置宽度填充父容器
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 提升卡片阴影
-        shape = RoundedCornerShape(16.dp), // 圆角
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp),
         onClick = {
             navController.navigate("playlistDetailPage/${userPlaylistEach.id}")
         }
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp) // 卡片内的填充
-                .fillMaxWidth(), // 填满父容器宽度
-            verticalAlignment = Alignment.CenterVertically // 垂直居中对齐
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // 显示用户头像，设置圆形裁剪
             AsyncImage(
                 model = userPlaylistEach.creator.avatarUrl,
                 contentDescription = "User Avatar",
                 modifier = Modifier
-                    .size(50.dp) // 设置头像大小
-                    .clip(CircleShape) // 设置圆形裁剪
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape) // 边框
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
             )
 
-            Spacer(modifier = Modifier.width(16.dp)) // 头像和文本之间的间距
+            Spacer(modifier = Modifier.width(16.dp))
 
-            // 显示播放列表名称
             Column(
-                modifier = Modifier.weight(1f) // 让文本占据剩余空间
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = userPlaylistEach.name,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onBackground // 设置文本颜色
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-                // 可选的副标题或描述
                 Text(
                     text = userPlaylistEach.creator.nickname,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f) // 设置副标题颜色
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
             }
             // TODO: Special cards
