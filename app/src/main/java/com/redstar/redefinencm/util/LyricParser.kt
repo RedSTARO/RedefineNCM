@@ -39,13 +39,19 @@ class LyricParser {
                     }
                 }
             }
+            reader.close()
+            val sortedLyricPair = LinkedHashMap<Long?, String?>()
+            lyricPair.toSortedMap(compareBy { it ?: Long.MAX_VALUE })
+                .forEach { (key, value) ->
+                    sortedLyricPair[key] = value
+                }
             if (BuildConfig.DEBUG) {
                 val costTime = System.currentTimeMillis() - startTime
                 Log.d(TAG, "Parse completed! Total time cost: $costTime ms")
             }
-            reader.close()
-            return lyricPair
+            return sortedLyricPair
         }
+
 
         private fun parseTimeString(timeString: String): Long {
             val parts = timeString.split(":")
