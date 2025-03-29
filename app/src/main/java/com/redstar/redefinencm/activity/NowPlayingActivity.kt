@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -49,21 +48,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import cn.lyric.getter.api.API
-import cn.lyric.getter.api.data.ExtraData
-import cn.lyric.getter.api.data.LyricData
-import cn.lyric.getter.api.listener.LyricListener
-import cn.lyric.getter.api.listener.LyricReceiver
-import cn.lyric.getter.api.tools.Tools
-import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import coil.compose.AsyncImage
-import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.services.LyricCallback
 import com.redstar.redefinencm.services.playbackService
@@ -120,19 +110,6 @@ fun PlaybackController() {
     val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
     var currentLyric by remember { mutableStateOf<String>("") }
-    val lga by lazy { API() }
-    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    //        注册歌词监听器
-    val receiver = LyricReceiver(object : LyricListener() {
-        override fun onUpdate(lyricData: LyricData) {
-        }
-
-        override fun onStop(lyricData: LyricData) {
-            Toast.makeText(applicationContext, "歌词停止播放", Toast.LENGTH_SHORT).show()
-        }
-    })
-
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -148,24 +125,11 @@ fun PlaybackController() {
             controller.addListener(listener)
             metadataFlow.value = controller.mediaMetadata // 初始化
         }
-        registerLyricListener(applicationContext, API.API_VERSION, receiver)
     }
 
     // 设置歌词更新的回调
     setLyricCallback(object : LyricCallback {
         override fun onLyricUpdated(lyric: String, duration: Int) {
-            lga.sendLyric(lyric, extra = ExtraData().apply {
-                packageName = "com.redstar.redefinencm"
-                customIcon = true
-                base64Icon = Tools.drawableToBase64(
-                    getDrawable(
-                        RedefineNCMApplication.getApplicationContext() as Context,
-                        R.drawable.ic_launcher_foreground
-                    )!!
-                )
-                useOwnMusicController = false
-                delay = duration
-            })
             currentLyric = lyric // 更新当前歌词
         }
     })

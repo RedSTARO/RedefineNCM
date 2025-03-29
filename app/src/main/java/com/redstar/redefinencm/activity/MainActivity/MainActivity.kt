@@ -1,6 +1,7 @@
 package com.redstar.redefinencm.activity.MainActivity
 
 import android.content.ComponentName
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -24,17 +25,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import cn.lyric.getter.api.API
+import cn.lyric.getter.api.listener.LyricListener
+import cn.lyric.getter.api.listener.LyricReceiver
+import cn.lyric.getter.api.tools.Tools
+import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import com.google.common.util.concurrent.MoreExecutors
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.R
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.services.LyricCallback
 import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.services.setLyricCallback
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 
 
@@ -129,6 +140,29 @@ class MainActivity : ComponentActivity() {
         controllerFuture.addListener({
             // MediaController is available here with controllerFuture.get()
         }, MoreExecutors.directExecutor())
+        val lga by lazy { API() }
+        Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+        val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+        val receiver = LyricReceiver(object : LyricListener() {})
+        registerLyricListener(applicationContext, API.API_VERSION, receiver)
+
+        setLyricCallback(object : LyricCallback {
+            override fun onLyricUpdated(lyric: String, duration: Int) {
+                Log.d("StatusBarLyric", "歌词更新： $lyric")
+                lga.sendLyric(lyric, extra = cn.lyric.getter.api.data.ExtraData().apply {
+                    packageName = "com.redstar.redefinencm"
+                    customIcon = true
+                    base64Icon = Tools.drawableToBase64(
+                        ContextCompat.getDrawable(
+                            RedefineNCMApplication.getApplicationContext() as Context,
+                            R.drawable.ic_launcher_foreground
+                        )!!
+                    )
+                    useOwnMusicController = false
+                    delay = duration
+                })
+            }
+        })
 
     }
 
