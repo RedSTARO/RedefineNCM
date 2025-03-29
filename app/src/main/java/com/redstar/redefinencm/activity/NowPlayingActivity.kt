@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
@@ -55,7 +54,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionToken
 import cn.lyric.getter.api.API
 import cn.lyric.getter.api.data.ExtraData
@@ -114,23 +112,6 @@ class NowPlayingActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("SetTextI18n")
-fun start() {
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    //        注册歌词监听器
-    val receiver = LyricReceiver(object : LyricListener() {
-        override fun onUpdate(lyricData: LyricData) {
-
-        }
-
-        override fun onStop(lyricData: LyricData) {
-            Toast.makeText(applicationContext, "歌词停止播放", Toast.LENGTH_SHORT).show()
-        }
-    })
-    registerLyricListener(applicationContext, API.API_VERSION, receiver)
-}
-
-
 @Composable
 fun PlaybackController() {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
@@ -141,7 +122,17 @@ fun PlaybackController() {
     var currentLyric by remember { mutableStateOf<String>("") }
     val lga by lazy { API() }
     Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
-    start()
+    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+    //        注册歌词监听器
+    val receiver = LyricReceiver(object : LyricListener() {
+        override fun onUpdate(lyricData: LyricData) {
+        }
+
+        override fun onStop(lyricData: LyricData) {
+            Toast.makeText(applicationContext, "歌词停止播放", Toast.LENGTH_SHORT).show()
+        }
+    })
+
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -157,6 +148,7 @@ fun PlaybackController() {
             controller.addListener(listener)
             metadataFlow.value = controller.mediaMetadata // 初始化
         }
+        registerLyricListener(applicationContext, API.API_VERSION, receiver)
     }
 
     // 设置歌词更新的回调
@@ -285,16 +277,6 @@ fun PlaybackController() {
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                     shape = RoundedCornerShape(12.dp)
                 ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
-            }
-
-
-            Button(onClick = {
-                mediaController?.sendCustomCommand(
-                    SessionCommand("LYRIC_COMMAND", Bundle.EMPTY),
-                    Bundle.EMPTY
-                )
-            }) {
-                Text("Start Log Lyric")
             }
 
             // 歌词显示

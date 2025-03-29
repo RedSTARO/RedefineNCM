@@ -1,19 +1,11 @@
 package com.redstar.redefinencm.services
 
-import android.os.Bundle
 import android.util.Log
-import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import androidx.media3.session.SessionCommand
-import androidx.media3.session.SessionError
-import androidx.media3.session.SessionResult
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.util.LyricParser
@@ -35,42 +27,7 @@ class playbackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
-        mediaSession = MediaSession.Builder(this, player)
-            .setCallback(object : MediaSession.Callback {
-                @OptIn(UnstableApi::class)
-                override fun onConnect(
-                    session: MediaSession,
-                    controller: MediaSession.ControllerInfo
-                ): MediaSession.ConnectionResult {
-                    val defaultResult = super.onConnect(session, controller)
-                    val customCommand = SessionCommand("LYRIC_COMMAND", Bundle.EMPTY)
-                    val availableCommands = defaultResult.availableSessionCommands
-                        .buildUpon()
-                        .add(customCommand)
-                        .build()
-                    return MediaSession.ConnectionResult.accept(
-                        availableCommands,
-                        defaultResult.availablePlayerCommands
-                    )
-                }
-
-                @OptIn(UnstableApi::class)
-                override fun onCustomCommand(
-                    session: MediaSession,
-                    controller: MediaSession.ControllerInfo,
-                    customCommand: SessionCommand,
-                    args: Bundle
-                ): ListenableFuture<SessionResult> {
-                    if (customCommand.customAction == "LYRIC_COMMAND") {
-                        Log.d("PlaybackService", "LYRIC_COMMAND received, starting lyric sync")
-                        startLyricSync() // 启动歌词同步
-                        return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
-                    }
-                    return Futures.immediateFuture(SessionResult(SessionError.ERROR_NOT_SUPPORTED))
-                }
-
-            })
-            .build()
+        mediaSession = MediaSession.Builder(this, player).build()
 
         // 监听播放状态变化
         player.addListener(object : Player.Listener {
@@ -87,6 +44,13 @@ class playbackService : MediaSessionService() {
                 if (playWhenReady) {
                     startLyricSync()
                 }
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                val mediaID = player.currentMediaItem?.mediaId
+                fetchLyrics(mediaID.toString())
+                startLyricSync()
             }
 
         })
