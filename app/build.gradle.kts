@@ -3,18 +3,15 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
-
 android {
     namespace = "com.redstar.redefinencm"
     compileSdk = 35
-
     defaultConfig {
         applicationId = "com.redstar.redefinencm"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
