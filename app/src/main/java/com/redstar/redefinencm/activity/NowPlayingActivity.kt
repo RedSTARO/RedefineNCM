@@ -153,7 +153,7 @@ fun PlaybackController() {
 
     // 设置歌词更新的回调
     setLyricCallback(object : LyricCallback {
-        override fun onLyricUpdated(lyric: String) {
+        override fun onLyricUpdated(lyric: String, duration: Int) {
             lga.sendLyric(lyric, extra = ExtraData().apply {
                 packageName = "com.redstar.redefinencm"
                 customIcon = true
@@ -164,7 +164,7 @@ fun PlaybackController() {
                     )!!
                 )
                 useOwnMusicController = false
-                delay = 0
+                delay = duration
             })
             currentLyric = lyric // 更新当前歌词
         }

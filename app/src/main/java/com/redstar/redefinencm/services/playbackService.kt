@@ -79,7 +79,6 @@ class playbackService : MediaSessionService() {
                 val response = retrofit.lyric(mediaId.toLong())
                 val lyricText = response.lrc.lyric
                 lyricMap = LyricParser.parse(lyricText)
-
                 Log.d("PlaybackService", "Lyrics fetched and parsed for mediaId: $mediaId")
             } catch (e: Exception) {
                 Log.e("PlaybackService", "Failed to fetch lyrics: ${e.message}")
@@ -93,39 +92,51 @@ class playbackService : MediaSessionService() {
     private var lyricJob: Job? = null
 
     private fun startLyricSync() {
-        lyricJob?.cancel() // Cancel any previous tasks to avoid duplicates
+        lyricJob?.cancel() // 取消之前的任务，防止重复任务
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
                 if (!isPlaying) break
 
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
-                val currentLyric = getCurrentLyric(currentPosition)
+                val (currentLyric, duration) = getCurrentLyric(currentPosition) ?: Pair(null, 2000L)
+
                 if (currentLyric != null) {
-                    Log.d("PlaybackService", "Current Lyric: $currentLyric")
-                    lyricCallback?.onLyricUpdated(currentLyric) // Send the lyric to the callback
+                    lyricCallback?.onLyricUpdated(currentLyric, duration.toInt()) // 发送歌词更新回调
                 }
-                delay(200)
+
+                delay(duration) // 按歌词持续时间等待
             }
         }
     }
 
-
-
     /**
-     * 获取当前时间对应的歌词
+     * 获取当前时间对应的歌词和持续时间
      */
-    private fun getCurrentLyric(position: Long): String? {
+    private fun getCurrentLyric(position: Long): Pair<String?, Long>? {
         var lastLyric: String? = null
+        var lastTime: Long? = null
+        var nextTime: Long? = null
+
         for ((time, lyric) in lyricMap) {
             if (time != null && position >= time) {
                 lastLyric = lyric
+                lastTime = time
             } else {
+                nextTime = time // 找到下一句歌词时间
                 break
             }
         }
-        return lastLyric
+
+        val duration = if (lastTime != null && nextTime != null) {
+            nextTime - lastTime // 计算持续时间
+        } else {
+            2000L // 默认持续 2 秒（如果没有下一句）
+        }
+
+        return Pair(lastLyric, duration)
     }
+
 }
 
 private var lyricCallback: LyricCallback? = null
@@ -134,7 +145,6 @@ fun setLyricCallback(callback: LyricCallback) {
     lyricCallback = callback
 }
 
-
 interface LyricCallback {
-    fun onLyricUpdated(lyric: String)
+    fun onLyricUpdated(lyric: String, duration: Int)
 }
