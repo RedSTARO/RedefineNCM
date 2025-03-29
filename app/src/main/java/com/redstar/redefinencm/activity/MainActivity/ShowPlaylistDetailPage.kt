@@ -134,7 +134,7 @@ fun ShowPlaylistDetailPage(
                     CoroutineScope(Dispatchers.IO).launch {
                         val songDetails = retrofit.playlistTrackAll(songlistID).songs
                         val songList = songDetails.map { it.id }
-                        val songUrlMap = retrofit.songUrlV1(songList, "jymaster").data.associateBy(
+                        val songUrlMap = retrofit.songUrlV1(songList, "standard").data.associateBy(
                             { it.id },
                             { it.url })
 
@@ -183,7 +183,30 @@ fun ShowPlaylistDetailPage(
                             "showPlaylistDetail",
                             "Selected Song ${song.name} with id ${song.id}"
                         )
-                    } // 点击事件
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val url = retrofit.songUrlV1(listOf(song.id), "standard").data[0]
+                            val mediaItem = MediaItem.Builder()
+                                .setUri(url.url)
+                                .setMediaMetadata(
+                                    MediaMetadata.Builder()
+                                        .setTitle(song.name)
+                                        .setArtist(
+                                            song.ar[0].name
+                                        )
+                                        .setArtworkUri(song.al.picUrl.toUri())
+                                        .build()
+                                )
+                                .setMediaId(song.id.toString())
+                                .build()
+                            withContext(Dispatchers.Main) {
+                                mediaController?.clearMediaItems()
+                                mediaController?.addMediaItem(mediaItem)
+                                mediaController?.prepare()
+                                mediaController?.play()
+                            }
+                        }
+
+                    }
                 ) {
                     Row(
                         modifier = Modifier
