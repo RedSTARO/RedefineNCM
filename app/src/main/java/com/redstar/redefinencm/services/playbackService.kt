@@ -1,11 +1,20 @@
 package com.redstar.redefinencm.services
 
+import android.content.Context
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import cn.lyric.getter.api.API
+import cn.lyric.getter.api.listener.LyricListener
+import cn.lyric.getter.api.listener.LyricReceiver
+import cn.lyric.getter.api.tools.Tools
+import cn.lyric.getter.api.tools.Tools.registerLyricListener
+import com.redstar.redefinencm.R
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.util.LyricParser
@@ -28,6 +37,29 @@ class playbackService : MediaSessionService() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
+
+        val lga by lazy { API() }
+        Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+        val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+        val receiver = LyricReceiver(object : LyricListener() {})
+        registerLyricListener(applicationContext, API.API_VERSION, receiver)
+        setLyricCallback(object : LyricCallback {
+            override fun onLyricUpdated(lyric: String, duration: Int) {
+                Log.d("StatusBarLyric", "歌词更新： $lyric")
+                lga.sendLyric(lyric, extra = cn.lyric.getter.api.data.ExtraData().apply {
+                    packageName = "com.redstar.redefinencm"
+                    customIcon = true
+                    base64Icon = Tools.drawableToBase64(
+                        ContextCompat.getDrawable(
+                            RedefineNCMApplication.getApplicationContext() as Context,
+                            R.drawable.ic_launcher_foreground
+                        )!!
+                    )
+                    useOwnMusicController = false
+                    delay = duration
+                })
+            }
+        })
 
         // 监听播放状态变化
         player.addListener(object : Player.Listener {
@@ -101,6 +133,7 @@ class playbackService : MediaSessionService() {
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 val (currentLyric, duration) = getCurrentLyric(currentPosition) ?: Pair(null, 2000L)
 
+                Log.d("StatusBarLyric", "当前歌词Unfiltered： $currentLyric at $currentPosition")
                 if (currentLyric != null) {
                     lyricCallback?.onLyricUpdated(currentLyric, duration.toInt()) // 发送歌词更新回调
                 }
