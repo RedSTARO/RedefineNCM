@@ -1,18 +1,26 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
 android {
     namespace = "com.redstar.redefinencm"
     compileSdk = 35
+
     defaultConfig {
         applicationId = "com.redstar.redefinencm"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
+        versionCode = generateVersionCode()
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionNameSuffix = "EarlyAccess-${getGitSha()}"
+        buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
     }
 
     buildTypes {
@@ -24,23 +32,23 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
 }
 
-
-
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -76,3 +84,24 @@ dependencies {
     implementation(libs.lyric.getter.api)
 }
 
+fun getGitSha(): String {
+    return try {
+        val stdout = "git rev-parse --short HEAD".executeCommand()
+        stdout.trim()
+    } catch (e: Exception) {
+        "GIT_FAILED"
+    }
+}
+
+fun String.executeCommand(): String {
+    return ProcessBuilder(*this.split(" ").toTypedArray())
+        .directory(File(project.rootDir.absolutePath))
+        .start()
+        .inputStream
+        .bufferedReader()
+        .readText()
+}
+
+fun generateVersionCode(): Int {
+    return SimpleDateFormat("yyMMddHH", Locale.ROOT).format(Date()).toInt()
+}

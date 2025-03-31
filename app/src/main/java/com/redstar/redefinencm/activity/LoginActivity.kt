@@ -5,8 +5,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -55,7 +58,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
+import java.io.IOException
+
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
 
@@ -79,6 +90,7 @@ class LoginActivity : ComponentActivity() {
                                 "server"
                             )] ?: ""
                         }.isNotBlank()
+                        checkNeedUpdate()
                     }
 
                     if (BuildConfig.DEBUG) {
@@ -282,6 +294,38 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
         }
 
     }
+}
+
+fun checkNeedUpdate() {
+    val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/main"
+
+    val request = Request.Builder().url(url).build()
+    val client = OkHttpClient()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.e("UpdateCheck", "Failed to fetch latest commit", e)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.body?.string()?.let { responseBody ->
+                val jsonObject = JSONObject(responseBody)
+                val latestCommitSha = jsonObject.getString("sha")
+
+                val savedSha = BuildConfig.GIT_SHA
+                if (latestCommitSha != savedSha) {
+                    // 有新提交，提示用户更新
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(
+                            RedefineNCMApplication.getApplicationContext() as Context,
+                            "发现新版本，建议更新",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    })
 }
 
 
