@@ -124,21 +124,15 @@ class playbackService : MediaSessionService() {
     private var lyricJob: Job? = null
 
     private fun startLyricSync() {
-        lyricJob?.cancel() // 取消之前的任务，防止重复任务
+        lyricJob?.cancel()
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
                 if (!isPlaying) break
-
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 val (currentLyric, duration) = getCurrentLyric(currentPosition) ?: Pair(null, 2000L)
-
-                Log.d("StatusBarLyric", "当前歌词Unfiltered： $currentLyric at $currentPosition")
-                if (currentLyric != null) {
-                    lyricCallback?.onLyricUpdated(currentLyric, duration.toInt()) // 发送歌词更新回调
-                }
-
-                delay(duration) // 按歌词持续时间等待
+                lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
+                delay(duration)
             }
         }
     }
@@ -156,15 +150,15 @@ class playbackService : MediaSessionService() {
                 lastLyric = lyric
                 lastTime = time
             } else {
-                nextTime = time // 找到下一句歌词时间
+                nextTime = time
                 break
             }
         }
 
         val duration = if (lastTime != null && nextTime != null) {
-            nextTime - lastTime // 计算持续时间
+            nextTime - lastTime
         } else {
-            2000L // 默认持续 2 秒（如果没有下一句）
+            2000L
         }
 
         return Pair(lastLyric, duration)
