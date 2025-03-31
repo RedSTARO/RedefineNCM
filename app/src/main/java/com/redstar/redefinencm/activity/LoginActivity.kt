@@ -297,7 +297,7 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 }
 
 fun checkNeedUpdate() {
-    val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/main"
+    val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/master"
 
     val request = Request.Builder().url(url).build()
     val client = OkHttpClient()
@@ -314,7 +314,6 @@ fun checkNeedUpdate() {
 
                 val savedSha = BuildConfig.GIT_SHA
                 if (latestCommitSha != savedSha) {
-                    // 有新提交，提示用户更新
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(
                             RedefineNCMApplication.getApplicationContext() as Context,
