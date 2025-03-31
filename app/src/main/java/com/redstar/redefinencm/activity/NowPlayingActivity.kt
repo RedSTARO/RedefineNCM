@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -29,6 +31,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
@@ -102,6 +106,7 @@ class NowPlayingActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         PlaybackController()
+                        PlayList()
                     }
                 }
             }
@@ -112,16 +117,24 @@ class NowPlayingActivity : ComponentActivity() {
 @Composable
 fun PlaybackController() {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
-    val context = RedefineNCMApplication.getApplicationContext() as Context
+    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
     var currentLyric by remember { mutableStateOf<String>("") }
+    val lga by lazy { API() }
+    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+    val receiver = LyricReceiver(object : LyricListener() {})
+    registerLyricListener(applicationContext, API.API_VERSION, receiver)
 
     LaunchedEffect(Unit) {
         val sessionToken =
-            SessionToken(context, ComponentName(context, playbackService::class.java))
-        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+            SessionToken(
+                applicationContext,
+                ComponentName(applicationContext, playbackService::class.java)
+            )
+        val controllerFuture =
+            MediaController.Builder(applicationContext, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
         mediaController?.let { controller ->
             val listener = object : Player.Listener {
@@ -134,12 +147,6 @@ fun PlaybackController() {
         }
     }
 
-    // 设置歌词更新的回调
-    val lga by lazy { API() }
-    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    val receiver = LyricReceiver(object : LyricListener() {})
-    registerLyricListener(applicationContext, API.API_VERSION, receiver)
     setLyricCallback(object : LyricCallback {
         override fun onLyricUpdated(lyric: String, duration: Int) {
             Log.d("StatusBarLyric", "歌词更新： $lyric")
@@ -281,6 +288,48 @@ fun PlaybackController() {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlayList() {
+    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+    var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
+
+    LaunchedEffect(Unit) {
+        val sessionToken = SessionToken(
+            applicationContext,
+            ComponentName(applicationContext, playbackService::class.java)
+        )
+        val controllerFuture =
+            MediaController.Builder(applicationContext, sessionToken).buildAsync()
+        mediaController = controllerFuture.await()
+
+        val mediaItemCount = mediaController?.mediaItemCount ?: 0
+        val mediaItems = mutableListOf<MediaItem>()
+        for (i in 0 until mediaItemCount) {
+            mediaController?.getMediaItemAt(i)?.let { mediaItems.add(it) }
+        }
+        playlist = mediaItems
+    }
+    if (!playlist.isNullOrEmpty()) {
+        ModalBottomSheet(onDismissRequest = { /* Executed when the sheet is dismissed */ }) {
+            LazyColumn {
+                itemsIndexed(playlist ?: emptyList()) { index, item ->
+                    Card {
+                        Text(
+                            text = "$index: ${item.mediaMetadata.title}",
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun PlaybackButton(
