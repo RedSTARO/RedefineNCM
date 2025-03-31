@@ -80,8 +80,6 @@ class playbackService : MediaSessionService() {
 
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
-                val mediaID = player.currentMediaItem?.mediaId
-                fetchLyrics(mediaID.toString())
                 startLyricSync()
             }
 
