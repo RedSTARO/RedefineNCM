@@ -19,7 +19,7 @@ android {
         versionCode = generateVersionCode()
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionNameSuffix = "EarlyAccess-${getGitSha()}"
+        versionNameSuffix = "EarlyAccess_${getGitSha()}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
     }
 
@@ -86,7 +86,7 @@ dependencies {
 
 fun getGitSha(): String {
     return try {
-        val stdout = "git rev-parse --short HEAD".executeCommand()
+        val stdout = "git rev-parse HEAD".executeCommand()
         stdout.trim()
     } catch (e: Exception) {
         "GIT_FAILED"

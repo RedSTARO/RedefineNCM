@@ -313,11 +313,31 @@ fun checkNeedUpdate() {
                 val latestCommitSha = jsonObject.getString("sha")
 
                 val savedSha = BuildConfig.GIT_SHA
+
+                Log.d("UpdateCheck", "Current commit: $savedSha, Latest commit: $latestCommitSha")
+
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        RedefineNCMApplication.getApplicationContext() as Context,
+                        "当前commit: ${
+                            savedSha.substring(
+                                0,
+                                5
+                            )
+                        }, 远端commit: ${
+                            latestCommitSha.substring(
+                                0,
+                                5
+                            )
+                        }, 一致: ${savedSha == latestCommitSha}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
                 if (latestCommitSha != savedSha) {
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(
                             RedefineNCMApplication.getApplicationContext() as Context,
-                            "发现新版本，建议更新",
+                            "New version is out, check updates!",
                             Toast.LENGTH_LONG
                         ).show()
                     }
