@@ -218,22 +218,22 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-    // 处理 TextField 输入框更新
-    OutlinedTextField(
-        label = { Text(hintText) },
-        value = settingValue, // 使用 settingValue 作为输入框的值
-        onValueChange = { newValue ->
-            settingValue = newValue // 更新本地状态
-            if (!settingValue.endsWith("/")) {
-                settingValue = "$settingValue/"
-            }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
-            .height(64.dp), // 保证文本框固定高度
-        singleLine = true // 确保文本框单行显示
-    )
+        // 处理 TextField 输入框更新
+        OutlinedTextField(
+            label = { Text(hintText) },
+            value = settingValue, // 使用 settingValue 作为输入框的值
+            onValueChange = { newValue ->
+                settingValue = newValue // 更新本地状态
+                if (!settingValue.endsWith("/")) {
+                    settingValue = "$settingValue/"
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .height(64.dp), // 保证文本框固定高度
+            singleLine = true // 确保文本框单行显示
+        )
         Button(onClick = {
             coroutineScope.launch(Dispatchers.IO) {
                 try {

@@ -48,6 +48,28 @@ android {
     }
 }
 
+fun getGitSha(): String {
+    return try {
+        val stdout = "git rev-parse HEAD".executeCommand()
+        stdout.trim()
+    } catch (e: Exception) {
+        "GIT_FAILED"
+    }
+}
+
+fun String.executeCommand(): String {
+    return ProcessBuilder(*this.split(" ").toTypedArray())
+        .directory(File(project.rootDir.absolutePath))
+        .start()
+        .inputStream
+        .bufferedReader()
+        .readText()
+}
+
+fun generateVersionCode(): Int {
+    return SimpleDateFormat("yyMMddHH", Locale.ROOT).format(Date()).toInt()
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -82,26 +104,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.androidx.palette)
     implementation(libs.lyric.getter.api)
-}
-
-fun getGitSha(): String {
-    return try {
-        val stdout = "git rev-parse HEAD".executeCommand()
-        stdout.trim()
-    } catch (e: Exception) {
-        "GIT_FAILED"
-    }
-}
-
-fun String.executeCommand(): String {
-    return ProcessBuilder(*this.split(" ").toTypedArray())
-        .directory(File(project.rootDir.absolutePath))
-        .start()
-        .inputStream
-        .bufferedReader()
-        .readText()
-}
-
-fun generateVersionCode(): Int {
-    return SimpleDateFormat("yyMMddHH", Locale.ROOT).format(Date()).toInt()
 }
