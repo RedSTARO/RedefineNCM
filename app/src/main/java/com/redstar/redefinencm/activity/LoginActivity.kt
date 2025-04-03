@@ -43,17 +43,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -67,9 +65,6 @@ import org.json.JSONObject
 import java.io.ByteArrayInputStream
 import java.io.IOException
 
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_prefs")
-
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,12 +76,12 @@ class LoginActivity : ComponentActivity() {
                     var gotServer by remember { mutableStateOf(false) }
                     LaunchedEffect(Unit) {
                         cookie = runBlocking {
-                            ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey(
+                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
                                 "cookie"
                             )] ?: ""
                         }
                         gotServer = runBlocking {
-                            ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()[stringPreferencesKey(
+                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
                                 "server"
                             )] ?: ""
                         }.isNotBlank()
@@ -278,12 +273,11 @@ fun QrLogin(retrofit: NCMApi) {
 }
 
 suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context) {
-//    val context = RedefineNCMApplication.getApplicationContext() as Context
     if (retrofit.loginStatus(cookie).data.code == 200) {
         // Save cookie
         Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
         if (retrofit.loginStatus(cookie).data.profile.nickname.isNotBlank()) {
-            context.dataStore.edit { preferences ->
+            DataStoreManager.getAppDataStore().edit { preferences ->
                 preferences[stringPreferencesKey("cookie")] = cookie
             }
 //        Jump to MainActivity
@@ -316,21 +310,21 @@ fun checkNeedUpdate() {
                     val savedSha = BuildConfig.GIT_SHA
 
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(
-                            RedefineNCMApplication.getApplicationContext() as Context,
-                            "当前commit: ${
-                                savedSha.substring(
-                                    0,
-                                    5
-                                )
-                            }, 远端commit: ${
-                                latestCommitSha.substring(
-                                    0,
-                                    5
-                                )
-                            }, 一致: ${savedSha == latestCommitSha}",
-                            Toast.LENGTH_LONG
-                        ).show()
+//                        Toast.makeText(
+//                            RedefineNCMApplication.getApplicationContext() as Context,
+//                            "当前commit: ${
+//                                savedSha.substring(
+//                                    0,
+//                                    5
+//                                )
+//                            }, 远端commit: ${
+//                                latestCommitSha.substring(
+//                                    0,
+//                                    5
+//                                )
+//                            }, 一致: ${savedSha == latestCommitSha}",
+//                            Toast.LENGTH_LONG
+//                        ).show()
                     }
                     if (latestCommitSha != savedSha) {
                         Handler(Looper.getMainLooper()).post {

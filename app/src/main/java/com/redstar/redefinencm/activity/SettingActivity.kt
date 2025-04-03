@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -45,6 +44,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -103,12 +103,12 @@ fun TextItem(settingItemKey: String, hintText: String) {
     var settingValue by remember { mutableStateOf("") }
 
     // 获取当前 Context 和 CoroutineScope
-    val context = LocalContext.current
+    LocalContext.current
     val scope = rememberCoroutineScope()
 
     // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
     LaunchedEffect(settingItemKey) {
-        settingValue = context.dataStore.data
+        settingValue = DataStoreManager.getAppDataStore().data
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
     }
 
@@ -119,7 +119,9 @@ fun TextItem(settingItemKey: String, hintText: String) {
         onValueChange = { newValue ->
             settingValue = newValue // 更新本地状态
             scope.launch {
-                saveToDataStore(settingItemKey, newValue, context) // 保存新的值到 dataStore
+                DataStoreManager.getAppDataStore().edit { preferences ->
+                    preferences[stringPreferencesKey(settingItemKey)] = settingValue
+                }
             }
 
         },
@@ -135,11 +137,11 @@ fun TextItem(settingItemKey: String, hintText: String) {
 fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<String, String>) {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+    LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(settingItemKey) {
-        itemSelected = context.dataStore.data
+        itemSelected = DataStoreManager.getAppDataStore().data
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
         itemSelected = valueAndItemMap[itemSelected] ?: hintText
     }
@@ -192,7 +194,9 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
                         itemSelected = value
                         expanded = false
                         coroutineScope.launch(Dispatchers.IO) {
-                            saveToDataStore(settingItemKey, itemSelected, context)
+                            DataStoreManager.getAppDataStore().edit { preferences ->
+                                preferences[stringPreferencesKey(settingItemKey)] = value
+                            }
                         }
                     }
                 )
@@ -206,14 +210,14 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
     val settingItemKey = "server"
     val hintText = "Server"
     var settingValue by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var status by remember { mutableStateOf(false) }
     var data by remember { mutableStateOf("") }
 
     // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
     LaunchedEffect(settingItemKey) {
-        settingValue = context.dataStore.data
+        settingValue = DataStoreManager.getAppDataStore().data
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
     }
 
@@ -238,7 +242,9 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
             coroutineScope.launch(Dispatchers.IO) {
                 try {
                     Log.d("SettingActivity", "Save server at $settingValue")
-                    saveToDataStore(settingItemKey, settingValue, context)
+                    DataStoreManager.getAppDataStore().edit { preferences ->
+                        preferences[stringPreferencesKey(settingItemKey)] = settingValue
+                    }
                     status = checkServerAvailable(settingValue)
                     data = checkServerVersion(settingValue)
                 } catch (e: Exception) {
@@ -291,11 +297,5 @@ suspend fun checkServerVersion(server: String): String {
         api.innerVersion("${server}inner/version/").data.version
     } catch (e: Exception) {
         e.message.toString()
-    }
-}
-
-suspend fun saveToDataStore(key: String, value: String, context: Context) {
-    context.dataStore.edit { preferences ->
-        preferences[stringPreferencesKey(key)] = value
     }
 }

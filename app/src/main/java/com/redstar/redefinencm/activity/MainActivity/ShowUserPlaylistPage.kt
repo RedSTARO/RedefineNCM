@@ -40,11 +40,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.activity.dataStore
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.userDetail
 import com.redstar.redefinencm.api.data.userPlaylist
 import com.redstar.redefinencm.api.data.userPlaylistEach
+import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.firstOrNull
 
 @Composable
@@ -58,7 +58,7 @@ fun ShowUserPlaylistPage(
     var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
     var userDetail by remember { mutableStateOf<userDetail?>(null) }
     var soundQuality by remember { mutableStateOf("standard") }
-    val context = LocalContext.current
+    LocalContext.current
 
 
     LaunchedEffect(Unit) {
@@ -72,7 +72,7 @@ fun ShowUserPlaylistPage(
             )
         }
         playlist = userPlaylist!!.playlist
-        soundQuality = context.dataStore.data
+        soundQuality = DataStoreManager.getAppDataStore().data
             .firstOrNull()?.get(stringPreferencesKey("onlinePlayQuality")) ?: "standard"
 
     }

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
@@ -36,7 +37,7 @@ class DebugActivity : ComponentActivity() {
 fun ShowAllSettingsData() {
     RedefineNCMApplication.getApplicationContext() as Context
     val datas = runBlocking {
-        ((RedefineNCMApplication.getApplicationContext() as Context)).dataStore.data.first()
+        DataStoreManager.getAppDataStore().data.first()
     }
     Text(
         text = datas.toString(),
