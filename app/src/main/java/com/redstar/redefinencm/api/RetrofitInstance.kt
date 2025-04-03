@@ -1,11 +1,9 @@
 package com.redstar.redefinencm.api
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.activity.dataStore
+import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -69,7 +67,7 @@ fun getRealIP(): String {
 
 fun getCookie(): String {
     return runBlocking {
-        (RedefineNCMApplication.getApplicationContext() as Context).dataStore.data.first()[stringPreferencesKey(
+        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
             "cookie"
         )] ?: ""
     }
@@ -77,7 +75,7 @@ fun getCookie(): String {
 
 fun getBaseUrl(): String {
     return runBlocking {
-        (RedefineNCMApplication.getApplicationContext() as Context).dataStore.data.first()[stringPreferencesKey(
+        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
             "server"
         )] ?: ""
     }
