@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.api.NCMApi
@@ -88,6 +90,7 @@ class SettingActivity : ComponentActivity() {
                             )
                             SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
                             SelectItem("downloadQuality", "Music Quality Download", soundQuality)
+                            SwitchItem("statusBarLyric", "Status Bar Lyric")
                         }
                     }
                 }
@@ -101,9 +104,6 @@ class SettingActivity : ComponentActivity() {
 fun TextItem(settingItemKey: String, hintText: String) {
     // 使用 remember 来保持状态
     var settingValue by remember { mutableStateOf("") }
-
-    // 获取当前 Context 和 CoroutineScope
-    LocalContext.current
     val scope = rememberCoroutineScope()
 
     // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
@@ -134,10 +134,35 @@ fun TextItem(settingItemKey: String, hintText: String) {
 }
 
 @Composable
+fun SwitchItem(settingItemKey: String, hintText: String) {
+    var checked by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(settingItemKey) {
+        checked = DataStoreManager.getAppDataStore().data
+            .firstOrNull()?.get(booleanPreferencesKey(settingItemKey)) == true
+    }
+    Row {
+        Text(text = hintText)
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    checked = it
+                    DataStoreManager.getAppDataStore().edit { preferences ->
+                        preferences[booleanPreferencesKey(settingItemKey)] = checked
+                    }
+                }
+            })
+    }
+
+
+}
+
+@Composable
 fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<String, String>) {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
-    LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(settingItemKey) {
