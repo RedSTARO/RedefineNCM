@@ -297,54 +297,84 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 }
 
 fun checkNeedUpdate() {
-    val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/master"
+    if (BuildConfig.DEBUG) {
+        val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/master"
 
-    val request = Request.Builder().url(url).build()
-    val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
 
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
-            Log.e("UpdateCheck", "Failed to fetch latest commit", e)
-        }
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("UpdateCheck", "Failed to fetch latest commit", e)
+            }
 
-        override fun onResponse(call: Call, response: Response) {
-            response.body?.string()?.let { responseBody ->
-                val jsonObject = JSONObject(responseBody)
-                val latestCommitSha = jsonObject.getString("sha")
+            override fun onResponse(call: Call, response: Response) {
+                response.body?.string()?.let { responseBody ->
+                    val jsonObject = JSONObject(responseBody)
+                    val latestCommitSha = jsonObject.getString("sha")
 
-                val savedSha = BuildConfig.GIT_SHA
+                    val savedSha = BuildConfig.GIT_SHA
 
-                Log.d("UpdateCheck", "Current commit: $savedSha, Latest commit: $latestCommitSha")
-
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(
-                        RedefineNCMApplication.getApplicationContext() as Context,
-                        "当前commit: ${
-                            savedSha.substring(
-                                0,
-                                5
-                            )
-                        }, 远端commit: ${
-                            latestCommitSha.substring(
-                                0,
-                                5
-                            )
-                        }, 一致: ${savedSha == latestCommitSha}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                if (latestCommitSha != savedSha) {
                     Handler(Looper.getMainLooper()).post {
                         Toast.makeText(
                             RedefineNCMApplication.getApplicationContext() as Context,
-                            "New version is out, check updates!",
+                            "当前commit: ${
+                                savedSha.substring(
+                                    0,
+                                    5
+                                )
+                            }, 远端commit: ${
+                                latestCommitSha.substring(
+                                    0,
+                                    5
+                                )
+                            }, 一致: ${savedSha == latestCommitSha}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                    if (latestCommitSha != savedSha) {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                RedefineNCMApplication.getApplicationContext() as Context,
+                                "New version is out, check updates!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 }
             }
-        }
-    })
+        })
+    } else {
+        val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/releases/latest"
+
+        val request = Request.Builder().url(url).build()
+        val client = OkHttpClient()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("UpdateCheck", "Failed to fetch update info", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.body?.string()?.let { responseBody ->
+                    val jsonObject = JSONObject(responseBody)
+                    val latestVersion = jsonObject.getString("tag_name")
+                    val currentVersion = "v_${BuildConfig.RELEASE_VER}"
+
+                    if (latestVersion != currentVersion) {
+                        // 发现新版本，通知用户
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(
+                                RedefineNCMApplication.getApplicationContext() as Context,
+                                "发现新版本：$latestVersion",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            }
+        })
+    }
 }
 
 

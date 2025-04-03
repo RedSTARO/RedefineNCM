@@ -21,6 +21,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionNameSuffix = "EarlyAccess_${getGitSha()}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
+        buildConfigField("String", "RELEASE_VER", "\"${versionName}\"")
     }
 
     buildTypes {
