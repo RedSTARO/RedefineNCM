@@ -23,6 +23,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,29 +51,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import cn.lyric.getter.api.API
-import cn.lyric.getter.api.listener.LyricListener
-import cn.lyric.getter.api.listener.LyricReceiver
-import cn.lyric.getter.api.tools.Tools
-import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import coil.compose.AsyncImage
-import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.services.LyricCallback
 import com.redstar.redefinencm.services.playbackService
-import com.redstar.redefinencm.services.setLyricCallback
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -121,11 +116,7 @@ fun PlaybackController() {
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
-    var currentLyric by remember { mutableStateOf<String>("") }
-    val lga by lazy { API() }
-    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
-    val receiver = LyricReceiver(object : LyricListener() {})
-    registerLyricListener(applicationContext, API.API_VERSION, receiver)
+    var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -146,25 +137,6 @@ fun PlaybackController() {
             metadataFlow.value = controller.mediaMetadata // 初始化
         }
     }
-
-    setLyricCallback(object : LyricCallback {
-        override fun onLyricUpdated(lyric: String, duration: Int) {
-            Log.d("StatusBarLyric", "歌词更新： $lyric")
-            lga.sendLyric(lyric, extra = cn.lyric.getter.api.data.ExtraData().apply {
-                packageName = "com.redstar.redefinencm"
-                customIcon = true
-                base64Icon = Tools.drawableToBase64(
-                    ContextCompat.getDrawable(
-                        RedefineNCMApplication.getApplicationContext() as Context,
-                        R.drawable.ic_launcher_foreground
-                    )!!
-                )
-                useOwnMusicController = false
-                delay = duration
-            })
-            currentLyric = lyric // 更新当前歌词
-        }
-    })
 
     Card(
         shape = RoundedCornerShape(24.dp), // 更大圆角，更现代
@@ -229,17 +201,17 @@ fun PlaybackController() {
                 // 上一首
                 PlaybackButton(
                     onClick = { mediaController?.seekToPrevious() },
-                    icon = painterResource(android.R.drawable.ic_media_previous), // TODO: 替换图标
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "上一首"
                 )
 
                 // 播放/暂停
                 PlaybackButton(
-                    onClick = { if (mediaController?.isPlaying == true) mediaController?.pause() else mediaController?.play() },
-                    icon = painterResource(
-                        if (mediaController?.isPlaying == true) android.R.drawable.ic_media_pause
-                        else android.R.drawable.ic_media_play
-                    ),
+                    onClick = {
+                        if (isPlaying) mediaController?.pause() else mediaController?.play()
+                        isPlaying = mediaController?.isPlaying == true
+                    },
+                    icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
                     contentDescription = "播放/暂停",
                     modifier = Modifier.size(64.dp), // 更大按钮突出主操作
                     containerColor = MaterialTheme.colorScheme.primary
@@ -248,7 +220,7 @@ fun PlaybackController() {
                 // 下一首
                 PlaybackButton(
                     onClick = { mediaController?.seekToNext() },
-                    icon = painterResource(android.R.drawable.ic_media_next),
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "下一首"
                 )
             }
@@ -274,17 +246,6 @@ fun PlaybackController() {
                     shape = RoundedCornerShape(12.dp)
                 ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
             }
-
-            // 歌词显示
-            Text(
-                text = currentLyric, // 显示当前歌词
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-
         }
     }
 }
@@ -333,7 +294,7 @@ fun PlayList() {
 @Composable
 fun PlaybackButton(
     onClick: () -> Unit,
-    icon: Painter,
+    icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.secondaryContainer
@@ -346,7 +307,7 @@ fun PlaybackButton(
         contentPadding = PaddingValues(0.dp)
     ) {
         Icon(
-            painter = icon,
+            imageVector = icon,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(24.dp)

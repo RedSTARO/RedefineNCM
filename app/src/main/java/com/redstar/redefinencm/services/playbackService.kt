@@ -162,6 +162,10 @@ class playbackService : MediaSessionService() {
         return Pair(lastLyric, duration)
     }
 
+    fun getLyricMap(): LinkedHashMap<Long?, String?> {
+        return lyricMap
+    }
+
 }
 
 private var lyricCallback: LyricCallback? = null
