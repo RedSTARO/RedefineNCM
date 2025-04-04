@@ -191,7 +191,7 @@ fun PlaybackController() {
                     .clip(RoundedCornerShape(12.dp)) // 圆角封面
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 onSuccess = { result ->
-                    themeColor = ImageParser().imageThemeColor(result.result.drawable.toBitmap())
+                    themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
                     Log.d("AlbumArt", "Image theme color: $themeColor")
                 },
                 onError = { error ->

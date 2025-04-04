@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -110,7 +110,7 @@ fun MiniNowPlaying(context: Context) {
                 ) {
                     IconButton(onClick = { mediaController?.seekToPrevious() }) {
                         Icon(
-                            imageVector = Icons.Default.KeyboardArrowLeft,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = "Previous"
                         )
                     }
@@ -125,7 +125,7 @@ fun MiniNowPlaying(context: Context) {
                     }
                     IconButton(onClick = { mediaController?.seekToNext() }) {
                         Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "Next"
                         )
                     }
@@ -151,7 +151,7 @@ fun MiniNowPlaying(context: Context) {
                         )
                     }),
                 onSuccess = { result ->
-                    themeColor = ImageParser().imageThemeColor(result.result.drawable.toBitmap())
+                    themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
                     Log.d("AlbumArt", "Image theme color: $themeColor")
                 },
                 onError = { error ->
