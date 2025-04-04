@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
@@ -43,9 +44,11 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
 import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -134,7 +137,11 @@ fun ShowPlaylistDetailPage(
                     CoroutineScope(Dispatchers.IO).launch {
                         val songDetails = retrofit.playlistTrackAll(songlistID).songs
                         val songList = songDetails.map { it.id }
-                        val songUrlMap = retrofit.songUrlV1(songList, "standard").data.associateBy(
+                        val songUrlMap = retrofit.songUrlV1(
+                            songList,
+                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
+                                ?: "standard"
+                        ).data.associateBy(
                             { it.id },
                             { it.url })
 
@@ -184,7 +191,12 @@ fun ShowPlaylistDetailPage(
                             "Selected Song ${song.name} with id ${song.id}"
                         )
                         CoroutineScope(Dispatchers.IO).launch {
-                            val url = retrofit.songUrlV1(listOf(song.id), "standard").data[0]
+                            val url = retrofit.songUrlV1(
+                                listOf(song.id),
+                                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
+                                    "onlinePlayQuality"
+                                )] ?: "standard"
+                            ).data[0]
                             val mediaItem = MediaItem.Builder()
                                 .setUri(url.url)
                                 .setMediaMetadata(
