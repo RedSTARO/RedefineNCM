@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -100,8 +101,18 @@ class NowPlayingActivity : ComponentActivity() {
                             .background(MaterialTheme.colorScheme.background),
                         contentAlignment = Alignment.Center
                     ) {
+                        var showPlaylist by remember { mutableStateOf(false) }
+
                         PlaybackController()
-                        PlayList()
+                        Button(
+                            onClick = { showPlaylist = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                            shape = RoundedCornerShape(12.dp)
+                        ) { Text("Playlist", color = MaterialTheme.colorScheme.onSecondary) }
+
+                        if (showPlaylist){
+                            PlayList()
+                        }
                     }
                 }
             }
@@ -274,10 +285,12 @@ fun PlayList() {
         playlist = mediaItems
     }
     if (!playlist.isNullOrEmpty()) {
-        ModalBottomSheet(onDismissRequest = { /* Executed when the sheet is dismissed */ }) {
+        ModalBottomSheet(onDismissRequest = { /* Executed nothing when the sheet is dismissed */ }) {
             LazyColumn {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
-                    Card {
+                    Card(modifier = Modifier.clickable {
+                        mediaController?.seekTo(index, 0)
+                    }) {
                         Text(
                             text = "$index: ${item.mediaMetadata.title}",
                             modifier = Modifier.padding(16.dp)
