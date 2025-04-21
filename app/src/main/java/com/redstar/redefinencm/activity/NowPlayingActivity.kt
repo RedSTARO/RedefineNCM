@@ -100,18 +100,15 @@ class NowPlayingActivity : ComponentActivity() {
                             .padding(paddingValues)
                             .background(MaterialTheme.colorScheme.background),
                         contentAlignment = Alignment.Center
+
                     ) {
-                        var showPlaylist by remember { mutableStateOf(false) }
-
-                        PlaybackController()
-                        Button(
-                            onClick = { showPlaylist = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                            shape = RoundedCornerShape(12.dp)
-                        ) { Text("Playlist", color = MaterialTheme.colorScheme.onSecondary) }
-
-                        if (showPlaylist){
-                            PlayList(onDismiss = { showPlaylist = false })
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            SongDetails(modifier = Modifier.fillMaxWidth())
+                            PlaybackControlButtons(modifier = Modifier.fillMaxWidth())
+                            PlaylistButtons(modifier = Modifier.fillMaxWidth())
                         }
                     }
                 }
@@ -121,13 +118,12 @@ class NowPlayingActivity : ComponentActivity() {
 }
 
 @Composable
-fun PlaybackController() {
+fun SongDetails(modifier: Modifier = Modifier){
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
     val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
-    var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
 
     LaunchedEffect(Unit) {
         val sessionToken =
@@ -202,68 +198,113 @@ fun PlaybackController() {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
 
-            // 控制按钮
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 上一首
-                PlaybackButton(
-                    onClick = { mediaController?.seekToPrevious() },
-                    icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "上一首"
-                )
+@Composable
+fun PlaybackControlButtons(modifier: Modifier = Modifier) {
+    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+    var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
 
-                // 播放/暂停
-                PlaybackButton(
-                    onClick = {
-                        if (isPlaying) mediaController?.pause() else mediaController?.play()
-                        isPlaying = mediaController?.isPlaying == true
-                    },
-                    icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
-                    contentDescription = "播放/暂停",
-                    modifier = Modifier.size(64.dp), // 更大按钮突出主操作
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+    LaunchedEffect(Unit) {
+        val sessionToken =
+            SessionToken(
+                applicationContext,
+                ComponentName(applicationContext, playbackService::class.java)
+            )
+        val controllerFuture =
+            MediaController.Builder(applicationContext, sessionToken).buildAsync()
+        mediaController = controllerFuture.await()
+    }
 
-                // 下一首
-                PlaybackButton(
-                    onClick = { mediaController?.seekToNext() },
-                    icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "下一首"
-                )
-            }
+    // Control buttons
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Perv
+        PlaybackButton(
+            onClick = { mediaController?.seekToPrevious() },
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = "上一首"
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        // Pause
+        PlaybackButton(
+            onClick = {
+                isPlaying = mediaController?.isPlaying == true
+                if (isPlaying) mediaController?.pause() else mediaController?.play()
+            },
+            icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
+            contentDescription = "播放/暂停",
+            modifier = Modifier.size(64.dp), // 更大按钮突出主操作
+            containerColor = MaterialTheme.colorScheme.primary
+        )
 
-            // 次级按钮
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { /* TODO: 添加到喜欢 */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                    shape = RoundedCornerShape(12.dp)
-                ) { Text("喜欢", color = MaterialTheme.colorScheme.onSecondary) }
+        // Next
+        PlaybackButton(
+            onClick = { mediaController?.seekToNext() },
+            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = "下一首"
+        )
+    }
+}
 
-                Button(
-                    onClick = {
-                        mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                    shape = RoundedCornerShape(12.dp)
-                ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
-            }
+@Composable
+fun PlaylistButtons(modifier: Modifier = Modifier) {
+    var showPlaylist by remember { mutableStateOf(false) }
+    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+
+    LaunchedEffect(Unit) {
+        val sessionToken =
+            SessionToken(
+                applicationContext,
+                ComponentName(applicationContext, playbackService::class.java)
+            )
+        val controllerFuture =
+            MediaController.Builder(applicationContext, sessionToken).buildAsync()
+        mediaController = controllerFuture.await()
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Button(
+            onClick = { /* TODO: 添加到喜欢 */ },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            shape = RoundedCornerShape(12.dp)
+        ) { Text("喜欢", color = MaterialTheme.colorScheme.onSecondary) }
+
+        Button(
+            onClick = { showPlaylist = true },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            shape = RoundedCornerShape(12.dp)
+        ) { Text("Playlist", color = MaterialTheme.colorScheme.onSecondary) }
+
+        Button(
+            onClick = {
+                mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            shape = RoundedCornerShape(12.dp)
+        ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
+
+        if (showPlaylist) {
+            CurrentPlayList(onDismiss = { showPlaylist = false })
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayList(onDismiss: () -> Unit) {
+fun CurrentPlayList(onDismiss: () -> Unit) {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
