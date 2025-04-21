@@ -111,7 +111,7 @@ class NowPlayingActivity : ComponentActivity() {
                         ) { Text("Playlist", color = MaterialTheme.colorScheme.onSecondary) }
 
                         if (showPlaylist){
-                            PlayList()
+                            PlayList(onDismiss = { showPlaylist = false })
                         }
                     }
                 }
@@ -263,7 +263,7 @@ fun PlaybackController() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayList() {
+fun PlayList(onDismiss: () -> Unit) {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
@@ -285,7 +285,7 @@ fun PlayList() {
         playlist = mediaItems
     }
     if (!playlist.isNullOrEmpty()) {
-        ModalBottomSheet(onDismissRequest = { /* Executed nothing when the sheet is dismissed */ }) {
+        ModalBottomSheet(onDismissRequest = { onDismiss() }) {
             LazyColumn {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
                     Card(modifier = Modifier.clickable {
