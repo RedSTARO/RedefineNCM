@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -32,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.common.util.concurrent.MoreExecutors
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.activity.SettingPage
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.services.playbackService
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
                 val items = listOf(
                     NavigationItem("Home", Icons.Filled.Home, "home"),
                     NavigationItem("My", Icons.Filled.Person, "my"),
-//                    NavigationItem("Settings", Icons.Filled.Settings, "settings")
+                    NavigationItem("Settings", Icons.Filled.Settings, "settings")
                 )
 
                 LaunchedEffect(Unit) {
@@ -71,8 +73,9 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     icon = { Icon(item.icon, contentDescription = item.label) },
                                     label = { Text(item.label) },
-                                    selected = currentRoute == item.route,
+                                    selected = currentRoute?.startsWith(item.route) == true,
                                     onClick = {
+                                        Log.d("NavDebug", "currentRoute: $currentRoute, item.route: ${item.route}")
                                         navController.navigate(item.route) {
                                             // To prevent back navigation
                                             popUpTo(navController.graph.startDestinationId)
@@ -101,7 +104,8 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
                                 PlaceHolderScreen()
                             }
-                            composable("playlistDetailPage/{songId}") { backStackEntry ->
+
+                            composable("my/playlistDetailPage/{songId}") { backStackEntry ->
                                 val songId = backStackEntry.arguments?.getString("songId")
                                 if (BuildConfig.DEBUG) {
                                     Log.d("Main", "SongList ID: $songId")
@@ -110,6 +114,10 @@ class MainActivity : ComponentActivity() {
                                     retrofit = retrofit,
                                     songlistID = songId!!.toLong()
                                 )
+                            }
+
+                            composable("settings") {
+                                SettingPage()
                             }
                         }
                         Spacer(modifier = Modifier.padding(innerPadding))

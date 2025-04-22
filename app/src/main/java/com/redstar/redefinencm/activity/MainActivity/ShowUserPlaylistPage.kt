@@ -159,7 +159,7 @@ fun PlaylistCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
         onClick = {
-            navController.navigate("playlistDetailPage/${userPlaylistEach.id}")
+            navController.navigate("my/playlistDetailPage/${userPlaylistEach.id}")
         }
     ) {
         Row(

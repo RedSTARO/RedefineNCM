@@ -66,39 +66,42 @@ class SettingActivity : ComponentActivity() {
                         // You can add a floating action button if needed
                     },
                 ) { innerPadding ->
-                    Surface {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
-                            ServerItem()
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Spacer(modifier = Modifier.height(16.dp))
-                            TextItem("cookie", "Account Cookie")
-//                            standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, dolby => 杜比全景声, jymaster => 超清母带
-                            val soundQuality = mapOf(
-                                "standard" to "标准",
-                                "higher" to "较高",
-                                "exhigh" to "极高",
-                                "lossless" to "无损",
-                                "hires" to "Hi-Res",
-                                "jyeffect" to "高清环绕声",
-                                "sky" to "沉浸环绕声",
-                                "dolby" to "杜比全景声",
-                                "jymaster" to "超清母带"
-                            )
-                            SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
-                            SelectItem("downloadQuality", "Music Quality Download", soundQuality)
-                            SwitchItem("statusBarLyric", "Status Bar Lyric")
-                        }
-                    }
+                    SettingPage()
                 }
             }
         }
     }
 }
 
+@Composable
+fun SettingPage(){
+    Surface {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            ServerItem()
+            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            TextItem("cookie", "Account Cookie")
+//                            standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, dolby => 杜比全景声, jymaster => 超清母带
+            val soundQuality = mapOf(
+                "standard" to "标准",
+                "higher" to "较高",
+                "exhigh" to "极高",
+                "lossless" to "无损",
+                "hires" to "Hi-Res",
+                "jyeffect" to "高清环绕声",
+                "sky" to "沉浸环绕声",
+                "dolby" to "杜比全景声",
+                "jymaster" to "超清母带"
+            )
+            SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
+            SelectItem("downloadQuality", "Music Quality Download", soundQuality)
+            SwitchItem("statusBarLyric", "Status Bar Lyric")
+        }
+    }
+}
 
 @Composable
 fun TextItem(settingItemKey: String, hintText: String) {
