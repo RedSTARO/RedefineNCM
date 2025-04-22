@@ -254,6 +254,12 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
 @Composable
 fun PlaylistButtons(modifier: Modifier = Modifier) {
     var showPlaylist by remember { mutableStateOf(false) }
+    val repeatModes = mapOf(
+        1 to Player.REPEAT_MODE_OFF,
+        2 to Player.REPEAT_MODE_ONE,
+        0 to Player.REPEAT_MODE_ALL
+    )
+    var currentRepeatStatus by remember { mutableStateOf(0) }
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
 
@@ -266,6 +272,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
         mediaController = controllerFuture.await()
+        currentRepeatStatus = mediaController?.repeatMode ?: 0
     }
 
     Row(
@@ -274,25 +281,29 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Button(
+        FuncButton(
             onClick = { /* TODO: 添加到喜欢 */ },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-            shape = RoundedCornerShape(12.dp)
-        ) { Text("喜欢", color = MaterialTheme.colorScheme.onSecondary) }
-
-        Button(
+            text = "Fav"
+        )
+        FuncButton(
             onClick = { showPlaylist = true },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-            shape = RoundedCornerShape(12.dp)
-        ) { Text("Playlist", color = MaterialTheme.colorScheme.onSecondary) }
+            text = "Play list"
 
-        Button(
+        )
+
+        FuncButton(
+            onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
+            text = "Random"
+        )
+
+        FuncButton(
             onClick = {
-                mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-            shape = RoundedCornerShape(12.dp)
-        ) { Text("随机", color = MaterialTheme.colorScheme.onSecondary) }
+                mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
+                currentRepeatStatus = (currentRepeatStatus) % 3
+                Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
+                      },
+            text = "Repeat Mode"
+        )
 
         if (showPlaylist) {
             CurrentPlayList(onDismiss = { showPlaylist = false })
@@ -390,4 +401,13 @@ fun PlaybackButton(
             modifier = Modifier.size(24.dp)
         )
     }
+}
+
+@Composable
+fun FuncButton(onClick:() -> Unit,text: String, modifier: Modifier = Modifier){
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+        shape = RoundedCornerShape(12.dp)
+    ) { Text(text, color = MaterialTheme.colorScheme.onSecondary) }
 }
