@@ -118,7 +118,7 @@ class NowPlayingActivity : ComponentActivity() {
 }
 
 @Composable
-fun SongDetails(modifier: Modifier = Modifier){
+fun SongDetails(modifier: Modifier = Modifier) {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
@@ -146,10 +146,8 @@ fun SongDetails(modifier: Modifier = Modifier){
     }
 
     Card(
-        shape = RoundedCornerShape(24.dp), // 更大圆角，更现代
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 增强阴影
         modifier = Modifier
-            .fillMaxWidth(0.9f) // 稍微增加宽度占比
+            .fillMaxWidth(0.9f)
             .padding(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColor
@@ -329,14 +327,27 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
             LazyColumn {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
-                    Card(modifier = Modifier.clickable {
-                        mediaController?.seekTo(index, 0)
-                    }) {
-                        Text(
-                            text = "$index: ${item.mediaMetadata.title}",
-                            modifier = Modifier.padding(16.dp)
-                        )
+                    Row {
+                        Spacer(Modifier.padding(5.dp))
+                        Card(modifier = Modifier
+                            .clickable {
+                                mediaController?.seekTo(index, 0)
+                            }
+                            .fillMaxWidth())
+                        {
+                            Text(
+                                text = "$index: ${item.mediaMetadata.title}",
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                            Text(
+                                text = item.mediaMetadata.artist.toString(),
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        }
                     }
+                    Spacer(Modifier.padding(5.dp))
                     Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
                 }
             }
