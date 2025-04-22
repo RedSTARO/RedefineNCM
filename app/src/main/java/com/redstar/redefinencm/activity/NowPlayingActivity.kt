@@ -301,7 +301,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
                 mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
                 currentRepeatStatus = (currentRepeatStatus) % 3
                 Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
-                      },
+            },
             text = "Repeat Mode"
         )
 
@@ -404,7 +404,7 @@ fun PlaybackButton(
 }
 
 @Composable
-fun FuncButton(onClick:() -> Unit,text: String, modifier: Modifier = Modifier){
+fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
