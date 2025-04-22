@@ -306,6 +306,7 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
+    val currentMediaId = mediaController?.currentMediaItem?.mediaId
 
     LaunchedEffect(Unit) {
         val sessionToken = SessionToken(
@@ -329,11 +330,22 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
                     Row {
                         Spacer(Modifier.padding(5.dp))
-                        Card(modifier = Modifier
-                            .clickable {
-                                mediaController?.seekTo(index, 0)
-                            }
-                            .fillMaxWidth())
+                        Card(
+                            modifier = Modifier
+                                .clickable {
+                                    mediaController?.seekTo(index, 0)
+                                }
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (currentMediaId == item.mediaId)
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                else
+                                    Color.Transparent
+                            ),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = if (currentMediaId == item.mediaId) 8.dp else 2.dp
+                            )
+                        )
                         {
                             Text(
                                 text = "$index: ${item.mediaMetadata.title}",
