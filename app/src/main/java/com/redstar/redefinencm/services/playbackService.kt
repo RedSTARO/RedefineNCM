@@ -3,6 +3,8 @@ package com.redstar.redefinencm.services
 import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -17,12 +19,14 @@ import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -37,53 +41,68 @@ class playbackService : MediaSessionService() {
         super.onCreate()
         player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
-
-        val lga by lazy { API() }
-        Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
         val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-        val receiver = LyricReceiver(object : LyricListener() {})
-        registerLyricListener(applicationContext, API.API_VERSION, receiver)
-        setLyricCallback(object : LyricCallback {
-            override fun onLyricUpdated(lyric: String, duration: Int) {
-                Log.d("StatusBarLyric", "歌词更新： $lyric")
-                lga.sendLyric(lyric, extra = cn.lyric.getter.api.data.ExtraData().apply {
-                    packageName = "com.redstar.redefinencm"
-                    customIcon = true
-                    base64Icon = Tools.drawableToBase64(
-                        ContextCompat.getDrawable(
-                            RedefineNCMApplication.getApplicationContext() as Context,
-                            R.drawable.ic_launcher_foreground
-                        )!!
-                    )
-                    useOwnMusicController = false
-                    delay = duration
-                })
-            }
-        })
 
-        // 监听播放状态变化
-        player.addListener(object : Player.Listener {
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                super.onMediaItemTransition(mediaItem, reason)
-                mediaItem?.mediaId?.let { mediaId ->
-                    fetchLyrics(mediaId)
-                    startLyricSync()
+        // Status bar lyric
+        CoroutineScope(Dispatchers.IO).launch {
+            val status = (DataStoreManager.getAppDataStore().data
+                .firstOrNull()
+                ?.get(booleanPreferencesKey("statusBarLyric")) ?: false)
+
+            withContext(Dispatchers.Main) {
+                if (status) {
+                    val receiver = LyricReceiver(object : LyricListener() {})
+                    val lga by lazy { API() }
+
+                    registerLyricListener(applicationContext, API.API_VERSION, receiver)
+                    setLyricCallback(object : LyricCallback {
+                        override fun onLyricUpdated(lyric: String, duration: Int) {
+                            Log.d("StatusBarLyric", "歌词更新： $lyric")
+                            lga.sendLyric(
+                                lyric,
+                                extra = cn.lyric.getter.api.data.ExtraData().apply {
+                                    packageName = "com.redstar.redefinencm"
+                                    customIcon = true
+                                    base64Icon = Tools.drawableToBase64(
+                                        ContextCompat.getDrawable(
+                                            applicationContext,
+                                            R.drawable.ic_launcher_foreground
+                                        )!!
+                                    )
+                                    useOwnMusicController = false
+                                    delay = duration
+                                })
+                        }
+                    })
+
+                    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+
+                    // 监听播放状态变化
+                    player.addListener(object : Player.Listener {
+                        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                            super.onMediaItemTransition(mediaItem, reason)
+                            mediaItem?.mediaId?.let { mediaId ->
+                                fetchLyrics(mediaId)
+                                startLyricSync()
+                            }
+                        }
+
+                        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                            super.onPlayWhenReadyChanged(playWhenReady, reason)
+                            if (playWhenReady) {
+                                startLyricSync()
+                            }
+                        }
+
+                        override fun onPlaybackStateChanged(playbackState: Int) {
+                            super.onPlaybackStateChanged(playbackState)
+                            startLyricSync()
+                        }
+
+                    })
                 }
             }
-
-            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                super.onPlayWhenReadyChanged(playWhenReady, reason)
-                if (playWhenReady) {
-                    startLyricSync()
-                }
-            }
-
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                super.onPlaybackStateChanged(playbackState)
-                startLyricSync()
-            }
-
-        })
+        }
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
@@ -138,7 +157,7 @@ class playbackService : MediaSessionService() {
     /**
      * 获取当前时间对应的歌词和持续时间
      */
-    private fun getCurrentLyric(position: Long): Pair<String?, Long>? {
+    private fun getCurrentLyric(position: Long): Pair<String?, Long> {
         var lastLyric: String? = null
         var lastTime: Long? = null
         var nextTime: Long? = null
