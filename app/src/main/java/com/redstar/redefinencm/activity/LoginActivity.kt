@@ -83,7 +83,7 @@ class LoginActivity : ComponentActivity() {
                             }
                             val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
                             CookieLogin(retrofit)
-                            QrLogin(retrofit)
+//                            QrLogin(retrofit)
                         }
                     } else {
                         ServerItem({ gotServer = true }) // This from SettingActivity
