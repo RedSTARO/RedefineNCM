@@ -73,7 +73,7 @@ class playbackService : MediaSessionService() {
                                         )!!
                                     )
                                     useOwnMusicController = false
-                                    delay = duration
+//                                    delay = duration
                                 })
                         }
                     })
