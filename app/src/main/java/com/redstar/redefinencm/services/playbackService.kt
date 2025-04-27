@@ -155,7 +155,7 @@ class playbackService : MediaSessionService() {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
                 if (!isPlaying) break
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
-                val (currentLyric, duration) = getCurrentLyric(currentPosition) ?: Pair(null, 2000L)
+                val (currentLyric, duration) = getCurrentLyric(currentPosition)
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
                 delay(duration)
             }
