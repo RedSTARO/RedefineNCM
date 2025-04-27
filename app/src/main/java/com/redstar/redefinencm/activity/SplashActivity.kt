@@ -162,3 +162,11 @@ fun checkAppUpdate() {
         ).show()
     }
 }
+
+fun checkLoginStatus(){
+    TODO()
+}
+
+fun checkNetworkStatus(){
+    TODO()
+}

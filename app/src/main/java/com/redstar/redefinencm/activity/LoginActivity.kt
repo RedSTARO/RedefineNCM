@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
@@ -263,3 +264,11 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
     }
 }
 
+@Composable
+@Preview
+fun LoginActivityPreview(){
+    ServerItem({})
+    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+    CookieLogin(retrofit)
+    QrLogin(retrofit)
+}

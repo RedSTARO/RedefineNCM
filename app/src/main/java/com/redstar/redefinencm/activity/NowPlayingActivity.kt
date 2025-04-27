@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -95,25 +96,30 @@ class NowPlayingActivity : ComponentActivity() {
                     },
                     containerColor = MaterialTheme.colorScheme.background
                 ) { paddingValues ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .background(MaterialTheme.colorScheme.background),
-                        contentAlignment = Alignment.Center
-
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            SongDetails(modifier = Modifier.fillMaxWidth())
-                            PlaybackControlButtons(modifier = Modifier.fillMaxWidth())
-                            PlaylistButtons(modifier = Modifier.fillMaxWidth())
-                        }
-                    }
+                    NowPlayingPage(paddingValues)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun NowPlayingPage(paddingValues: PaddingValues){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SongDetails(modifier = Modifier.fillMaxWidth())
+            PlaybackControlButtons(modifier = Modifier.fillMaxWidth())
+            PlaylistButtons(modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -419,4 +425,10 @@ fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier)
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
         shape = RoundedCornerShape(12.dp)
     ) { Text(text, color = MaterialTheme.colorScheme.onSecondary) }
+}
+
+@Composable
+@Preview
+fun NowPlayingPagePreview(){
+    NowPlayingPage(PaddingValues.Absolute(5.dp))
 }
