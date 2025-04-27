@@ -15,6 +15,7 @@ import cn.lyric.getter.api.listener.LyricListener
 import cn.lyric.getter.api.listener.LyricReceiver
 import cn.lyric.getter.api.tools.Tools
 import cn.lyric.getter.api.tools.Tools.registerLyricListener
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
@@ -36,6 +37,7 @@ class playbackService : MediaSessionService() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var lyricMap: LinkedHashMap<Long?, String?> = linkedMapOf() // 存储解析后的歌词
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+    val TAG = "PlaybackService"
 
     override fun onCreate() {
         super.onCreate()
@@ -57,7 +59,9 @@ class playbackService : MediaSessionService() {
                     registerLyricListener(applicationContext, API.API_VERSION, receiver)
                     setLyricCallback(object : LyricCallback {
                         override fun onLyricUpdated(lyric: String, duration: Int) {
-                            Log.d("StatusBarLyric", "歌词更新： $lyric")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("StatusBarLyric", "歌词更新： $lyric")
+                            }
                             lga.sendLyric(
                                 lyric,
                                 extra = cn.lyric.getter.api.data.ExtraData().apply {
@@ -74,8 +78,9 @@ class playbackService : MediaSessionService() {
                                 })
                         }
                     })
-
-                    Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
+                    }
 
                     // 监听播放状态变化
                     player.addListener(object : Player.Listener {
@@ -128,9 +133,13 @@ class playbackService : MediaSessionService() {
                 val response = retrofit.lyric(mediaId.toLong())
                 val lyricText = response.lrc.lyric
                 lyricMap = LyricParser.parse(lyricText)
-                Log.d("PlaybackService", "Lyrics fetched and parsed for mediaId: $mediaId")
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
+                }
             } catch (e: Exception) {
-                Log.e("PlaybackService", "Failed to fetch lyrics: ${e.message}")
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
+                }
             }
         }
     }

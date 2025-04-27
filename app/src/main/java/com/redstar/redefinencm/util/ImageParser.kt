@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
+import com.redstar.redefinencm.BuildConfig
 
 class ImageParser {
     companion object {
@@ -17,15 +18,19 @@ class ImageParser {
          */
         fun imageThemeColor(hardwareBitmap: Bitmap, preferStyle: Int = 0): Color {
             var themeColor = Color(0xFF808080)
-            Log.d(
-                TAG,
-                "Hardware Bitmap: ${hardwareBitmap.width}x${hardwareBitmap.height}, Config: ${hardwareBitmap.config}"
-            )
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    TAG,
+                    "Hardware Bitmap: ${hardwareBitmap.width}x${hardwareBitmap.height}, Config: ${hardwareBitmap.config}"
+                )
+            }
             val softwareBitmap = hardwareBitmap.copy(Bitmap.Config.ARGB_8888, true)
-            Log.d(
-                TAG,
-                "Bitmap: ${softwareBitmap.width}x${softwareBitmap.height}, isRecycled: ${softwareBitmap.isRecycled}"
-            )
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    TAG,
+                    "Bitmap: ${softwareBitmap.width}x${softwareBitmap.height}, isRecycled: ${softwareBitmap.isRecycled}"
+                )
+            }
             val palette = Palette.from(softwareBitmap).generate() // 同步生成Palette
             val muted = palette.mutedSwatch?.rgb?.let { Color(it) }
             val vibrant = palette.vibrantSwatch?.rgb?.let { Color(it) }
@@ -37,7 +42,9 @@ class ImageParser {
             } else if (preferStyle == 2) {
                 themeColor = dominant ?: vibrant ?: muted ?: themeColor
             }
-            Log.d(TAG, "Theme color: $themeColor")
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Theme color: $themeColor")
+            }
             return themeColor // 返回提取的颜色
         }
     }

@@ -45,6 +45,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.NowPlayingActivity
 import com.redstar.redefinencm.services.playbackService
@@ -152,10 +153,14 @@ fun MiniNowPlaying(context: Context) {
                     }),
                 onSuccess = { result ->
                     themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
-                    Log.d("AlbumArt", "Image theme color: $themeColor")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("AlbumArt", "Image theme color: $themeColor")
+                    }
                 },
                 onError = { error ->
-                    Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    if (BuildConfig.DEBUG) {
+                        Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    }
                     themeColor = Color.Gray
                 }
             )

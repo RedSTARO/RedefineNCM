@@ -40,6 +40,7 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
@@ -100,10 +101,17 @@ fun ShowPlaylistDetailPage(
                     onSuccess = { result ->
                         themeColor =
                             ImageParser.imageThemeColor(result.result.drawable.toBitmap())
-                        Log.d("AlbumArt", "Image theme color: $themeColor")
+                        if (BuildConfig.DEBUG) {
+                            Log.d("AlbumArt", "Image theme color: $themeColor")
+                        }
                     },
                     onError = { error ->
-                        Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                        if (BuildConfig.DEBUG) {
+                            Log.e(
+                                "AlbumArt",
+                                "Image load failed: ${error.result.throwable.message}"
+                            )
+                        }
                         themeColor = Color.Gray
                     }
                 )
@@ -186,10 +194,12 @@ fun ShowPlaylistDetailPage(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // 提供阴影
                     shape = RoundedCornerShape(12.dp), // 圆角
                     onClick = {
-                        Log.d(
-                            "showPlaylistDetail",
-                            "Selected Song ${song.name} with id ${song.id}"
-                        )
+                        if (BuildConfig.DEBUG) {
+                            Log.d(
+                                "showPlaylistDetail",
+                                "Selected Song ${song.name} with id ${song.id}"
+                            )
+                        }
                         CoroutineScope(Dispatchers.IO).launch {
                             val url = retrofit.songUrlV1(
                                 listOf(song.id),

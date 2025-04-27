@@ -223,7 +223,9 @@ fun QrLogin(retrofit: NCMApi) {
             scanStatus = "Scan QR Code to log in" // 更新状态
         } catch (e: Exception) {
             scanStatus = "Failed to generate QR Code"
+            if (BuildConfig.DEBUG) {
             Log.d("Login", "qrLogin, Error generating QR code: ${e.message}")
+            }
         }
     }
 
@@ -265,7 +267,9 @@ fun QrLogin(retrofit: NCMApi) {
                     }
                     delay(2000)
                 } catch (e: Exception) {
-                    Log.d("Login", "qrLogin, Error checking QR status: ${e.message}")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("Login", "qrLogin, Error checking QR status: ${e.message}")
+                    }
                 }
             }
         }
@@ -275,7 +279,9 @@ fun QrLogin(retrofit: NCMApi) {
 suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context) {
     if (retrofit.loginStatus(cookie).data.code == 200) {
         // Save cookie
-        Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
+        if (BuildConfig.DEBUG) {
+            Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
+        }
         if (retrofit.loginStatus(cookie).data.profile.nickname.isNotBlank()) {
             DataStoreManager.getAppDataStore().edit { preferences ->
                 preferences[stringPreferencesKey("cookie")] = cookie
@@ -301,10 +307,12 @@ fun checkNeedUpdate() {
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     // 捕获在请求失败时发生的异常
-                    try {
-                        Log.e("UpdateCheck", "Failed to fetch latest commit", e)
-                    } catch (exception: Exception) {
-                        Log.e("UpdateCheck", "Error in failure callback", exception)
+                    if (BuildConfig.DEBUG) {
+                        try {
+                            Log.e("UpdateCheck", "Failed to fetch latest commit", e)
+                        } catch (exception: Exception) {
+                            Log.e("UpdateCheck", "Error in failure callback", exception)
+                        }
                     }
                 }
 
@@ -326,7 +334,9 @@ fun checkNeedUpdate() {
                             }
                         }
                     } catch (exception: Exception) {
-                        Log.e("UpdateCheck", "Error parsing response", exception)
+                        if (BuildConfig.DEBUG) {
+                            Log.e("UpdateCheck", "Error parsing response", exception)
+                        }
                     }
                 }
             })
@@ -338,10 +348,12 @@ fun checkNeedUpdate() {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    try {
-                        Log.e("UpdateCheck", "Failed to fetch update info", e)
-                    } catch (exception: Exception) {
-                        Log.e("UpdateCheck", "Error in failure callback", exception)
+                    if (BuildConfig.DEBUG) {
+                        try {
+                            Log.e("UpdateCheck", "Failed to fetch update info", e)
+                        } catch (exception: Exception) {
+                            Log.e("UpdateCheck", "Error in failure callback", exception)
+                        }
                     }
                 }
 
@@ -364,7 +376,9 @@ fun checkNeedUpdate() {
                             }
                         }
                     } catch (exception: Exception) {
-                        Log.e("UpdateCheck", "Error parsing response", exception)
+                        if (BuildConfig.DEBUG) {
+                            Log.e("UpdateCheck", "Error parsing response", exception)
+                        }
                     }
                 }
             })

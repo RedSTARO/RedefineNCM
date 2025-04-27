@@ -63,6 +63,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
@@ -169,10 +170,14 @@ fun SongDetails(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 onSuccess = { result ->
                     themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
-                    Log.d("AlbumArt", "Image theme color: $themeColor")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("AlbumArt", "Image theme color: $themeColor")
+                    }
                 },
                 onError = { error ->
-                    Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    if (BuildConfig.DEBUG) {
+                        Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                    }
                     themeColor = Color.Gray
                 }
             )
@@ -300,7 +305,9 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
             onClick = {
                 mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
                 currentRepeatStatus = (currentRepeatStatus) % 3
-                Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
+                if (BuildConfig.DEBUG) {
+                    Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
+                }
             },
             text = "Repeat Mode"
         )
@@ -371,7 +378,9 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
                         }
                     }
                     Spacer(Modifier.padding(5.dp))
-                    Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
+                    }
                 }
             }
         }

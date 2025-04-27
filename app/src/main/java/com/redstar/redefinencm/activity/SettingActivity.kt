@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
@@ -269,7 +270,9 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
         Button(onClick = {
             coroutineScope.launch(Dispatchers.IO) {
                 try {
-                    Log.d("SettingActivity", "Save server at $settingValue")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("SettingActivity", "Save server at $settingValue")
+                    }
                     DataStoreManager.getAppDataStore().edit { preferences ->
                         preferences[stringPreferencesKey(settingItemKey)] = settingValue
                     }

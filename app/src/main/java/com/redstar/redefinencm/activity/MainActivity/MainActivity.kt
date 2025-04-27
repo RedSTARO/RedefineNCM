@@ -52,7 +52,9 @@ class MainActivity : ComponentActivity() {
                             Log.d("Main", "UID: $uid")
                         }
                     } catch (e: Exception) {
-                        Log.e("Main", "Failed to fetch UID: ${e.message}")
+                        if (BuildConfig.DEBUG) {
+                            Log.e("Main", "Failed to fetch UID: ${e.message}")
+                        }
                     }
                 }
 
