@@ -76,7 +76,7 @@ class SettingActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingPage(){
+fun SettingPage() {
     Surface {
         Column(
             modifier = Modifier
@@ -334,6 +334,6 @@ suspend fun checkServerVersion(server: String): String {
 
 @Composable
 @Preview
-fun SettingPagePreview(){
+fun SettingPagePreview() {
     SettingPage()
 }

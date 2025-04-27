@@ -104,7 +104,7 @@ class NowPlayingActivity : ComponentActivity() {
 }
 
 @Composable
-fun NowPlayingPage(paddingValues: PaddingValues){
+fun NowPlayingPage(paddingValues: PaddingValues) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -429,6 +429,6 @@ fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier)
 
 @Composable
 @Preview
-fun NowPlayingPagePreview(){
+fun NowPlayingPagePreview() {
     NowPlayingPage(PaddingValues.Absolute(5.dp))
 }

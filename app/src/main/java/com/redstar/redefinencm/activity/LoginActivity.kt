@@ -266,7 +266,7 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 
 @Composable
 @Preview
-fun LoginActivityPreview(){
+fun LoginActivityPreview() {
     ServerItem({})
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     CookieLogin(retrofit)
