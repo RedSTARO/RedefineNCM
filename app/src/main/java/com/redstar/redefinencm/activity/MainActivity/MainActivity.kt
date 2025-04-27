@@ -131,6 +131,8 @@ class MainActivity : ComponentActivity() {
         controllerFuture.addListener({
             // MediaController is available here
         }, MoreExecutors.directExecutor())
+
+        // TODO: Add a login status checker
     }
 
     override fun onStop() {
