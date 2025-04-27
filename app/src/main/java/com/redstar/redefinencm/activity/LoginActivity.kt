@@ -5,8 +5,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -42,14 +45,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
+import java.io.IOException
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,22 +72,60 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                        CookieLogin(retrofit)
-//                        QrLogin(retrofit) If u want this, just enable the line
+                    var cookie by remember { mutableStateOf("") }
+                    var gotServer by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        cookie = runBlocking {
+                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
+                                "cookie"
+                            )] ?: ""
+                        }
+                        gotServer = runBlocking {
+                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
+                                "server"
+                            )] ?: ""
+                        }.isNotBlank()
+                        checkNeedUpdate()
+                    }
+
+                    if (BuildConfig.DEBUG) {
+                        Log.d("Login", "Cookie: $cookie")
+                    }
+
+                    if (gotServer) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            if (cookie.isBlank()) {
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Login", "No Cookie, login")
+                                }
+                                val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
+                                CookieLogin(retrofit)
+//                                QrLogin(retrofit) // Disabled QR login due to 高使用门槛 :>
+                            } else {
+//                            TODO: Add a new splash screen
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Login", "Got cookie, jump to main")
+                                }
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                startActivity(intent)
+                            }
+                        }
+                    } else {
+                        ServerItem({ gotServer = true }) // This from SettingActivity
                     }
                 }
+
             }
         }
     }
 }
+
 
 @Composable
 fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
@@ -238,6 +290,93 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
     }
 }
 
+fun checkNeedUpdate() {
+    try {
+        if (BuildConfig.DEBUG) {
+            val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/master"
+
+            val request = Request.Builder().url(url).build()
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    // 捕获在请求失败时发生的异常
+                    try {
+                        Log.e("UpdateCheck", "Failed to fetch latest commit", e)
+                    } catch (exception: Exception) {
+                        Log.e("UpdateCheck", "Error in failure callback", exception)
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        response.body?.string()?.let { responseBody ->
+                            val jsonObject = JSONObject(responseBody)
+                            val latestCommitSha = jsonObject.getString("sha")
+                            val savedSha = BuildConfig.GIT_SHA
+
+                            if (latestCommitSha != savedSha) {
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(
+                                        RedefineNCMApplication.getApplicationContext() as Context,
+                                        "New version is out, check updates!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                    } catch (exception: Exception) {
+                        Log.e("UpdateCheck", "Error parsing response", exception)
+                    }
+                }
+            })
+        } else {
+            val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/releases/latest"
+
+            val request = Request.Builder().url(url).build()
+            val client = OkHttpClient()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    try {
+                        Log.e("UpdateCheck", "Failed to fetch update info", e)
+                    } catch (exception: Exception) {
+                        Log.e("UpdateCheck", "Error in failure callback", exception)
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    try {
+                        response.body?.string()?.let { responseBody ->
+                            val jsonObject = JSONObject(responseBody)
+                            val latestVersion = jsonObject.getString("tag_name")
+                            val currentVersion = "v_${BuildConfig.RELEASE_VER}"
+
+                            if (latestVersion != currentVersion) {
+                                // 发现新版本，通知用户
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(
+                                        RedefineNCMApplication.getApplicationContext() as Context,
+                                        "发现新版本：$latestVersion",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                    } catch (exception: Exception) {
+                        Log.e("UpdateCheck", "Error parsing response", exception)
+                    }
+                }
+            })
+        }
+    } catch (e: Exception) {
+        Toast.makeText(
+            RedefineNCMApplication.getApplicationContext() as Context,
+            "Unable to check cause ${e.message}",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+}
 
 
 @Preview(showBackground = true)
