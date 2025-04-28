@@ -2,7 +2,6 @@ package com.redstar.redefinencm.activity
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
@@ -28,11 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,14 +42,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.viewmodel.LoginViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 
 class LoginActivity : ComponentActivity() {
@@ -234,12 +226,13 @@ fun QrLogin(viewModel: LoginViewModel ) {
 }
 
 suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Context) {
-    if (retrofit.loginStatus(cookie).data.code == 200) {
+    val request = retrofit.loginStatus(cookie)
+    if (request.data.code == 200) {
         // Save cookie
         if (BuildConfig.DEBUG) {
-            Log.d("Login", "username: ${retrofit.loginStatus(cookie).data.profile.nickname}")
+            Log.d("Login", "username: ${request.data.profile.nickname}")
         }
-        if (retrofit.loginStatus(cookie).data.profile.nickname.isNotBlank()) {
+        if (request.data.profile.nickname.isNotBlank()) {
             DataStoreManager.getAppDataStore().edit { preferences ->
                 preferences[stringPreferencesKey("cookie")] = cookie
             }
