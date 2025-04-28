@@ -53,7 +53,7 @@ class SplashActivity : ComponentActivity() {
                     this.startActivity(
                         Intent(
                             this,
-                            if (cookie.isNotEmpty()) LoginActivity::class.java else MainActivity::class.java
+                            if (cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java
                         )
                     )
                 }
