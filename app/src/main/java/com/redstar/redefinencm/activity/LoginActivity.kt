@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,12 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.viewmodel.LoginViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -61,48 +64,40 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    var gotServer by remember { mutableStateOf(false) }
-                    LaunchedEffect(Unit) {
-                        gotServer = runBlocking {
-                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-                                "server"
-                            )] ?: ""
-                        }.isNotBlank()
-                    }
-
-                    if (gotServer) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            if (BuildConfig.DEBUG) {
-                                Log.d("Login", "No Cookie, login")
-                            }
-                            val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                            CookieLogin(retrofit)
-//                            QrLogin(retrofit)
-                        }
-                    } else {
-                        ServerItem({ gotServer = true }) // This from SettingActivity
-                    }
+                    LoginPage(innerPadding = innerPadding, viewModel = viewModel())
                 }
-
             }
         }
     }
 }
 
+@Composable
+fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel ){
+    if (viewModel.server.isNotEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (BuildConfig.DEBUG) {
+                Log.d("Login", "No Cookie, login")
+            }
+            CookieLogin(viewModel)
+//            QrLogin(viewModel)
+        }
+    } else {
+        ServerItem({  }) // This from SettingActivity
+    }
+}
+
 
 @Composable
-fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
+fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var cookie by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -120,8 +115,8 @@ fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
         )
         OutlinedTextField(
             label = { Text("Cookie") },
-            value = cookie,
-            onValueChange = { cookie = it },
+            value = viewModel.cookie,
+            onValueChange = { viewModel.cookie = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -129,19 +124,19 @@ fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
         )
         Button(
             onClick = {
-                if (cookie.isBlank()) {
-                    errorMessage = "Cookie 不能为空"
+                if (viewModel.cookie.isBlank()) {
+                    viewModel.cookieLoginErrorMessage = "Cookie 不能为空"
                     return@Button
                 }
-                isLoading = true
-                errorMessage = ""
+                viewModel.cookieLoginLoading = true
+                viewModel.cookieLoginErrorMessage = ""
                 coroutineScope.launch {
                     try {
-                        checkLoggedInAndJump(retrofit, cookie, context)
+                        checkLoggedInAndJump(viewModel.retrofit, viewModel.cookie, context)
                     } catch (e: Exception) {
-                        errorMessage = "登录失败：${e.message}"
+                        viewModel.cookieLoginErrorMessage = "登录失败：${e.message}"
                     } finally {
-                        isLoading = false
+                        viewModel.cookieLoginLoading = false
                     }
                 }
             },
@@ -149,7 +144,7 @@ fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            if (isLoading) {
+            if (viewModel.cookieLoginLoading) {
                 CircularProgressIndicator(
                     color = Color.White,
                     modifier = Modifier.size(24.dp)
@@ -158,9 +153,9 @@ fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
                 Text("登录")
             }
         }
-        if (errorMessage.isNotEmpty()) {
+        if (viewModel.cookieLoginErrorMessage.isNotEmpty()) {
             Text(
-                text = errorMessage,
+                text = viewModel.cookieLoginErrorMessage,
                 color = Color.Red,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -169,29 +164,23 @@ fun CookieLogin(retrofit: NCMApi, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun QrLogin(retrofit: NCMApi) {
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var unikey by remember { mutableStateOf("") }
-    var gotCookie by remember { mutableStateOf(false) }
-    var scanStatus by remember { mutableStateOf("Generating Code") }
-    var cookie by remember { mutableStateOf("") }
+fun QrLogin(viewModel: LoginViewModel ) {
     val context = LocalContext.current
-
-    val coroutineScope = rememberCoroutineScope() // 独立的协程作用域
+    val coroutineScope = rememberCoroutineScope()
 
     // 获取二维码
     LaunchedEffect(Unit) {
         try {
-            val keyResponse = retrofit.loginQrKey()
-            unikey = keyResponse.data.unikey
+            val keyResponse = viewModel.retrofit.loginQrKey()
+            viewModel.qrLoginUnikey = keyResponse.data.unikey
 
-            val qrImg = retrofit.loginQrCreate(unikey, true).data.qrimg.substringAfter("base64,")
+            val qrImg = viewModel.retrofit.loginQrCreate(viewModel.qrLoginUnikey, true).data.qrimg.substringAfter("base64,")
             val qrBytes = Base64.decode(qrImg, Base64.DEFAULT)
-            bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(qrBytes))
+            viewModel.qrLoginBitmap = BitmapFactory.decodeStream(ByteArrayInputStream(qrBytes))
 
-            scanStatus = "Scan QR Code to log in" // 更新状态
+            viewModel.qrLoginScanStatus = "Scan QR Code to log in" // 更新状态
         } catch (e: Exception) {
-            scanStatus = "Failed to generate QR Code"
+            viewModel.qrLoginScanStatus = "Failed to generate QR Code"
             if (BuildConfig.DEBUG) {
                 Log.d("Login", "qrLogin, Error generating QR code: ${e.message}")
             }
@@ -204,34 +193,33 @@ fun QrLogin(retrofit: NCMApi) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        bitmap?.asImageBitmap()?.let {
+        viewModel.qrLoginBitmap?.asImageBitmap()?.let {
             Image(bitmap = it, contentDescription = "QR Code", modifier = Modifier.size(300.dp))
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = scanStatus, fontSize = 18.sp, color = Color.Black)
+        Text(text = viewModel.qrLoginScanStatus, fontSize = 18.sp, color = Color.Black)
     }
 
     // 轮询检查扫码状态
-    LaunchedEffect(unikey) {
+    LaunchedEffect(viewModel.cookie.isNotEmpty()) {
         coroutineScope.launch {
-            while (!gotCookie) {
+            while (viewModel.cookie.isNotEmpty()) {
                 try {
-                    val response = retrofit.loginQrCheck(unikey)
+                    val response = viewModel.retrofit.loginQrCheck(viewModel.qrLoginUnikey)
                     when (response.code) {
                         800 -> {
-                            scanStatus = "QR Code Expired. Generating new one..."
-                            unikey = "" // 触发二维码刷新
+                            viewModel.qrLoginScanStatus = "QR Code Expired. Generating new one..."
+                            viewModel.qrLoginUnikey = "" // 触发二维码刷新
                         }
 
                         801, 802 -> {
-                            scanStatus = response.message
+                            viewModel.qrLoginScanStatus = response.message
                         }
 
                         803 -> {
-                            cookie = response.cookie
-                            gotCookie = true
-                            scanStatus = "Login Successful!"
-                            checkLoggedInAndJump(retrofit, cookie, context)
+                            viewModel.cookie = response.cookie
+                            viewModel.qrLoginScanStatus = "Login Successful!"
+                            checkLoggedInAndJump(viewModel.retrofit, viewModel.cookie, context)
                         }
                     }
                     delay(2000)
@@ -258,6 +246,9 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 //        Jump to MainActivity
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
+            if (context is LoginActivity) {
+                context.finish()
+            }
         } else {
             throw Exception("Cookie 无效")
         }
@@ -268,7 +259,6 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
 @Preview
 fun LoginActivityPreview() {
     ServerItem({})
-    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-    CookieLogin(retrofit)
-    QrLogin(retrofit)
+    CookieLogin(viewModel())
+    QrLogin(viewModel())
 }

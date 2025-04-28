@@ -105,4 +105,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.androidx.palette)
     implementation(libs.lyric.getter.api)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 }
