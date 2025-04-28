@@ -19,7 +19,7 @@ android {
         versionCode = generateVersionCode()
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionNameSuffix = "EarlyAccess_${getGitSha()}"
+        versionNameSuffix = "_EarlyAccess_${getGitSha().substring(0..5)}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
         buildConfigField("String", "RELEASE_VER", "\"${versionName}\"")
     }
