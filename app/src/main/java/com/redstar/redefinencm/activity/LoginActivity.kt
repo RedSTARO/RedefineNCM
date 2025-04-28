@@ -36,14 +36,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.viewmodel.LoginViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -108,7 +105,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
         OutlinedTextField(
             label = { Text("Cookie") },
             value = viewModel.cookie,
-            onValueChange = { viewModel.cookie = it },
+            onValueChange = { viewModel.updateCookie(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
@@ -209,7 +206,7 @@ fun QrLogin(viewModel: LoginViewModel ) {
                         }
 
                         803 -> {
-                            viewModel.cookie = response.cookie
+                            viewModel.updateCookie(response.cookie)
                             viewModel.qrLoginScanStatus = "Login Successful!"
                             checkLoggedInAndJump(viewModel.retrofit, viewModel.cookie, context)
                         }
@@ -233,10 +230,7 @@ suspend fun checkLoggedInAndJump(retrofit: NCMApi, cookie: String, context: Cont
             Log.d("Login", "username: ${request.data.profile.nickname}")
         }
         if (request.data.profile.nickname.isNotBlank()) {
-            DataStoreManager.getAppDataStore().edit { preferences ->
-                preferences[stringPreferencesKey("cookie")] = cookie
-            }
-//        Jump to MainActivity
+            // Jump to MainActivity
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
             if (context is LoginActivity) {

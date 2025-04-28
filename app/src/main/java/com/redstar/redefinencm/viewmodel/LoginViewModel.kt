@@ -16,7 +16,9 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
     var server by mutableStateOf("")
+        private set
     var cookie by mutableStateOf("")
+        private set
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
     var cookieLoginLoading by mutableStateOf(false)
@@ -38,6 +40,11 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun updateServer(newServer: String){
+        server = newServer
+        updateDatastore("server", newServer)
+    }
+
     private fun loadCookie() {
         viewModelScope.launch {
             val value = DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")] ?: ""
@@ -45,7 +52,12 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun updateDatastore(key: String, value: String) {
+    fun updateCookie(newCookie: String){
+        cookie = newCookie
+        updateDatastore("cookie", newCookie)
+    }
+
+    private fun updateDatastore(key: String, value: String) {
         viewModelScope.launch {
             DataStoreManager.getAppDataStore().edit { preferences ->
                 preferences[stringPreferencesKey(key)] = value
