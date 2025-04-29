@@ -10,47 +10,47 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-//TODO: Move to Cache-Then-Network
-
 object RetrofitInstance {
     private val BASE_URL = getBaseUrl()
     private val REAL_IP = getRealIP()
-    private val COOKIE = getCookie()
-    private val NoCookieUrl = listOf("login")
-    private val TimestampUrl = listOf("login")
+    private val COOKIE = getCleanCookie() // Use cleaned cookie
+    private val NO_COOKIE_URLS = listOf("login")
+    private val TIMESTAMP_URLS = listOf("login")
 
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val original = chain.request()
             val originalUrl = original.url
 
-            // 创建基本的 URL 并添加 realIP 参数
+            // Build new URL with realIP parameter
             var newUrl = originalUrl.newBuilder()
                 .addQueryParameter("realIP", REAL_IP)
                 .build()
 
-            // 如果 URL 包含 "TimestampUrl"，则添加 timestamp 参数
-            if (TimestampUrl.any { originalUrl.encodedPath.contains(it) }) {
+            // Add timestamp parameter for specific URLs
+            if (TIMESTAMP_URLS.any { originalUrl.encodedPath.contains(it) }) {
                 newUrl = newUrl.newBuilder()
                     .addQueryParameter("timestamp", System.currentTimeMillis().toString())
                     .build()
             }
 
-            // 如果 URL 包含 "NoCookieUrl"，则不添加 cookie 参数
-            if (!NoCookieUrl.any { originalUrl.encodedPath.contains(it) }) {
-                newUrl = newUrl.newBuilder()
-                    .addQueryParameter("cookie", COOKIE)
-                    .build()
-            }
-            if (BuildConfig.DEBUG) {
-                Log.d("RetrofitInstance", newUrl.toString())
+            // Build the new request, conditionally adding the Cookie header
+            val requestBuilder = original.newBuilder().url(newUrl)
+            if (!NO_COOKIE_URLS.any { originalUrl.encodedPath.contains(it) }) {
+                requestBuilder.addHeader("Cookie", COOKIE)
             }
 
-            chain.proceed(
-                original.newBuilder()
-                    .url(newUrl)
-                    .build()
-            )
+            // Build the final request
+            val finalRequest = requestBuilder.build()
+
+            // Log URL and headers in debug mode
+            if (BuildConfig.DEBUG) {
+                Log.d("RetrofitInstance", "URL: ${finalRequest.url}")
+                Log.d("RetrofitInstance", "Header Cookie: ${finalRequest.header("Cookie")}")
+            }
+
+            // Proceed with the modified request
+            chain.proceed(finalRequest)
         }
         .build()
 
@@ -67,16 +67,32 @@ fun getRealIP(): String {
 
 fun getCookie(): String {
     return runBlocking {
-        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-            "cookie"
-        )] ?: ""
+        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")] ?: ""
     }
+}
+
+// New function to clean the cookie string
+fun getCleanCookie(): String {
+    val rawCookie = getCookie()
+    if (rawCookie.isEmpty()) return ""
+
+    // Split the cookie string by semicolons and extract name=value pairs
+    val cleanCookies = rawCookie.split(";")
+        .map { it.trim() }
+        .filter { it.contains("=") } // Ensure it has a name=value pair
+        .map { part ->
+            // Extract only the name=value part, ignoring attributes
+            val nameValue = part.substringBefore(";").trim()
+            if (nameValue.isNotEmpty()) nameValue else null
+        }
+        .filterNotNull()
+        .joinToString("; ")
+
+    return cleanCookies
 }
 
 fun getBaseUrl(): String {
     return runBlocking {
-        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-            "server"
-        )] ?: ""
+        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")] ?: ""
     }
 }
