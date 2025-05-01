@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "RedefineNCM"
 include(":app")
- 
+include(":serverMocker")
