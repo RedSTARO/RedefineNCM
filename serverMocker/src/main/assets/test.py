@@ -32,8 +32,11 @@ def main(api):
                 # 如果值是字符串，修改它
                 if isinstance(value, str):
                     obj[key] = "AStringValue"
+                elif isinstance(value, bool):
+                    obj[key] = False
                 elif isinstance(value, int):
-                    obj[key] = 111111
+                    if key != "code":
+                        obj[key] = 111111
                 # 如果值是列表，修改为只保留第一项
                 elif isinstance(value, list):
                     if value:
@@ -54,7 +57,7 @@ def main(api):
     modified_json = modify_values(response_json)
 
     # 将修改后的内容保存到独立的 JSON 文件
-    with open(f"{api.replace("/", "_").replace("?", "_").split("=")[0]}.json", "w", encoding="utf-8") as f:
+    with open(f"{api.replace("/", "_").split("?")[0]}.json", "w", encoding="utf-8") as f:
         json.dump(modified_json, f, ensure_ascii=False, indent=4)
 
     print(urlBase)
