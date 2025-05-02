@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 try {
-                    server = MyApiServer()
+                    server = MyApiServer(applicationContext)
                     server?.start()
                     Log.i("MyApiServer", "✅ 启动成功: http://localhost:8080")
                     serverStarted = true

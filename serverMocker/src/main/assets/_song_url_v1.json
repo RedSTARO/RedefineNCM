@@ -1,0 +1,52 @@
+{
+    "data": [
+        {
+            "id": 111111,
+            "url": "AStringValue",
+            "br": 111111,
+            "size": 111111,
+            "md5": "AStringValue",
+            "code": 200,
+            "expi": 111111,
+            "type": "AStringValue",
+            "gain": 111111,
+            "peak": 0.8942,
+            "closedGain": 111111,
+            "closedPeak": 111111,
+            "fee": 111111,
+            "uf": null,
+            "payed": 111111,
+            "flag": 111111,
+            "canExtend": false,
+            "freeTrialInfo": null,
+            "level": "AStringValue",
+            "encodeType": "AStringValue",
+            "channelLayout": null,
+            "freeTrialPrivilege": {
+                "resConsumable": false,
+                "userConsumable": false,
+                "listenType": null,
+                "cannotListenReason": null,
+                "playReason": null,
+                "freeLimitTagType": null
+            },
+            "freeTimeTrialPrivilege": {
+                "resConsumable": false,
+                "userConsumable": false,
+                "type": 111111,
+                "remainTime": 111111
+            },
+            "urlSource": 111111,
+            "rightSource": 111111,
+            "podcastCtrp": null,
+            "effectTypes": null,
+            "time": 111111,
+            "message": null,
+            "levelConfuse": null,
+            "musicId": "AStringValue",
+            "accompany": null,
+            "sr": 111111
+        }
+    ],
+    "code": 200
+}

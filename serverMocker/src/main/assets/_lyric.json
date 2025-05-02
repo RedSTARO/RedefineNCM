@@ -1,0 +1,22 @@
+{
+    "sgc": false,
+    "sfy": false,
+    "qfy": false,
+    "lrc": {
+        "version": 111111,
+        "lyric": "AStringValue"
+    },
+    "klyric": {
+        "version": 111111,
+        "lyric": "AStringValue"
+    },
+    "tlyric": {
+        "version": 111111,
+        "lyric": "AStringValue"
+    },
+    "romalrc": {
+        "version": 111111,
+        "lyric": "AStringValue"
+    },
+    "code": 200
+}
