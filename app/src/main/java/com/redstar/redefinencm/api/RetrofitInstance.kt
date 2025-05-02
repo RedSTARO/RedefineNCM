@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitInstance {
     private val BASE_URL = getBaseUrl()
     private val REAL_IP = getRealIP()
-    private val COOKIE = getCleanCookie() // Use cleaned cookie
+    private val COOKIE = getCookie() // Use cleaned cookie
     private val NO_COOKIE_URLS = listOf("login")
     private val TIMESTAMP_URLS = listOf("login")
 
@@ -46,7 +46,7 @@ object RetrofitInstance {
             // Log URL and headers in debug mode
             if (BuildConfig.DEBUG) {
                 Log.d("RetrofitInstance", "URL: ${finalRequest.url}")
-                Log.d("RetrofitInstance", "Header Cookie: ${finalRequest.header("Cookie")}")
+//                Log.d("RetrofitInstance", "Header Cookie: ${finalRequest.header("Cookie")}")
             }
 
             // Proceed with the modified request
@@ -66,26 +66,19 @@ fun getRealIP(): String {
 }
 
 fun getCookie(): String {
-    return runBlocking {
+    val rawCookie = runBlocking {
         DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")] ?: ""
     }
-}
-
-// New function to clean the cookie string
-fun getCleanCookie(): String {
-    val rawCookie = getCookie()
     if (rawCookie.isEmpty()) return ""
 
     // Split the cookie string by semicolons and extract name=value pairs
     val cleanCookies = rawCookie.split(";")
         .map { it.trim() }
-        .filter { it.contains("=") } // Ensure it has a name=value pair
-        .map { part ->
+        .filter { it.contains("=") }.mapNotNull { part ->
             // Extract only the name=value part, ignoring attributes
             val nameValue = part.substringBefore(";").trim()
             if (nameValue.isNotEmpty()) nameValue else null
         }
-        .filterNotNull()
         .joinToString("; ")
 
     return cleanCookies
