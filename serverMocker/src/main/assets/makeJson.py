@@ -37,10 +37,10 @@ def main(api):
                 elif isinstance(value, int):
                     if key != "code":
                         obj[key] = 111111
-                # 如果值是列表，修改为只保留第一项
+                # 如果值是列表，修改为只保留3项
                 elif isinstance(value, list):
                     if value:
-                        obj[key] = [modify_values(value[0])]  # 保留第一项
+                        obj[key] = [modify_values(value[i]) for i in range(len(value) )if i < 3]  # 保留3项
                     else:
                         obj[key] = []  # 空列表保持为空
                 # 递归处理字典
@@ -48,7 +48,7 @@ def main(api):
                     obj[key] = modify_values(value)
         elif isinstance(obj, list):
             if obj:
-                return [modify_values(obj[0])]  # 只保留第一项
+                return [modify_values(obj[i]) for i in range(len(obj) ) if i < 3]   # 只保留3项
             else:
                 return []  # 空列表保持为空
         return obj
@@ -63,9 +63,10 @@ def main(api):
     print(urlBase)
     print(f"修改后的数据已经保存到 {api.replace("/", "_")}.json")
 
+spApis = [f"/login/qr/create?key=5606f361-1708-49aa-a201-c966bcde8cac&qrimg=true", f"/login/qr/check?key=5606f361-1708-49aa-a201-c966bcde8cac"]
+
 apis = ["/user/account", f"/user/detail?uid={uid}", f"/login/status?cookie={headers["Cookie"]}",
-        "/login/qr/key", f"/login/qr/create?key=5606f361-1708-49aa-a201-c966bcde8cac&qrimg=true", f"/login/qr/check?key=5606f361-1708-49aa-a201-c966bcde8cac",
-        "/daily_signin", f"/user/playlist?uid={uid}", f"/playlist/track/all?id={songlistid}", f"/playlist/detail?id={songlistid}", f"/song/url/v1?id={songid}&level=standard",
+        "/login/qr/key", f"/daily_signin", f"/user/playlist?uid={uid}", f"/playlist/track/all?id={songlistid}", f"/playlist/detail?id={songlistid}", f"/song/url/v1?id={songid}&level=standard",
         f"/song/detail?id={songid}", f"/lyric?id={songid}", f"/inner/version"]
 for i in apis:
     main(i)

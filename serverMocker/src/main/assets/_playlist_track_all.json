@@ -83,14 +83,192 @@
             "single": 111111,
             "noCopyrightRcmd": null,
             "mv": 111111,
-            "rtype": 111111,
-            "rurl": null,
             "mst": 111111,
             "cp": 111111,
+            "rtype": 111111,
+            "rurl": null,
             "publishTime": 111111,
             "tns": [
                 "The Ferry"
             ]
+        },
+        {
+            "name": "AStringValue",
+            "mainTitle": null,
+            "additionalTitle": null,
+            "id": 111111,
+            "pst": 111111,
+            "t": 111111,
+            "ar": [
+                {
+                    "id": 111111,
+                    "name": "AStringValue",
+                    "tns": [],
+                    "alias": []
+                }
+            ],
+            "alia": [],
+            "pop": 111111,
+            "st": 111111,
+            "rt": null,
+            "fee": 111111,
+            "v": 111111,
+            "crbt": null,
+            "cf": "AStringValue",
+            "al": {
+                "id": 111111,
+                "name": "AStringValue",
+                "picUrl": "AStringValue",
+                "tns": [],
+                "pic_str": "AStringValue",
+                "pic": 111111
+            },
+            "dt": 111111,
+            "h": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "m": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "l": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "sq": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "hr": null,
+            "a": null,
+            "cd": "AStringValue",
+            "no": 111111,
+            "rtUrl": null,
+            "ftype": 111111,
+            "rtUrls": [],
+            "djId": 111111,
+            "copyright": 111111,
+            "s_id": 111111,
+            "mark": 111111,
+            "originCoverType": 111111,
+            "originSongSimpleData": null,
+            "tagPicList": null,
+            "resourceState": false,
+            "version": 111111,
+            "songJumpInfo": null,
+            "entertainmentTags": null,
+            "awardTags": null,
+            "displayTags": null,
+            "single": 111111,
+            "noCopyrightRcmd": null,
+            "mv": 111111,
+            "mst": 111111,
+            "cp": 111111,
+            "rtype": 111111,
+            "rurl": null,
+            "publishTime": 111111
+        },
+        {
+            "name": "AStringValue",
+            "mainTitle": null,
+            "additionalTitle": null,
+            "id": 111111,
+            "pst": 111111,
+            "t": 111111,
+            "ar": [
+                {
+                    "id": 111111,
+                    "name": "AStringValue",
+                    "tns": [],
+                    "alias": []
+                }
+            ],
+            "alia": [],
+            "pop": 111111,
+            "st": 111111,
+            "rt": "AStringValue",
+            "fee": 111111,
+            "v": 111111,
+            "crbt": null,
+            "cf": "AStringValue",
+            "al": {
+                "id": 111111,
+                "name": "AStringValue",
+                "picUrl": "AStringValue",
+                "tns": [],
+                "pic_str": "AStringValue",
+                "pic": 111111
+            },
+            "dt": 111111,
+            "h": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "m": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "l": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "sq": {
+                "br": 111111,
+                "fid": 111111,
+                "size": 111111,
+                "vd": 111111,
+                "sr": 111111
+            },
+            "hr": null,
+            "a": null,
+            "cd": "AStringValue",
+            "no": 111111,
+            "rtUrl": null,
+            "ftype": 111111,
+            "rtUrls": [],
+            "djId": 111111,
+            "copyright": 111111,
+            "s_id": 111111,
+            "mark": 111111,
+            "originCoverType": 111111,
+            "originSongSimpleData": null,
+            "tagPicList": null,
+            "resourceState": false,
+            "version": 111111,
+            "songJumpInfo": null,
+            "entertainmentTags": null,
+            "awardTags": null,
+            "displayTags": null,
+            "single": 111111,
+            "noCopyrightRcmd": null,
+            "mv": 111111,
+            "mst": 111111,
+            "cp": 111111,
+            "rtype": 111111,
+            "rurl": null,
+            "publishTime": 111111
         }
     ],
     "privileges": [
@@ -129,6 +307,138 @@
             },
             "rightSource": 111111,
             "chargeInfoList": [
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                }
+            ],
+            "code": 0,
+            "message": null,
+            "plLevels": null,
+            "dlLevels": null,
+            "ignoreCache": null
+        },
+        {
+            "id": 111111,
+            "fee": 111111,
+            "payed": 111111,
+            "st": 111111,
+            "pl": 111111,
+            "dl": 111111,
+            "sp": 111111,
+            "cp": 111111,
+            "subp": 111111,
+            "cs": false,
+            "maxbr": 111111,
+            "fl": 111111,
+            "toast": false,
+            "flag": 111111,
+            "preSell": false,
+            "playMaxbr": 111111,
+            "downloadMaxbr": 111111,
+            "maxBrLevel": "AStringValue",
+            "playMaxBrLevel": "AStringValue",
+            "downloadMaxBrLevel": "AStringValue",
+            "plLevel": "AStringValue",
+            "dlLevel": "AStringValue",
+            "flLevel": "AStringValue",
+            "rscl": null,
+            "freeTrialPrivilege": {
+                "resConsumable": false,
+                "userConsumable": false,
+                "listenType": null,
+                "cannotListenReason": null,
+                "playReason": null,
+                "freeLimitTagType": null
+            },
+            "rightSource": 111111,
+            "chargeInfoList": [
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                }
+            ],
+            "code": 0,
+            "message": null,
+            "plLevels": null,
+            "dlLevels": null,
+            "ignoreCache": null
+        },
+        {
+            "id": 111111,
+            "fee": 111111,
+            "payed": 111111,
+            "st": 111111,
+            "pl": 111111,
+            "dl": 111111,
+            "sp": 111111,
+            "cp": 111111,
+            "subp": 111111,
+            "cs": false,
+            "maxbr": 111111,
+            "fl": 111111,
+            "toast": false,
+            "flag": 111111,
+            "preSell": false,
+            "playMaxbr": 111111,
+            "downloadMaxbr": 111111,
+            "maxBrLevel": "AStringValue",
+            "playMaxBrLevel": "AStringValue",
+            "downloadMaxBrLevel": "AStringValue",
+            "plLevel": "AStringValue",
+            "dlLevel": "AStringValue",
+            "flLevel": "AStringValue",
+            "rscl": null,
+            "freeTrialPrivilege": {
+                "resConsumable": false,
+                "userConsumable": false,
+                "listenType": null,
+                "cannotListenReason": null,
+                "playReason": null,
+                "freeLimitTagType": null
+            },
+            "rightSource": 111111,
+            "chargeInfoList": [
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
+                {
+                    "rate": 111111,
+                    "chargeUrl": null,
+                    "chargeMessage": null,
+                    "chargeType": 111111
+                },
                 {
                     "rate": 111111,
                     "chargeUrl": null,
