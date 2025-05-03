@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity.MainActivity
 
-import android.content.ComponentName
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,50 +30,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.data.playlistDetail
-import com.redstar.redefinencm.api.data.playlistTrackAll
-import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.ImageParser
+import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
 @Composable
 fun ShowPlaylistDetailPage(
-    songlistID: Long,
-    retrofit: NCMApi,
+    viewModel: MainViewModel,
+    songlistID: Long
 ) {
-    var playlistDetail by remember { mutableStateOf<playlistDetail?>(null) }
-    var playlistSongs by remember { mutableStateOf<playlistTrackAll?>(null) }
-    val context = LocalContext.current
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    val retrofit = viewModel.retrofit
+    val mediaController by viewModel.mediaController.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
 
-    LaunchedEffect(Unit) {
-        val sessionToken =
-            SessionToken(context, ComponentName(context, playbackService::class.java))
-        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-        playlistDetail = retrofit.playlistDetail(songlistID)
-        playlistSongs = retrofit.playlistTrackAll(songlistID)
+    val playlistDetail by viewModel.playlistDetail.collectAsState()
+    val playlistSongs by viewModel.playlistSongs.collectAsState()
+
+    LaunchedEffect(songlistID) {
+        viewModel.fetchPlaylistDetail(songlistID)
     }
+
     Column(Modifier.fillMaxSize()) {
         Card(
             modifier = Modifier

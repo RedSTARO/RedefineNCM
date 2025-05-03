@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity.MainActivity
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -23,59 +22,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.data.userDetail
-import com.redstar.redefinencm.api.data.userPlaylist
 import com.redstar.redefinencm.api.data.userPlaylistEach
-import com.redstar.redefinencm.util.DataStoreManager
-import kotlinx.coroutines.flow.firstOrNull
+import com.redstar.redefinencm.viewmodel.MainViewModel
 
 @Composable
 fun ShowUserPlaylistPage(
-    retrofit: NCMApi,
-    uid: Long,
     navController: NavController,
+    viewModel: MainViewModel
 ) {
-    rememberCoroutineScope()
-    var userPlaylist by remember { mutableStateOf<userPlaylist?>(null) }
-    var playlist by remember { mutableStateOf(emptyList<userPlaylistEach>()) }
-    var userDetail by remember { mutableStateOf<userDetail?>(null) }
-    var soundQuality by remember { mutableStateOf("standard") }
-    LocalContext.current
-
+    val userDetail by viewModel.userDetail.collectAsState()
+    val playlist by viewModel.playlist.collectAsState()
 
     LaunchedEffect(Unit) {
-        userPlaylist = retrofit.userPlaylist(uid)
-        userDetail = retrofit.userDetail(uid)
-        if (BuildConfig.DEBUG) {
-            Log.d("showUserPlaylistPage", userDetail!!.code.toString() + userDetail!!.profile)
-            Log.d(
-                "showUserPlaylistPage",
-                userPlaylist!!.code.toString() + userPlaylist!!.playlist
-            )
-        }
-        playlist = userPlaylist!!.playlist
-        soundQuality = DataStoreManager.getAppDataStore().data
-            .firstOrNull()?.get(stringPreferencesKey("onlinePlayQuality")) ?: "standard"
-
+        viewModel.fetchUserData()
     }
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(

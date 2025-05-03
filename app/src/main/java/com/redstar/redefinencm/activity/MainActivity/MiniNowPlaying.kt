@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity.MainActivity
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -25,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,48 +37,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.media3.common.MediaMetadata
-import androidx.media3.common.Player
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.NowPlayingActivity
-import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.util.ImageParser
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.guava.await
+import com.redstar.redefinencm.viewmodel.MainViewModel
 
 @Composable
-fun MiniNowPlaying(context: Context) {
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
-    var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
-    val metadata by metadataFlow.collectAsState()
+fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
+    val metadata by viewModel.metadata.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
+    val mediaController by viewModel.mediaController.collectAsState()
 
-    LaunchedEffect(Unit) {
-        val sessionToken =
-            SessionToken(
-                applicationContext,
-                ComponentName(applicationContext, playbackService::class.java)
-            )
-        val controllerFuture =
-            MediaController.Builder(applicationContext, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-        mediaController?.let { controller ->
-            val listener = object : Player.Listener {
-                override fun onMediaMetadataChanged(metadata: MediaMetadata) {
-                    metadataFlow.value = metadata
-                }
-            }
-            controller.addListener(listener)
-            metadataFlow.value = controller.mediaMetadata
-        }
-    }
 
     Card(
         modifier = Modifier
@@ -117,7 +87,7 @@ fun MiniNowPlaying(context: Context) {
                     }
                     IconButton(onClick = {
                         if (isPlaying) mediaController?.pause() else mediaController?.play()
-                        isPlaying = mediaController?.isPlaying == true
+//                        isPlaying = mediaController?.isPlaying == true
                     }) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,

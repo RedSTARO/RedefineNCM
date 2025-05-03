@@ -35,24 +35,28 @@ class LoginViewModel : ViewModel() {
 
     private fun loadServer() {
         viewModelScope.launch {
-            val value = DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")] ?: ""
+            val value =
+                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")]
+                    ?: ""
             server = value
         }
     }
 
-    fun updateServer(newServer: String){
+    fun updateServer(newServer: String) {
         server = newServer
         updateDatastore("server", newServer)
     }
 
     private fun loadCookie() {
         viewModelScope.launch {
-            val value = DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")] ?: ""
+            val value =
+                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")]
+                    ?: ""
             cookie = value
         }
     }
 
-    fun updateCookie(newCookie: String){
+    fun updateCookie(newCookie: String) {
         cookie = newCookie
         updateDatastore("cookie", newCookie)
     }

@@ -61,7 +61,7 @@ class LoginActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel ){
+fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
     if (viewModel.server.isNotEmpty()) {
         Column(
             modifier = Modifier
@@ -77,7 +77,7 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel ){
 //            QrLogin(viewModel)
         }
     } else {
-        ServerItem({  }) // This from SettingActivity
+        ServerItem({ }) // This from SettingActivity
     }
 }
 
@@ -153,7 +153,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun QrLogin(viewModel: LoginViewModel ) {
+fun QrLogin(viewModel: LoginViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -163,7 +163,10 @@ fun QrLogin(viewModel: LoginViewModel ) {
             val keyResponse = viewModel.retrofit.loginQrKey()
             viewModel.qrLoginUnikey = keyResponse.data.unikey
 
-            val qrImg = viewModel.retrofit.loginQrCreate(viewModel.qrLoginUnikey, true).data.qrimg.substringAfter("base64,")
+            val qrImg = viewModel.retrofit.loginQrCreate(
+                viewModel.qrLoginUnikey,
+                true
+            ).data.qrimg.substringAfter("base64,")
             val qrBytes = Base64.decode(qrImg, Base64.DEFAULT)
             viewModel.qrLoginBitmap = BitmapFactory.decodeStream(ByteArrayInputStream(qrBytes))
 

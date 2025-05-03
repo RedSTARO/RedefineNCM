@@ -16,14 +16,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.compose.NavHost
@@ -33,10 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.common.util.concurrent.MoreExecutors
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.SettingPage
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +43,7 @@ class MainActivity : ComponentActivity() {
             RedefineNCMTheme {
                 val context = LocalContext.current
                 val navController = rememberNavController()
-                val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
-                var uid by remember { mutableStateOf<Long?>(null) }
+                val viewModel: MainViewModel = viewModel()
 
                 val items = listOf(
                     NavigationItem("Home", Icons.Filled.Home, "home"),
@@ -56,26 +51,12 @@ class MainActivity : ComponentActivity() {
                     NavigationItem("Settings", Icons.Filled.Settings, "settings")
                 )
 
-                LaunchedEffect(Unit) {
-                    try {
-                        uid = retrofit.userAccount().account.id
-                        if (BuildConfig.DEBUG) {
-                            Log.d("Main", "UID: $uid")
-                        }
-                    } catch (e: Exception) {
-                        if (BuildConfig.DEBUG) {
-                            Log.e("Main", "Failed to fetch UID: ${e.message}")
-                        }
-                    }
-                }
-
-                // 只有 uid 存在时再显示导航界面
-                if (uid != null) {
+                if (viewModel.uid != 0L) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
 
                     Scaffold(
-                        floatingActionButton = { MiniNowPlaying(context) },
+                        floatingActionButton = { MiniNowPlaying(context, viewModel = viewModel) },
                         bottomBar = {
                             NavigationBar {
                                 items.forEach { item ->
@@ -107,9 +88,8 @@ class MainActivity : ComponentActivity() {
                             }
                             composable("my") {
                                 ShowUserPlaylistPage(
-                                    retrofit = retrofit,
-                                    uid = uid!!,
-                                    navController = navController
+                                    navController = navController,
+                                    viewModel = viewModel
                                 )
                             }
                             composable("my/playlistDetailPage/{songId}") { backStackEntry ->
@@ -118,7 +98,7 @@ class MainActivity : ComponentActivity() {
                                     Log.d("Main", "SongList ID: $songId")
                                 }
                                 ShowPlaylistDetailPage(
-                                    retrofit = retrofit,
+                                    viewModel = viewModel,
                                     songlistID = songId!!.toLong()
                                 )
                             }
