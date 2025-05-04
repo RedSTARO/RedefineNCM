@@ -27,7 +27,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,14 +40,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.MainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.viewmodel.LoginViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 
 class LoginActivity : ComponentActivity() {
@@ -53,7 +63,19 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginPage(innerPadding = innerPadding, viewModel = viewModel())
+                    var gotServer by remember {mutableStateOf(false) }
+
+                    LaunchedEffect(Dispatchers.IO) {
+                        gotServer = runBlocking {(DataStoreManager.getAppDataStore().data.firstOrNull()?.get(stringPreferencesKey("server"))
+                        ?: "")}.isNotEmpty()
+                    }
+
+                    if (gotServer) {
+                        LoginPage(innerPadding = innerPadding, viewModel = viewModel())
+                    } else {
+                        ServerItem({ gotServer = true }) // This from SettingActivity
+                    }
+
                 }
             }
         }
@@ -62,8 +84,7 @@ class LoginActivity : ComponentActivity() {
 
 @Composable
 fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
-    if (viewModel.server.isNotEmpty()) {
-        Column(
+    Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
@@ -76,9 +97,7 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
             CookieLogin(viewModel)
 //            QrLogin(viewModel)
         }
-    } else {
-        ServerItem({ }) // This from SettingActivity
-    }
+
 }
 
 

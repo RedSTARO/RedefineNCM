@@ -52,6 +52,7 @@ import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -273,9 +274,6 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
                     if (BuildConfig.DEBUG) {
                         Log.d("SettingActivity", "Save server at $settingValue")
                     }
-                    DataStoreManager.getAppDataStore().edit { preferences ->
-                        preferences[stringPreferencesKey(settingItemKey)] = settingValue
-                    }
                     status = checkServerAvailable(settingValue)
                     data = checkServerVersion(settingValue)
                 } catch (e: Exception) {
@@ -288,6 +286,11 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
 
         if (status) {
             Text("Server version: $data, OK")
+            runBlocking {
+                DataStoreManager.getAppDataStore().edit { preferences ->
+                    preferences[stringPreferencesKey(settingItemKey)] = settingValue
+                }
+            }
             gotServerCallback(settingValue)
         } else {
             Text("Server unavailable, message: $data")
@@ -297,8 +300,6 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
 
 
 suspend fun checkServerAvailable(server: String): Boolean {
-    println("$server/inner/version/")
-
     // Create a new Retrofit instance with the provided server URL
     val retrofit = Retrofit.Builder()
         .baseUrl(server) // Use the passed server URL directly
@@ -309,8 +310,10 @@ suspend fun checkServerAvailable(server: String): Boolean {
     val api = retrofit.create(NCMApi::class.java)
     return try {
         val code = api.innerVersion("${server}inner/version/").code
+        Log.d("ServerItem", code.toString())
         code == 200
     } catch (e: Exception) {
+        Log.d("ServerItemAva", e.message.toString())
         false
     }
 }
@@ -325,8 +328,11 @@ suspend fun checkServerVersion(server: String): String {
 
     val api = retrofit.create(NCMApi::class.java)
     return try {
-        api.innerVersion("${server}inner/version/").data.version
+        val stat = api.innerVersion("${server}inner/version/").data.version
+        Log.d("ServerItem", stat)
+        stat
     } catch (e: Exception) {
+        Log.d("ServerItemStat", e.message.toString())
         e.message.toString()
     }
 }
