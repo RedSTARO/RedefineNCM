@@ -1,21 +1,21 @@
 package com.redstar.redefinencm.api.data
 
-data class playlistDetail(
+data class PlaylistDetail(
     val code: Int,
-    val playlist: playlistDetailPlaylist
+    val playlist: PlaylistDetailPlaylist
 )
 
-data class playlistDetailPlaylist(
+data class PlaylistDetailPlaylist(
     val id: Long,
     val name: String,
     val coverImgUrl: String,
     val createTime: Long,
     val trackCount: Long,
-    val creator: playlistDetailPlaylistCreator,
+    val creator: PlaylistDetailPlaylistCreator,
 //    val tracks: List<> DO NOT USE THIS, USE /playlist/track/all
 )
 
-data class playlistDetailPlaylistCreator(
+data class PlaylistDetailPlaylistCreator(
     val avatarUrl: String,
     val backgroundUrl: String,
     val userId: Long,

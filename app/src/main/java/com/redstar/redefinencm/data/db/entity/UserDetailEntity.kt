@@ -2,7 +2,7 @@ package com.redstar.redefinencm.data.db.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.redstar.redefinencm.api.data.userDetailProfile
+import com.redstar.redefinencm.api.data.UserDetailProfile
 
 @Entity(tableName = "user_detail")
 data class UserDetailEntity(
@@ -12,5 +12,5 @@ data class UserDetailEntity(
     val backgroundUrl: String,
     val level: Int,
     val listenSongs: Int,
-    val profile: userDetailProfile
+    val profile: UserDetailProfile
 )

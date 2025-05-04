@@ -1,12 +1,12 @@
 package com.redstar.redefinencm.api.data
 
-data class loginQrCreate(
+data class LoginQrCreate(
     //    {"code":200,"data":{"qrurl":"https://music.163.com/login?codekey=undefined","qrimg":""}}
     val code: Int,
-    val data: loginQrCreateData,
+    val data: LoginQrCreateData,
 )
 
-data class loginQrCreateData(
+data class LoginQrCreateData(
     val qrurl: String,
     val qrimg: String,
 )

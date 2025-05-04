@@ -14,8 +14,8 @@ object RetrofitInstance {
     private val BASE_URL = getBaseUrl()
     private val REAL_IP = getRealIP()
     private val COOKIE = getCookie() // Use cleaned cookie
-    private val NO_COOKIE_URLS = listOf("login")
-    private val TIMESTAMP_URLS = listOf("login")
+    private val NO_COOKIE_URLS = listOf("Login")
+    private val TIMESTAMP_URLS = listOf("Login")
 
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain ->

@@ -17,9 +17,7 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.data.playlistDetail
-import com.redstar.redefinencm.api.data.playlistTrackAll
-import com.redstar.redefinencm.api.data.userPlaylistEach
+import com.redstar.redefinencm.api.data.*
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.UserRepository
 import com.redstar.redefinencm.services.PlaybackService
@@ -45,18 +43,19 @@ class MainViewModel(
     var nowPayingIsPlaying = MutableStateFlow(false)
 
     // 用户歌单与详情
-    var userPlaylists = MutableStateFlow<List<userPlaylistEach>>(emptyList())
+    var userPlaylists = MutableStateFlow<List<UserPlaylistEach>>(emptyList())
     var userDetail = MutableStateFlow<UserDetailEntity?>(null)
 
     // 歌单详情与曲目
     var playlistId = MutableStateFlow(String)
-    var playlistDetail = MutableStateFlow<playlistDetail?>(null)
-    var playlistSongs = MutableStateFlow<playlistTrackAll?>(null)
+    var playlistDetail = MutableStateFlow<PlaylistDetail?>(null)
+    var playlistSongs = MutableStateFlow<PlaylistTrackAll?>(null)
 
     init {
         fetchUID()
         initMediaController()
         fetchUserData()
+        fetchUserPlaylists()
     }
 
     override fun onCleared() {
@@ -71,12 +70,7 @@ class MainViewModel(
 
     private fun fetchUID() {
         runBlocking {
-            try {
-                uid = retrofit.userAccount().account.id
-                if (BuildConfig.DEBUG) Log.d("MainViewModel", "UID: $uid")
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to fetch UID: ${e.message}")
-            }
+            uid = retrofit.userAccount().account.id
         }
     }
 
@@ -114,6 +108,12 @@ class MainViewModel(
                     Log.d("MainViewModel", "User Detail: ${detail.nickname}")
                 }
             }
+        }
+    }
+
+    fun fetchUserPlaylists(){
+        viewModelScope.launch {
+            userPlaylists.value = retrofit.userPlaylist(uid).playlist
         }
     }
 

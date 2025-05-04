@@ -1,24 +1,24 @@
 package com.redstar.redefinencm.api.data
 
-data class songDetail(
-    val songs: List<songDetailSongs>,
+data class SongDetail(
+    val songs: List<SongDetailSongs>,
     val code: Int
 )
 
-data class songDetailSongs(
+data class SongDetailSongs(
     val id: Long,
     val name: String,
-    val ar: List<songDetailAr>,
-    val al: songDetailAl,
+    val ar: List<SongDetailAr>,
+    val al: SongDetailAl,
     val mv: Long
 )
 
-data class songDetailAr(
+data class SongDetailAr(
     val id: Long,
     val name: String
 )
 
-data class songDetailAl(
+data class SongDetailAl(
     val id: Long,
     val name: String,
     val picUrl: String

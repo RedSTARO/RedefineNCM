@@ -1,16 +1,16 @@
 package com.redstar.redefinencm.api.data
 
-data class lyric(
+data class Lyric(
     val sgc: Boolean,
     val sfy: Boolean,
     val qfy: Boolean,
     val code: Int,
-    val lrc: lyricLrc,
-    val klyric: lyricLrc,
-    val tlyric: lyricLrc,
+    val lrc: LyricLrc,
+    val klyric: LyricLrc,
+    val tlyric: LyricLrc,
 )
 
-data class lyricLrc(
+data class LyricLrc(
     val version: Int,
     val lyric: String,
 )

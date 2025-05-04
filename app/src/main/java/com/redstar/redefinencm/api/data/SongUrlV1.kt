@@ -1,11 +1,11 @@
 package com.redstar.redefinencm.api.data
 
-data class songUrlV1(
+data class SongUrlV1(
     val code: Int,
-    val data: List<songUrlV1Data>,
+    val data: List<SongUrlV1Data>,
 )
 
-data class songUrlV1Data(
+data class SongUrlV1Data(
     val id: Long,
     val url: String,
     val type: String

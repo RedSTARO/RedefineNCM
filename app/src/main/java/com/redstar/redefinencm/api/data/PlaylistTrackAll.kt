@@ -1,23 +1,23 @@
 package com.redstar.redefinencm.api.data
 
-data class playlistTrackAll(
+data class PlaylistTrackAll(
     val code: Int,
-    val songs: List<playlistTrackAllSongs>
+    val songs: List<PlaylistTrackAllSongs>
 )
 
-data class playlistTrackAllSongs(
+data class PlaylistTrackAllSongs(
     val name: String,
     val id: Long,
-    val ar: List<playlistTrackAllSongsAr>,
-    val al: playlistTrackAllSongsAl
+    val ar: List<PlaylistTrackAllSongsAr>,
+    val al: PlaylistTrackAllSongsAl
 )
 
-data class playlistTrackAllSongsAr(
+data class PlaylistTrackAllSongsAr(
     val id: Long,
     val name: String,
 )
 
-data class playlistTrackAllSongsAl(
+data class PlaylistTrackAllSongsAl(
     val id: Long,
     val name: String,
     val picUrl: String,

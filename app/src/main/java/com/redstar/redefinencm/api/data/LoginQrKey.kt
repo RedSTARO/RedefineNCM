@@ -1,12 +1,11 @@
 package com.redstar.redefinencm.api.data
 
-data class loginQrKey(
-//    {"data":{"code":200,"unikey":"----"},"code":200}
+data class LoginQrKey(
     val code: Int,
-    val data: loginQrKeyData,
+    val data: LoginQrKeyData,
 )
 
-data class loginQrKeyData(
+data class LoginQrKeyData(
     val code: Int,
     val unikey: String,
 )
