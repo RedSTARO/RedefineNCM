@@ -35,32 +35,35 @@ class MainViewModel : ViewModel() {
 
     var uid by mutableStateOf(0L)
 
-    private val _mediaController = MutableStateFlow<MediaController?>(null)
-    val mediaController: StateFlow<MediaController?> = _mediaController.asStateFlow()
+    var mediaController = MutableStateFlow<MediaController?>(null)
 
-    private val _metadata = MutableStateFlow<MediaMetadata?>(null)
-    val metadata: StateFlow<MediaMetadata?> = _metadata.asStateFlow()
+    var metadata = MutableStateFlow<MediaMetadata?>(null)
 
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+    var isPlaying = MutableStateFlow(false)
 
     // 用户歌单与详情
-    private val _playlist = MutableStateFlow<List<userPlaylistEach>>(emptyList())
-    val playlist: StateFlow<List<userPlaylistEach>> = _playlist.asStateFlow()
+    var playlist = MutableStateFlow<List<userPlaylistEach>>(emptyList())
 
-    private val _userDetail = MutableStateFlow<userDetail?>(null)
-    val userDetail: StateFlow<userDetail?> = _userDetail.asStateFlow()
+    var userDetail = MutableStateFlow<userDetail?>(null)
 
     // 歌单详情与曲目
-    private val _playlistDetail = MutableStateFlow<playlistDetail?>(null)
-    val playlistDetail: StateFlow<playlistDetail?> = _playlistDetail.asStateFlow()
+    var playlistDetail = MutableStateFlow<playlistDetail?>(null)
 
-    private val _playlistSongs = MutableStateFlow<playlistTrackAll?>(null)
-    val playlistSongs: StateFlow<playlistTrackAll?> = _playlistSongs.asStateFlow()
+    var playlistSongs = MutableStateFlow<playlistTrackAll?>(null)
 
     init {
         fetchUID()
         initMediaController()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.launch {
+            val sessionToken =
+                SessionToken(context, ComponentName(context, playbackService::class.java))
+            val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+            MediaController.releaseFuture(controllerFuture)
+        }
     }
 
     private fun fetchUID() {
@@ -80,20 +83,20 @@ class MainViewModel : ViewModel() {
                 val sessionToken =
                     SessionToken(context, ComponentName(context, playbackService::class.java))
                 val controller = MediaController.Builder(context, sessionToken).buildAsync().await()
-                _mediaController.value = controller
+                mediaController.value = controller
 
                 controller.addListener(object : Player.Listener {
                     override fun onMediaMetadataChanged(metadata: MediaMetadata) {
-                        _metadata.value = metadata
+                        this@MainViewModel.metadata.value = metadata
                     }
 
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        _isPlaying.value = isPlaying
+                        this@MainViewModel.isPlaying.value = isPlaying
                     }
                 })
 
-                _metadata.value = controller.mediaMetadata
-                _isPlaying.value = controller.isPlaying
+                metadata.value = controller.mediaMetadata
+                isPlaying.value = controller.isPlaying
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to init MediaController: ${e.message}")
             }
@@ -107,8 +110,8 @@ class MainViewModel : ViewModel() {
                     val detail = retrofit.userDetail(uid)
                     val playlistResponse = retrofit.userPlaylist(uid)
 
-                    _userDetail.value = detail
-                    _playlist.value = playlistResponse.playlist
+                    userDetail.value = detail
+                    playlist.value = playlistResponse.playlist
 
                     if (BuildConfig.DEBUG) {
                         Log.d("MainViewModel", "UserDetail: ${detail.profile}")
@@ -127,8 +130,8 @@ class MainViewModel : ViewModel() {
                 val detail = retrofit.playlistDetail(songlistID)
                 val songs = retrofit.playlistTrackAll(songlistID)
 
-                _playlistDetail.value = detail
-                _playlistSongs.value = songs
+                playlistDetail.value = detail
+                playlistSongs.value = songs
 
                 if (BuildConfig.DEBUG) {
                     Log.d("MainViewModel", "Playlist Detail: ${detail.playlist.name}")

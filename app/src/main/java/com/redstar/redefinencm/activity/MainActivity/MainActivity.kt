@@ -111,27 +111,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onStart() {
-        super.onStart()
-        if (BuildConfig.DEBUG) {
-            Log.d("MainActivity", "onStart")
-        }
-        val sessionToken = SessionToken(this, ComponentName(this, playbackService::class.java))
-        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-        controllerFuture.addListener({
-            // MediaController is available here
-        }, MoreExecutors.directExecutor())
-
-        // TODO: Add a login status checker
-    }
-
-    override fun onStop() {
-        super.onStop()
-        val sessionToken = SessionToken(this, ComponentName(this, playbackService::class.java))
-        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-        MediaController.releaseFuture(controllerFuture)
-    }
 }
 
 data class NavigationItem(
