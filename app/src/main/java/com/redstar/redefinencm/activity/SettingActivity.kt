@@ -173,7 +173,6 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
     LaunchedEffect(settingItemKey) {
         itemSelected = DataStoreManager.getAppDataStore().data
             .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
-        itemSelected = valueAndItemMap[itemSelected] ?: hintText
     }
 
     Card(
@@ -202,7 +201,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
                 )
             } else {
                 Text(
-                    text = itemSelected,
+                    text = valueAndItemMap[itemSelected] ?: hintText,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
