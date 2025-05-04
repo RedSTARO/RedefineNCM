@@ -21,15 +21,20 @@ import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
 import com.redstar.redefinencm.api.data.userDetail
 import com.redstar.redefinencm.api.data.userPlaylistEach
+import com.redstar.redefinencm.data.db.entity.UserDetailEntity
+import com.redstar.redefinencm.data.repository.UserRepository
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.util.DataStoreManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
     private val context = RedefineNCMApplication.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
@@ -37,18 +42,17 @@ class MainViewModel : ViewModel() {
 
     var mediaController = MutableStateFlow<MediaController?>(null)
 
-    var metadata = MutableStateFlow<MediaMetadata?>(null)
+    var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
 
-    var isPlaying = MutableStateFlow(false)
+    var nowPayingIsPlaying = MutableStateFlow(false)
 
     // 用户歌单与详情
-    var playlist = MutableStateFlow<List<userPlaylistEach>>(emptyList())
-
-    var userDetail = MutableStateFlow<userDetail?>(null)
+    var userPlaylists = MutableStateFlow<List<userPlaylistEach>>(emptyList())
+    var userDetail = MutableStateFlow<UserDetailEntity?>(null)
 
     // 歌单详情与曲目
+    var playlistId = MutableStateFlow(String)
     var playlistDetail = MutableStateFlow<playlistDetail?>(null)
-
     var playlistSongs = MutableStateFlow<playlistTrackAll?>(null)
 
     init {
@@ -87,16 +91,16 @@ class MainViewModel : ViewModel() {
 
                 controller.addListener(object : Player.Listener {
                     override fun onMediaMetadataChanged(metadata: MediaMetadata) {
-                        this@MainViewModel.metadata.value = metadata
+                        this@MainViewModel.nowPlayingMetadata.value = metadata
                     }
 
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        this@MainViewModel.isPlaying.value = isPlaying
+                        this@MainViewModel.nowPayingIsPlaying.value = isPlaying
                     }
                 })
 
-                metadata.value = controller.mediaMetadata
-                isPlaying.value = controller.isPlaying
+                nowPlayingMetadata.value = controller.mediaMetadata
+                nowPayingIsPlaying.value = controller.isPlaying
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to init MediaController: ${e.message}")
             }
@@ -105,21 +109,11 @@ class MainViewModel : ViewModel() {
 
     fun fetchUserData() {
         viewModelScope.launch {
-            try {
-                if (uid != 0L) {
-                    val detail = retrofit.userDetail(uid)
-                    val playlistResponse = retrofit.userPlaylist(uid)
-
-                    userDetail.value = detail
-                    playlist.value = playlistResponse.playlist
-
-                    if (BuildConfig.DEBUG) {
-                        Log.d("MainViewModel", "UserDetail: ${detail.profile}")
-                        Log.d("MainViewModel", "Playlist: ${playlistResponse.playlist}")
-                    }
+            userRepository.getUserDetail(uid).collect { detail ->
+                userDetail.value = detail
+                if (BuildConfig.DEBUG) {
+                    Log.d("MainViewModel", "User Detail: ${detail.nickname}")
                 }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to fetch user data: ${e.message}")
             }
         }
     }

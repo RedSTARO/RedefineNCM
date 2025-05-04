@@ -46,8 +46,8 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 
 @Composable
 fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
-    val metadata by viewModel.metadata.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState()
+    val metadata by viewModel.nowPlayingMetadata.collectAsState()
+    val isPlaying by viewModel.nowPayingIsPlaying.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
     val mediaController by viewModel.mediaController.collectAsState()
 

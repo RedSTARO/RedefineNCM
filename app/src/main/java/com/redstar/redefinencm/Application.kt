@@ -1,11 +1,13 @@
 package com.redstar.redefinencm
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class RedefineNCMApplication : Application() {
     companion object {
-        private var instance: Application? = null
-        fun getApplicationContext(): Application {
+        private var instance: RedefineNCMApplication? = null
+        fun getApplicationContext(): RedefineNCMApplication {
             return instance!!
         }
     }

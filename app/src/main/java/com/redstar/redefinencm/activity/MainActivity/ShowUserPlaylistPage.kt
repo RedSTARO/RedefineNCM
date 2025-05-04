@@ -42,7 +42,7 @@ fun ShowUserPlaylistPage(
     viewModel: MainViewModel
 ) {
     val userDetail by viewModel.userDetail.collectAsState()
-    val playlist by viewModel.playlist.collectAsState()
+    val playlist by viewModel.userPlaylists.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchUserData()
