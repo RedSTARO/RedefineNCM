@@ -1,6 +1,7 @@
 package com.redstar.redefinencm.data.repository
 
 import com.redstar.redefinencm.api.NCMApi
+import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.data.db.dao.UserDao
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import kotlinx.coroutines.flow.Flow
@@ -10,10 +11,9 @@ import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val userDao: UserDao,
-    private val retrofit: NCMApi
 ) {
+    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
-    // 获取用户数据，先从缓存获取，如果缓存没有，再从网络获取
     fun getUserDetail(uid: Long): Flow<UserDetailEntity> = flow {
         // Step 1: 从缓存获取数据
         val cachedDetail = userDao.getUserDetail(uid).first()

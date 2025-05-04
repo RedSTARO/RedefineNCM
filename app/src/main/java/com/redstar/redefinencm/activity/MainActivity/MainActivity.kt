@@ -24,8 +24,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Database
+import androidx.room.Room
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.SettingPage
+import com.redstar.redefinencm.data.db.AppDatabase
+import com.redstar.redefinencm.data.db.DatabaseProvider
+import com.redstar.redefinencm.data.db.dao.UserDao
+import com.redstar.redefinencm.data.repository.UserRepository
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +46,11 @@ class MainActivity : ComponentActivity() {
             RedefineNCMTheme {
                 val context = LocalContext.current
                 val navController = rememberNavController()
-                val viewModel: MainViewModel = viewModel()
+
+                val userDao = DatabaseProvider.getUserDao(applicationContext)
+                val userRepository = UserRepository(userDao)
+                val viewModel = MainViewModel(userRepository)
+
 
                 val items = listOf(
                     NavigationItem("Home", Icons.Filled.Home, "home"),

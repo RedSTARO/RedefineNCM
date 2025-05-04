@@ -25,14 +25,13 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.UserRepository
 import com.redstar.redefinencm.services.playbackService
 import com.redstar.redefinencm.util.DataStoreManager
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
+
+class MainViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val context = RedefineNCMApplication.getApplicationContext()
@@ -58,6 +57,7 @@ class MainViewModel @Inject constructor(
     init {
         fetchUID()
         initMediaController()
+        fetchUserData()
     }
 
     override fun onCleared() {
@@ -71,7 +71,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun fetchUID() {
-        viewModelScope.launch {
+        runBlocking {
             try {
                 uid = retrofit.userAccount().account.id
                 if (BuildConfig.DEBUG) Log.d("MainViewModel", "UID: $uid")

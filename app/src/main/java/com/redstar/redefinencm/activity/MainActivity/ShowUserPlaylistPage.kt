@@ -44,11 +44,6 @@ fun ShowUserPlaylistPage(
     val userDetail by viewModel.userDetail.collectAsState()
     val playlist by viewModel.userPlaylists.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchUserData()
-    }
-
-
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier

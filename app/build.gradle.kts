@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -112,5 +111,4 @@ dependencies {
     implementation (libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler.v261)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 }
