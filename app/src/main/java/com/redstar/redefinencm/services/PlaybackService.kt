@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class playbackService : MediaSessionService() {
+class PlaybackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     private lateinit var player: ExoPlayer
     private val coroutineScope = CoroutineScope(Dispatchers.IO)

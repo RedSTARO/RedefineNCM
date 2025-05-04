@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.data.repository
 
+import android.util.Log
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.data.db.dao.UserDao
@@ -7,9 +8,8 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
-class UserRepository @Inject constructor(
+class UserRepository(
     private val userDao: UserDao,
 ) {
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
@@ -18,6 +18,7 @@ class UserRepository @Inject constructor(
         // Step 1: 从缓存获取数据
         val cachedDetail = userDao.getUserDetail(uid).first()
         if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
             emit(cachedDetail)  // 如果缓存有数据，直接返回
         }
 

@@ -1,8 +1,8 @@
 package com.redstar.redefinencm.api
 
-import com.redstar.redefinencm.api.data.dailysignin
+import com.redstar.redefinencm.api.data.Dailysignin
+import com.redstar.redefinencm.api.data.LoginQrCheck
 import com.redstar.redefinencm.api.data.innerVersion
-import com.redstar.redefinencm.api.data.loginQrCheck
 import com.redstar.redefinencm.api.data.loginQrCreate
 import com.redstar.redefinencm.api.data.loginQrKey
 import com.redstar.redefinencm.api.data.loginStatus
@@ -39,10 +39,10 @@ interface NCMApi {
     ): loginQrCreate
 
     @POST("/login/qr/check")
-    suspend fun loginQrCheck(@Query("key") key: String): loginQrCheck
+    suspend fun loginQrCheck(@Query("key") key: String): LoginQrCheck
 
     @GET("/daily_signin") // This will always return 302
-    suspend fun dailysignin(@Query("type") type: Int): dailysignin
+    suspend fun dailysignin(@Query("type") type: Int): Dailysignin
 
     @GET("/user/playlist")
     suspend fun userPlaylist(@Query("uid") uid: Long): userPlaylist

@@ -69,7 +69,7 @@
         </activity>
 
         <service
-            android:name=".services.playbackService"
+            android:name=".services.PlaybackService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             android:permission="android.permission.FOREGROUND_SERVICE"> <!-- To avoid Warning:(62, 10) Exported service does not require permission -->

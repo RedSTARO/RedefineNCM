@@ -50,7 +50,6 @@ import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.viewmodel.LoginViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -63,11 +62,14 @@ class LoginActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    var gotServer by remember {mutableStateOf(false) }
+                    var gotServer by remember { mutableStateOf(false) }
 
                     LaunchedEffect(Dispatchers.IO) {
-                        gotServer = runBlocking {(DataStoreManager.getAppDataStore().data.firstOrNull()?.get(stringPreferencesKey("server"))
-                        ?: "")}.isNotEmpty()
+                        gotServer = runBlocking {
+                            (DataStoreManager.getAppDataStore().data.firstOrNull()
+                                ?.get(stringPreferencesKey("server"))
+                                ?: "")
+                        }.isNotEmpty()
                     }
 
                     if (gotServer) {
@@ -85,18 +87,18 @@ class LoginActivity : ComponentActivity() {
 @Composable
 fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
     Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (BuildConfig.DEBUG) {
-                Log.d("Login", "No Cookie, login")
-            }
-            CookieLogin(viewModel)
-//            QrLogin(viewModel)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (BuildConfig.DEBUG) {
+            Log.d("Login", "No Cookie, login")
         }
+        CookieLogin(viewModel)
+//            QrLogin(viewModel)
+    }
 
 }
 

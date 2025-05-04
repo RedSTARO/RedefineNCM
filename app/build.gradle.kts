@@ -107,8 +107,8 @@ dependencies {
     implementation(libs.androidx.palette)
     implementation(libs.lyric.getter.api)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation (libs.androidx.room.runtime)
-    implementation (libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler.v261)
     implementation(libs.hilt.android)
 }

@@ -66,7 +66,7 @@ import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -136,7 +136,7 @@ fun SongDetails(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, playbackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java)
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -221,7 +221,7 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, playbackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java)
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -278,7 +278,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, playbackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java)
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -335,7 +335,7 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
     LaunchedEffect(Unit) {
         val sessionToken = SessionToken(
             applicationContext,
-            ComponentName(applicationContext, playbackService::class.java)
+            ComponentName(applicationContext, PlaybackService::class.java)
         )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()

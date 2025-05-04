@@ -19,11 +19,10 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.playlistDetail
 import com.redstar.redefinencm.api.data.playlistTrackAll
-import com.redstar.redefinencm.api.data.userDetail
 import com.redstar.redefinencm.api.data.userPlaylistEach
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.UserRepository
-import com.redstar.redefinencm.services.playbackService
+import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
@@ -64,7 +63,7 @@ class MainViewModel(
         super.onCleared()
         viewModelScope.launch {
             val sessionToken =
-                SessionToken(context, ComponentName(context, playbackService::class.java))
+                SessionToken(context, ComponentName(context, PlaybackService::class.java))
             val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
             MediaController.releaseFuture(controllerFuture)
         }
@@ -85,7 +84,7 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 val sessionToken =
-                    SessionToken(context, ComponentName(context, playbackService::class.java))
+                    SessionToken(context, ComponentName(context, PlaybackService::class.java))
                 val controller = MediaController.Builder(context, sessionToken).buildAsync().await()
                 mediaController.value = controller
 
