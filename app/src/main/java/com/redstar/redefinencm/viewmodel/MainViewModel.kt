@@ -20,11 +20,13 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.*
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
+import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
@@ -52,7 +54,7 @@ class MainViewModel(
     // 歌单详情与曲目
     var playlistId = MutableStateFlow(String)
     var playlistDetail = MutableStateFlow<PlaylistDetailEntity?>(null)
-    var playlistSongs = MutableStateFlow<PlaylistTrackAll?>(null)
+    var playlistSongs = MutableStateFlow<PlaylistTrackAllEntity?>(null)
 
     init {
         fetchUID()
@@ -138,5 +140,16 @@ class MainViewModel(
                 playlistDetail.value = detail
             }
         }
+        fetchPlaylistTrackAll(songlistID)
     }
+
+    fun fetchPlaylistTrackAll(songlistID: Long) {
+        viewModelScope.launch {
+            repo.getPlaylistTrackAll(songlistID)
+                .collect { detail ->
+                    playlistSongs.value = detail
+                }
+        }
+    }
+
 }

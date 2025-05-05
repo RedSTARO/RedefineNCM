@@ -5,6 +5,7 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
+import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +30,7 @@ class Repository(
 
         // Step 3: 把从网络获取到的数据保存到数据库
         val entity = UserDetailEntity(
-            userId = networkDetail.profile.userId,
+            userId = uid,
             avatarUrl = networkDetail.profile.avatarUrl,
             nickname = networkDetail.profile.nickname,
             backgroundUrl = networkDetail.profile.backgroundUrl,
@@ -58,7 +59,7 @@ class Repository(
 
         // Step 3: 把从网络获取到的数据保存到数据库
         val entity = UserPlaylistEntity(
-            userId = networkDetail.playlist[0].userId,
+            userId = uid,
             code = networkDetail.code,
             more = networkDetail.more,
             playlist = networkDetail.playlist
@@ -84,13 +85,38 @@ class Repository(
 
         // Step 3: 把从网络获取到的数据保存到数据库
         val entity = PlaylistDetailEntity(
-            id = networkDetail.playlist.id,
+            id = id,
             code = networkDetail.code,
             playlist = networkDetail.playlist
         )
 
         // 保存到数据库
         Dao.insertPlaylistDetail(entity)
+
+        // Step 4: 返回从网络获取的数据
+        emit(entity)
+    }
+
+    fun getPlaylistTrackAll(id: Long): Flow<PlaylistTrackAllEntity> = flow {
+        // Step 1: 从缓存获取数据
+        val cachedDetail = Dao.getPlaylistTrackAll(id).first()
+        if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
+            emit(cachedDetail)  // 如果缓存有数据，直接返回
+        }
+
+        // Step 2: 如果缓存没有数据，去网络获取
+        val networkDetail = retrofit.playlistTrackAll(id)
+
+        // Step 3: 把从网络获取到的数据保存到数据库
+        val entity = PlaylistTrackAllEntity(
+            id = id,
+            code = networkDetail.code,
+            songs = networkDetail.songs
+        )
+
+        // 保存到数据库
+        Dao.insertPlaylistTrackAll(entity)
 
         // Step 4: 返回从网络获取的数据
         emit(entity)

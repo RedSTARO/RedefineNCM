@@ -8,8 +8,8 @@ import com.redstar.redefinencm.data.db.entity.*
 import com.redstar.redefinencm.util.Converters
 
 @Database(
-    entities = [UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class],
-    version = 2,
+    entities = [UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class, PlaylistTrackAllEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
