@@ -43,12 +43,12 @@ class SplashActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     var cookie by remember { mutableStateOf("") }
                     LaunchedEffect(Unit) {
-                        cookie = runBlocking {
-                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-                                "cookie"
-                            )] ?: ""
-                        }
                         checkAppUpdate()
+                    }
+                    cookie = runBlocking {
+                        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
+                            "cookie"
+                        )] ?: ""
                     }
                     this.startActivity(
                         Intent(
@@ -156,12 +156,4 @@ fun checkAppUpdate() {
             Toast.LENGTH_LONG
         ).show()
     }
-}
-
-fun checkLoginStatus() {
-    TODO()
-}
-
-fun checkNetworkStatus() {
-    TODO()
 }

@@ -93,9 +93,6 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (BuildConfig.DEBUG) {
-            Log.d("Login", "No Cookie, login")
-        }
         CookieLogin(viewModel)
 //            QrLogin(viewModel)
     }
