@@ -52,60 +52,58 @@ class MainActivity : ComponentActivity() {
                     NavigationItem("Settings", Icons.Filled.Settings, "settings")
                 )
 
-                if (viewModel.uid != 0L) {
-                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val currentRoute = navBackStackEntry?.destination?.route
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
 
-                    Scaffold(
-                        floatingActionButton = { MiniNowPlaying(context, viewModel = viewModel) },
-                        bottomBar = {
-                            NavigationBar {
-                                items.forEach { item ->
-                                    NavigationBarItem(
-                                        icon = { Icon(item.icon, contentDescription = item.label) },
-                                        label = { Text(item.label) },
-                                        selected = currentRoute?.startsWith(item.route) == true,
-                                        onClick = {
-                                            navController.navigate(item.route) {
-                                                // 使用字符串而不是 graph，防止初始化异常
-                                                popUpTo("my") {
-                                                    inclusive = false
-                                                }
-                                                launchSingleTop = true
+                Scaffold(
+                    floatingActionButton = { MiniNowPlaying(context, viewModel = viewModel) },
+                    bottomBar = {
+                        NavigationBar {
+                            items.forEach { item ->
+                                NavigationBarItem(
+                                    icon = { Icon(item.icon, contentDescription = item.label) },
+                                    label = { Text(item.label) },
+                                    selected = currentRoute?.startsWith(item.route) == true,
+                                    onClick = {
+                                        navController.navigate(item.route) {
+                                            // 使用字符串而不是 graph，防止初始化异常
+                                            popUpTo("my") {
+                                                inclusive = false
                                             }
+                                            launchSingleTop = true
                                         }
-                                    )
-                                }
-                            }
-                        },
-                    ) { innerPadding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = "my",
-                            modifier = Modifier.padding(innerPadding)
-                        ) {
-                            composable("home") {
-                                PlaceHolderScreen()
-                            }
-                            composable("my") {
-                                ShowUserPlaylistPage(
-                                    navController = navController,
-                                    viewModel = viewModel
+                                    }
                                 )
                             }
-                            composable("my/playlistDetailPage/{songId}") { backStackEntry ->
-                                val songId = backStackEntry.arguments?.getString("songId")
-                                if (BuildConfig.DEBUG) {
-                                    Log.d("Main", "SongList ID: $songId")
-                                }
-                                ShowPlaylistDetailPage(
-                                    viewModel = viewModel,
-                                    songlistID = songId!!.toLong()
-                                )
+                        }
+                    },
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "my",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("home") {
+                            PlaceHolderScreen()
+                        }
+                        composable("my") {
+                            ShowUserPlaylistPage(
+                                navController = navController,
+                                viewModel = viewModel
+                            )
+                        }
+                        composable("my/playlistDetailPage/{songId}") { backStackEntry ->
+                            val songId = backStackEntry.arguments?.getString("songId")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("Main", "SongList ID: $songId")
                             }
-                            composable("settings") {
-                                SettingPage()
-                            }
+                            ShowPlaylistDetailPage(
+                                viewModel = viewModel,
+                                songlistID = songId!!.toLong()
+                            )
+                        }
+                        composable("settings") {
+                            SettingPage()
                         }
                     }
                 }
