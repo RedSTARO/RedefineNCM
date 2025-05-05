@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaMetadata
@@ -18,7 +17,7 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.api.data.UserPlaylistEach
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
@@ -26,7 +25,6 @@ import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
@@ -79,8 +77,7 @@ class MainViewModel(
                 DataStoreManager.getAppDataStore().data.first()[longPreferencesKey("uid")]
             if (value != null) {
                 uid = value
-            }
-            else {
+            } else {
                 uid = retrofit.userAccount().account.id
                 DataStoreManager.getAppDataStore().edit { preferences ->
                     preferences[longPreferencesKey("uid")] = uid
@@ -126,7 +123,7 @@ class MainViewModel(
         }
     }
 
-    fun fetchUserPlaylists(){
+    fun fetchUserPlaylists() {
         viewModelScope.launch {
             repo.getUserPlaylist(uid).collect { detail ->
                 userPlaylists.value = detail.playlist

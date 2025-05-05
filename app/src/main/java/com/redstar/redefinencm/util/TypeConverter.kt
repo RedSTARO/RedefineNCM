@@ -3,7 +3,10 @@ package com.redstar.redefinencm.util
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.api.data.PlaylistDetailPlaylist
+import com.redstar.redefinencm.api.data.PlaylistTrackAllSongs
+import com.redstar.redefinencm.api.data.UserDetailProfile
+import com.redstar.redefinencm.api.data.UserPlaylistEach
 
 class Converters {
 

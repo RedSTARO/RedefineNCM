@@ -1,6 +1,19 @@
 package com.redstar.redefinencm.api
 
-import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.api.data.Dailysignin
+import com.redstar.redefinencm.api.data.InnerVersion
+import com.redstar.redefinencm.api.data.LoginQrCheck
+import com.redstar.redefinencm.api.data.LoginQrCreate
+import com.redstar.redefinencm.api.data.LoginQrKey
+import com.redstar.redefinencm.api.data.LoginStatus
+import com.redstar.redefinencm.api.data.Lyric
+import com.redstar.redefinencm.api.data.PlaylistDetail
+import com.redstar.redefinencm.api.data.PlaylistTrackAll
+import com.redstar.redefinencm.api.data.SongDetail
+import com.redstar.redefinencm.api.data.SongUrlV1
+import com.redstar.redefinencm.api.data.UserAccount
+import com.redstar.redefinencm.api.data.UserDetail
+import com.redstar.redefinencm.api.data.UserPlaylist
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query

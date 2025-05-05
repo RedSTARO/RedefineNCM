@@ -42,7 +42,8 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val navController = rememberNavController()
 
-                val viewModel = MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
+                val viewModel =
+                    MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
 
 
                 val items = listOf(
