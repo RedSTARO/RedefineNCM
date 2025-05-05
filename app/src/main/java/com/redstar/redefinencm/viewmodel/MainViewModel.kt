@@ -19,6 +19,7 @@ import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.*
+import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.services.PlaybackService
@@ -50,7 +51,7 @@ class MainViewModel(
 
     // 歌单详情与曲目
     var playlistId = MutableStateFlow(String)
-    var playlistDetail = MutableStateFlow<PlaylistDetail?>(null)
+    var playlistDetail = MutableStateFlow<PlaylistDetailEntity?>(null)
     var playlistSongs = MutableStateFlow<PlaylistTrackAll?>(null)
 
     init {
@@ -126,26 +127,15 @@ class MainViewModel(
     fun fetchUserPlaylists(){
         viewModelScope.launch {
             repo.getUserPlaylist(uid).collect { detail ->
-                userPlaylists = MutableStateFlow(detail.playlist)
+                userPlaylists.value = detail.playlist
             }
         }
     }
 
     fun fetchPlaylistDetail(songlistID: Long) {
         viewModelScope.launch {
-            try {
-                val detail = retrofit.playlistDetail(songlistID)
-                val songs = retrofit.playlistTrackAll(songlistID)
-
+            repo.getPlaylistDetail(songlistID).collect { detail ->
                 playlistDetail.value = detail
-                playlistSongs.value = songs
-
-                if (BuildConfig.DEBUG) {
-                    Log.d("MainViewModel", "Playlist Detail: ${detail.playlist.name}")
-                    Log.d("MainViewModel", "Playlist Songs: ${songs.songs.map { it.name }}")
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Failed to fetch playlist detail: ${e.message}")
             }
         }
     }

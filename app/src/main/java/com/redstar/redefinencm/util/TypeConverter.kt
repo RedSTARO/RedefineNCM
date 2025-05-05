@@ -27,4 +27,14 @@ class Converters {
         val listType = object : TypeToken<List<UserPlaylistEach>>() {}.type
         return Gson().fromJson(value, listType)
     }
+
+    @TypeConverter
+    fun fromPlaylistDetailPlaylist(value: PlaylistDetailPlaylist): String {
+        return Gson().toJson(value)
+    }
+
+    @TypeConverter
+    fun toPlaylistDetailPlaylist(value: String): PlaylistDetailPlaylist {
+        return Gson().fromJson(value, PlaylistDetailPlaylist::class.java)
+    }
 }
