@@ -119,7 +119,13 @@ fun ShowPlaylistDetailPage(
 
                 // 歌曲数量
                 Text(
-                    text = "歌曲数量: ${playlistDetail?.playlist?.trackCount ?: "未知"}",
+                    text = "歌曲数量: ${
+                        when {
+                            playlistDetail?.playlist?.trackCount == 0L -> playlistSongs?.songs?.lastIndex?: 0
+                            playlistDetail?.playlist?.trackCount == null -> "未知"
+                            else -> playlistDetail?.playlist?.trackCount.toString()
+                        }
+                    }",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
