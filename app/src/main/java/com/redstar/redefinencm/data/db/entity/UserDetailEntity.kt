@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.redstar.redefinencm.api.data.UserDetailProfile
 
-@Entity(tableName = "user_detail")
+@Entity(tableName = "userDetail")
 data class UserDetailEntity(
     @PrimaryKey val userId: Long,
     val avatarUrl: String,

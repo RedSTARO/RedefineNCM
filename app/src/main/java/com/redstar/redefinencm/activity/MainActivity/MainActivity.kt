@@ -42,8 +42,7 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val navController = rememberNavController()
 
-                val userDao = DatabaseProvider.getUserDao(applicationContext)
-                val userRepository = UserRepository(userDao)
+                val userRepository = UserRepository(DatabaseProvider.getDao(applicationContext))
                 val viewModel = MainViewModel(userRepository)
 
 

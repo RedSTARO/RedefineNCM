@@ -3,7 +3,7 @@ package com.redstar.redefinencm.data.db
 
 import android.content.Context
 import androidx.room.Room
-import com.redstar.redefinencm.data.db.dao.UserDao
+import com.redstar.redefinencm.data.db.dao.Dao
 
 object DatabaseProvider {
 
@@ -16,11 +16,13 @@ object DatabaseProvider {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "redefinencm.db"
-            ).build().also { database = it }
+            )
+                .fallbackToDestructiveMigration(true) // TODO: DEV ONLY, REMOVE!!!
+                .build().also { database = it }
         }
     }
 
-    fun getUserDao(context: Context): UserDao {
-        return getDatabase(context).userDao()
+    fun getDao(context: Context): Dao {
+        return getDatabase(context).getDao()
     }
 }

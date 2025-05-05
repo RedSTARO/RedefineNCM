@@ -3,20 +3,20 @@ package com.redstar.redefinencm.data.repository
 import android.util.Log
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.data.db.dao.UserDao
+import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 class UserRepository(
-    private val userDao: UserDao,
+    private val Dao: Dao,
 ) {
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
     fun getUserDetail(uid: Long): Flow<UserDetailEntity> = flow {
         // Step 1: 从缓存获取数据
-        val cachedDetail = userDao.getUserDetail(uid).first()
+        val cachedDetail = Dao.getUserDetail(uid).first()
         if (cachedDetail != null) {
             Log.d("UserRepository", "从缓存获取数据")
             emit(cachedDetail)  // 如果缓存有数据，直接返回
@@ -37,7 +37,7 @@ class UserRepository(
         )
 
         // 保存到数据库
-        userDao.insertUserDetail(userDetailEntity)
+        Dao.insertUserDetail(userDetailEntity)
 
         // Step 4: 返回从网络获取的数据
         emit(userDetailEntity)

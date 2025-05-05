@@ -8,10 +8,10 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface UserDao {
+interface Dao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserDetail(detail: UserDetailEntity)
 
-    @Query("SELECT * FROM user_detail WHERE userId = :uid LIMIT 1")
+    @Query("SELECT * FROM userDetail WHERE userId = :uid LIMIT 1")
     fun getUserDetail(uid: Long): Flow<UserDetailEntity?>
 }
