@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.SettingPage
 import com.redstar.redefinencm.data.db.DatabaseProvider
-import com.redstar.redefinencm.data.repository.UserRepository
+import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,8 +42,7 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val navController = rememberNavController()
 
-                val userRepository = UserRepository(DatabaseProvider.getDao(applicationContext))
-                val viewModel = MainViewModel(userRepository)
+                val viewModel = MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
 
 
                 val items = listOf(

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
-class UserRepository(
+class Repository(
     private val Dao: Dao,
 ) {
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)

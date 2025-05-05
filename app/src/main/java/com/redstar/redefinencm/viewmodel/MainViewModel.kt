@@ -20,7 +20,7 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.*
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
-import com.redstar.redefinencm.data.repository.UserRepository
+import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +31,7 @@ import kotlinx.coroutines.runBlocking
 
 
 class MainViewModel(
-    private val userRepository: UserRepository
+    private val repo: Repository
 ) : ViewModel() {
     private val context = RedefineNCMApplication.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
@@ -114,7 +114,7 @@ class MainViewModel(
 
     fun fetchUserData() {
         viewModelScope.launch {
-            userRepository.getUserDetail(uid).collect { detail ->
+            repo.getUserDetail(uid).collect { detail ->
                 userDetail.value = detail
                 if (BuildConfig.DEBUG) {
                     Log.d("MainViewModel", "User Detail: ${detail.nickname}")
@@ -125,7 +125,7 @@ class MainViewModel(
 
     fun fetchUserPlaylists(){
         viewModelScope.launch {
-            userRepository.getUserPlaylist(uid).collect { detail ->
+            repo.getUserPlaylist(uid).collect { detail ->
                 userPlaylists = MutableStateFlow(detail.playlist)
             }
         }
@@ -149,6 +149,4 @@ class MainViewModel(
             }
         }
     }
-
-
 }
