@@ -171,7 +171,6 @@ fun ShowPlaylistDetailPage(
                     Text(text = "播放全部")
                 }
             }
-
             Spacer(Modifier.padding(16.dp))
 
         }
@@ -255,7 +254,7 @@ fun ShowPlaylistDetailPage(
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f) // 颜色稍浅
                             )
                             Text(
-                                text = song.al.name,
+                                text = song.al.name?:"未知专辑",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) // 更浅的颜色
                             )
