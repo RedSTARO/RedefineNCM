@@ -71,7 +71,7 @@ class MainViewModel(
     }
 
     private fun fetchUID() {
-        viewModelScope.launch {
+        runBlocking {
             val value =
                 DataStoreManager.getAppDataStore().data.first()[longPreferencesKey("uid")]
             if (value != null) {
