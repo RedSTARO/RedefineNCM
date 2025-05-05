@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +24,7 @@ import com.redstar.redefinencm.data.repository.UserRepository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -69,8 +71,18 @@ class MainViewModel(
     }
 
     private fun fetchUID() {
-        runBlocking {
-            uid = retrofit.userAccount().account.id
+        viewModelScope.launch {
+            val value =
+                DataStoreManager.getAppDataStore().data.first()[longPreferencesKey("uid")]
+            if (value != null) {
+                uid = value
+            }
+            else {
+                uid = retrofit.userAccount().account.id
+                DataStoreManager.getAppDataStore().edit { preferences ->
+                    preferences[longPreferencesKey("uid")] = uid
+                }
+            }
         }
     }
 
@@ -138,11 +150,5 @@ class MainViewModel(
         }
     }
 
-    fun updateDatastore(key: String, value: String) {
-        viewModelScope.launch {
-            DataStoreManager.getAppDataStore().edit { preferences ->
-                preferences[stringPreferencesKey(key)] = value
-            }
-        }
-    }
+
 }

@@ -6,7 +6,7 @@ import com.redstar.redefinencm.api.data.LyricLrc
 
 @Entity(tableName = "lyricEntity")
 data class LyricEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: Long,
     val sgc: Boolean,
     val sfy: Boolean,
     val qfy: Boolean,
