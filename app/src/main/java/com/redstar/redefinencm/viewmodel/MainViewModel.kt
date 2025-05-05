@@ -113,7 +113,9 @@ class MainViewModel(
 
     fun fetchUserPlaylists(){
         viewModelScope.launch {
-            userPlaylists.value = retrofit.userPlaylist(uid).playlist
+            userRepository.getUserPlaylist(uid).collect { detail ->
+                userPlaylists = MutableStateFlow(detail.playlist)
+            }
         }
     }
 

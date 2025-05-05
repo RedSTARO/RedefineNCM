@@ -2,7 +2,8 @@ package com.redstar.redefinencm.util
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.redstar.redefinencm.api.data.UserDetailProfile
+import com.google.gson.reflect.TypeToken
+import com.redstar.redefinencm.api.data.*
 
 class Converters {
 
@@ -14,5 +15,16 @@ class Converters {
     @TypeConverter
     fun toProfile(profileString: String): UserDetailProfile {
         return Gson().fromJson(profileString, UserDetailProfile::class.java)
+    }
+
+    @TypeConverter
+    fun fromUserPlaylistEachList(value: List<UserPlaylistEach>?): String {
+        return Gson().toJson(value)
+    }
+
+    @TypeConverter
+    fun toUserPlaylistEachList(value: String): List<UserPlaylistEach> {
+        val listType = object : TypeToken<List<UserPlaylistEach>>() {}.type
+        return Gson().fromJson(value, listType)
     }
 }
