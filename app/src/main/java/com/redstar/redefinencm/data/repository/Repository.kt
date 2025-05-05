@@ -3,6 +3,7 @@ package com.redstar.redefinencm.data.repository
 import android.util.Log
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
@@ -96,15 +97,5 @@ class Repository(
             Dao.insertPlaylistTrackAll(entity)
             emit(entity)
         }
-    }
-}
-
-// 公共 Retrofit 调用封装，防止异常崩溃
-suspend fun <T> safeApiCall(apiCall: suspend () -> T): T? {
-    return try {
-        apiCall()
-    } catch (e: Exception) {
-        Log.e("safeApiCall", "API call failed: ${e.message}", e)
-        null
     }
 }

@@ -1,11 +1,15 @@
 package com.redstar.redefinencm.api
 
 import android.util.Log
+import android.widget.Toast
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.util.DataStoreManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -87,5 +91,22 @@ fun getCookie(): String {
 fun getBaseUrl(): String {
     return runBlocking {
         DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")] ?: ""
+    }
+}
+
+// 公共 Retrofit 调用封装，防止异常崩溃
+suspend fun <T> safeApiCall(apiCall: suspend () -> T): T? {
+    return try {
+        apiCall()
+    } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                RedefineNCMApplication.getApplicationContext(),
+                "Request failed: ${e.message}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        Log.e("safeApiCall", "API call failed: ${e.message}", e)
+        null
     }
 }
