@@ -46,9 +46,11 @@ class PlaybackService : MediaSessionService() {
 
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
-            val status = (DataStoreManager.getAppDataStore().data
-                .firstOrNull()
-                ?.get(booleanPreferencesKey("statusBarLyric")) ?: false)
+            val status = (
+                DataStoreManager.getAppDataStore().data
+                    .firstOrNull()
+                    ?.get(booleanPreferencesKey("statusBarLyric")) ?: false
+                )
 
             withContext(Dispatchers.Main) {
                 if (status) {
@@ -69,12 +71,13 @@ class PlaybackService : MediaSessionService() {
                                     base64Icon = Tools.drawableToBase64(
                                         ContextCompat.getDrawable(
                                             applicationContext,
-                                            R.drawable.ic_launcher_foreground
-                                        )!!
+                                            R.drawable.ic_launcher_foreground,
+                                        )!!,
                                     )
                                     useOwnMusicController = false
 //                                    delay = duration
-                                })
+                                },
+                            )
                         }
                     })
                     if (BuildConfig.DEBUG) {
@@ -102,7 +105,6 @@ class PlaybackService : MediaSessionService() {
                             super.onPlaybackStateChanged(playbackState)
                             startLyricSync()
                         }
-
                     })
                 }
             }
@@ -192,7 +194,6 @@ class PlaybackService : MediaSessionService() {
     fun getLyricMap(): LinkedHashMap<Long?, String?> {
         return lyricMap
     }
-
 }
 
 private var lyricCallback: LyricCallback? = null

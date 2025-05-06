@@ -24,9 +24,9 @@ object DataStoreManager {
                 produceFile = {
                     File(
                         applicationContext.filesDir,
-                        "datastore/user_prefs.preferences_pb"
+                        "datastore/user_prefs.preferences_pb",
                     )
-                }
+                },
             )
         }
     }

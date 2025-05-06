@@ -57,7 +57,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 class SettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +80,7 @@ fun SettingPage() {
     Surface {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             ServerItem()
             Spacer(modifier = Modifier.height(16.dp))
@@ -97,7 +96,7 @@ fun SettingPage() {
                 "jyeffect" to "高清环绕声",
                 "sky" to "沉浸环绕声",
                 "dolby" to "杜比全景声",
-                "jymaster" to "超清母带"
+                "jymaster" to "超清母带",
             )
             SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
             SelectItem("downloadQuality", "Music Quality Download", soundQuality)
@@ -129,13 +128,12 @@ fun TextItem(settingItemKey: String, hintText: String) {
                     preferences[stringPreferencesKey(settingItemKey)] = settingValue
                 }
             }
-
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
             .height(64.dp), // 保证文本框固定高度
-        singleLine = true // 确保文本框单行显示
+        singleLine = true, // 确保文本框单行显示
     )
 }
 
@@ -159,10 +157,9 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
                         preferences[booleanPreferencesKey(settingItemKey)] = checked
                     }
                 }
-            })
+            },
+        )
     }
-
-
 }
 
 @Composable
@@ -180,31 +177,31 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
-            .clickable { expanded = true },  // Make whole Card clickable
+            .clickable { expanded = true }, // Make whole Card clickable
         shape = RoundedCornerShape(4.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
     ) { // This looks like a OutlinedTextField even a card
         Spacer(Modifier.padding(2.5.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(Modifier.padding(5.dp))
             if (itemSelected == hintText) {
                 Text(
                     text = itemSelected,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             } else {
                 Text(
                     text = valueAndItemMap[itemSelected] ?: hintText,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
             IconButton(onClick = { expanded = !expanded }) {
@@ -215,7 +212,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             valueAndItemMap.forEach { (value, item) ->
                 DropdownMenuItem(
@@ -228,7 +225,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
                                 preferences[stringPreferencesKey(settingItemKey)] = value
                             }
                         }
-                    }
+                    },
                 )
             }
         }
@@ -266,7 +263,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
                 .height(64.dp), // 保证文本框固定高度
-            singleLine = true // 确保文本框单行显示
+            singleLine = true, // 确保文本框单行显示
         )
         Button(onClick = {
             coroutineScope.launch(Dispatchers.IO) {
@@ -297,7 +294,6 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
         }
     }
 }
-
 
 suspend fun checkServerAvailable(server: String): Boolean {
     // Create a new Retrofit instance with the provided server URL

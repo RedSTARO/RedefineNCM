@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.MainActivity
+package com.redstar.redefinencm.activity.mainActivity
 
 import android.content.Context
 import android.content.Intent
@@ -51,20 +51,19 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
     var themeColor by remember { mutableStateOf(Color.Gray) }
     val mediaController by viewModel.mediaController.collectAsState()
 
-
     Card(
         modifier = Modifier
             .size(width = 250.dp, height = 100.dp)
             .padding(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = themeColor
-        )
+            containerColor = themeColor,
+        ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(0.7f)
+                modifier = Modifier.fillMaxWidth(0.7f),
             ) {
                 Text(
                     text = metadata?.title.toString(),
@@ -72,17 +71,17 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 // 播放控制按钮
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     IconButton(onClick = { mediaController?.seekToPrevious() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Previous"
+                            contentDescription = "Previous",
                         )
                     }
                     IconButton(onClick = {
@@ -91,13 +90,13 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     }) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
-                            contentDescription = "Play/Pause"
+                            contentDescription = "Play/Pause",
                         )
                     }
                     IconButton(onClick = { mediaController?.seekToNext() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Next"
+                            contentDescription = "Next",
                         )
                     }
                 }
@@ -117,8 +116,8 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                         context.startActivity(
                             Intent(
                                 context,
-                                NowPlayingActivity::class.java
-                            )
+                                NowPlayingActivity::class.java,
+                            ),
                         )
                     }),
                 onSuccess = { result ->
@@ -132,7 +131,7 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                         Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
                     }
                     themeColor = Color.Gray
-                }
+                },
             )
         }
     }

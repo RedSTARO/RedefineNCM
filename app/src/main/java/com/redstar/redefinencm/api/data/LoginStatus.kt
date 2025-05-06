@@ -17,5 +17,5 @@ data class LoginStatusAccount(
 data class LoginStatusProfile(
     val nickname: String,
     val avatarUrl: String,
-    val backgroundUrl: String
+    val backgroundUrl: String,
 )

@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.activity.MainActivity.MainActivity
+import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.activity.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.flow.first
@@ -46,15 +46,17 @@ class SplashActivity : ComponentActivity() {
                         checkAppUpdate()
                     }
                     cookie = runBlocking {
-                        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-                            "cookie"
-                        )] ?: ""
+                        DataStoreManager.getAppDataStore().data.first()[
+                            stringPreferencesKey(
+                                "cookie",
+                            ),
+                        ] ?: ""
                     }
                     this.startActivity(
                         Intent(
                             this,
-                            if (cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java
-                        )
+                            if (cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java,
+                        ),
                     )
                 }
             }
@@ -94,7 +96,7 @@ fun checkAppUpdate() {
                                     Toast.makeText(
                                         RedefineNCMApplication.getApplicationContext() as Context,
                                         "New version is out, check updates!",
-                                        Toast.LENGTH_LONG
+                                        Toast.LENGTH_LONG,
                                     ).show()
                                 }
                             }
@@ -136,7 +138,7 @@ fun checkAppUpdate() {
                                     Toast.makeText(
                                         RedefineNCMApplication.getApplicationContext() as Context,
                                         "发现新版本：$latestVersion",
-                                        Toast.LENGTH_LONG
+                                        Toast.LENGTH_LONG,
                                     ).show()
                                 }
                             }
@@ -153,7 +155,7 @@ fun checkAppUpdate() {
         Toast.makeText(
             RedefineNCMApplication.getApplicationContext() as Context,
             "Unable to check cause ${e.message}",
-            Toast.LENGTH_LONG
+            Toast.LENGTH_LONG,
         ).show()
     }
 }

@@ -2,7 +2,7 @@ package com.redstar.redefinencm.api.data
 
 data class PlaylistDetail(
     val code: Int,
-    val playlist: PlaylistDetailPlaylist
+    val playlist: PlaylistDetailPlaylist,
 )
 
 data class PlaylistDetailPlaylist(
@@ -19,6 +19,6 @@ data class PlaylistDetailPlaylistCreator(
     val avatarUrl: String,
     val backgroundUrl: String,
     val userId: Long,
-    val nickname: String
+    val nickname: String,
 
 )

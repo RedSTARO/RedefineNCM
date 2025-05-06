@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.MainActivity
+package com.redstar.redefinencm.activity.mainActivity
 
 import android.os.Bundle
 import android.util.Log
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 val items = listOf(
                     NavigationItem("Home", Icons.Filled.Home, "home"),
                     NavigationItem("My", Icons.Filled.Person, "my"),
-                    NavigationItem("Settings", Icons.Filled.Settings, "settings")
+                    NavigationItem("Settings", Icons.Filled.Settings, "settings"),
                 )
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
                 // Use a Surface with the background color to ensure proper drawing under system bars
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     Scaffold(
                         // Don't use default system window insets - we'll handle them ourselves
@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                                 launchSingleTop = true
                                             }
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = "my",
                             // Apply padding from the scaffold but not for system bars
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding(innerPadding),
                         ) {
                             composable("home") {
                                 PlaceHolderScreen()
@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                             composable("my") {
                                 ShowUserPlaylistPage(
                                     navController = navController,
-                                    viewModel = viewModel
+                                    viewModel = viewModel,
                                 )
                             }
                             composable("my/playlistDetailPage/{songId}") { backStackEntry ->
@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 ShowPlaylistDetailPage(
                                     viewModel = viewModel,
-                                    songlistID = songId!!.toLong()
+                                    songlistID = songId!!.toLong(),
                                 )
                             }
                             composable("settings") {
@@ -125,5 +125,5 @@ class MainActivity : ComponentActivity() {
 data class NavigationItem(
     val label: String,
     val icon: ImageVector,
-    val route: String
+    val route: String,
 )

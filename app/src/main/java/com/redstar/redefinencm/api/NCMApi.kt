@@ -35,7 +35,7 @@ interface NCMApi {
     @POST("/login/qr/create")
     suspend fun loginQrCreate(
         @Query("key") key: String,
-        @Query("qrimg") qrimg: Boolean
+        @Query("qrimg") qrimg: Boolean,
     ): LoginQrCreate
 
     @POST("/login/qr/check")
@@ -63,7 +63,7 @@ interface NCMApi {
     @GET("/lyric")
     suspend fun lyric(@Query("id") id: Long): Lyric
 
-    //@GET("/inner/version")
+    // @GET("/inner/version")
     @GET
     suspend fun innerVersion(@Url url: String): InnerVersion
 }

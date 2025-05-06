@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.MainActivity
+package com.redstar.redefinencm.activity.mainActivity
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -38,7 +38,7 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 @Composable
 fun ShowUserPlaylistPage(
     navController: NavController,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
 ) {
     val userDetail by viewModel.userDetail.collectAsState()
     val playlist by viewModel.userPlaylists.collectAsState()
@@ -47,14 +47,14 @@ fun ShowUserPlaylistPage(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(250.dp),
         ) {
             AsyncImage(
                 model = userDetail?.profile?.backgroundUrl,
                 contentDescription = "User Background",
                 modifier = Modifier
                     .fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
 
             // Black layer to make icon clear
@@ -68,19 +68,19 @@ fun ShowUserPlaylistPage(
                         drawRect(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.5f),  // Top
-                                    Color.Black.copy(alpha = 0.0f)   // Buttom
-                                )
-                            )
+                                    Color.Black.copy(alpha = 0.5f), // Top
+                                    Color.Black.copy(alpha = 0.0f), // Buttom
+                                ),
+                            ),
                         )
-                    }
+                    },
             )
 
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 AsyncImage(
                     model = userDetail?.profile?.avatarUrl,
@@ -88,18 +88,18 @@ fun ShowUserPlaylistPage(
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape)
-                        .border(3.dp, Color.White, CircleShape)
+                        .border(3.dp, Color.White, CircleShape),
                 )
 
                 Text(
                     text = userDetail?.profile?.nickname ?: "Unknown User",
                     style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
                 )
 
                 Text(
                     text = "ID: ${userDetail?.profile?.userId ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.8f))
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.8f)),
                 )
             }
         }
@@ -113,12 +113,11 @@ fun ShowUserPlaylistPage(
                         userPlaylistEach.name.contains("私人雷达") -> "radar"
                         else -> "no"
                     },
-                    navController
+                    navController,
                 )
             }
         }
     }
-
 }
 
 @Composable
@@ -135,13 +134,13 @@ fun PlaylistCard(
         shape = RoundedCornerShape(16.dp),
         onClick = {
             navController.navigate("my/playlistDetailPage/${userPlaylistEach.id}")
-        }
+        },
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
                 model = userPlaylistEach.creator.avatarUrl,
@@ -149,23 +148,23 @@ fun PlaylistCard(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text(
                     text = userPlaylistEach.name,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
                     text = userPlaylistEach.creator.nickname,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 )
             }
             // TODO: Special cards

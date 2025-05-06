@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.MainActivity
+package com.redstar.redefinencm.activity.mainActivity
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text

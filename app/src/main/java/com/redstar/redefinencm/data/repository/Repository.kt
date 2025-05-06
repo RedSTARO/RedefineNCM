@@ -34,7 +34,7 @@ class Repository(
                 backgroundUrl = networkDetail.profile.backgroundUrl,
                 level = networkDetail.level,
                 listenSongs = networkDetail.listenSongs,
-                profile = networkDetail.profile
+                profile = networkDetail.profile,
             )
             Dao.insertUserDetail(entity)
             emit(entity)
@@ -54,7 +54,7 @@ class Repository(
                 userId = uid,
                 code = networkDetail.code,
                 more = networkDetail.more,
-                playlist = networkDetail.playlist
+                playlist = networkDetail.playlist,
             )
             Dao.insertUserPlaylist(entity)
             emit(entity)
@@ -73,7 +73,7 @@ class Repository(
             val entity = PlaylistDetailEntity(
                 id = id,
                 code = networkDetail.code,
-                playlist = networkDetail.playlist
+                playlist = networkDetail.playlist,
             )
             Dao.insertPlaylistDetail(entity)
             emit(entity)
@@ -92,7 +92,7 @@ class Repository(
             val entity = PlaylistTrackAllEntity(
                 id = id,
                 code = networkDetail.code,
-                songs = networkDetail.songs
+                songs = networkDetail.songs,
             )
             Dao.insertPlaylistTrackAll(entity)
             emit(entity)

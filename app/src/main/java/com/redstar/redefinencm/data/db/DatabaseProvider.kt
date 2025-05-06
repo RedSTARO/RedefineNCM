@@ -15,9 +15,8 @@ object DatabaseProvider {
             database ?: Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
-                "redefinencm.db"
+                "redefinencm.db",
             )
-                .fallbackToDestructiveMigration(true) // TODO: DEV ONLY, REMOVE!!!
                 .build().also { database = it }
         }
     }

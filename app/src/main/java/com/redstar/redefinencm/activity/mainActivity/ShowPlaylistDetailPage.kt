@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.MainActivity
+package com.redstar.redefinencm.activity.mainActivity
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -47,11 +47,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @Composable
 fun ShowPlaylistDetailPage(
     viewModel: MainViewModel,
-    songlistID: Long
+    songlistID: Long,
 ) {
     val retrofit = viewModel.retrofit
     val mediaController by viewModel.mediaController.collectAsState()
@@ -72,14 +71,14 @@ fun ShowPlaylistDetailPage(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp), // 提升阴影
             shape = RoundedCornerShape(12.dp), // 圆角
             colors = CardDefaults.cardColors(
-                containerColor = themeColor
+                containerColor = themeColor,
             ),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp), // 增加内边距
-                horizontalAlignment = Alignment.CenterHorizontally // 水平居中
+                horizontalAlignment = Alignment.CenterHorizontally, // 水平居中
             ) {
                 // 专辑封面
                 AsyncImage(
@@ -99,11 +98,11 @@ fun ShowPlaylistDetailPage(
                         if (BuildConfig.DEBUG) {
                             Log.e(
                                 "AlbumArt",
-                                "Image load failed: ${error.result.throwable.message}"
+                                "Image load failed: ${error.result.throwable.message}",
                             )
                         }
                         themeColor = Color.Gray
-                    }
+                    },
                 )
 
                 Spacer(modifier = Modifier.height(12.dp)) // 适当增加间距
@@ -112,7 +111,7 @@ fun ShowPlaylistDetailPage(
                 Text(
                     text = playlistDetail?.playlist?.name ?: "加载中...",
                     style = MaterialTheme.typography.titleLarge, // 设置为大标题
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp)) // 间距
@@ -121,19 +120,19 @@ fun ShowPlaylistDetailPage(
                 Text(
                     text = "歌曲数量: ${
                         when {
-                            playlistDetail?.playlist?.trackCount == 0L -> playlistSongs?.songs?.lastIndex?: 0
+                            playlistDetail?.playlist?.trackCount == 0L -> playlistSongs?.songs?.lastIndex ?: 0
                             playlistDetail?.playlist?.trackCount == null -> "未知"
                             else -> playlistDetail?.playlist?.trackCount.toString()
                         }
                     }",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 )
             }
 
             Box(
                 Modifier.fillMaxWidth(),
-                Alignment.Center
+                Alignment.Center,
             ) {
                 Button(onClick = {
                     mediaController?.stop()
@@ -144,10 +143,11 @@ fun ShowPlaylistDetailPage(
                         val songUrlMap = retrofit.songUrlV1(
                             songList,
                             DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
-                                ?: "standard"
+                                ?: "standard",
                         ).data.associateBy(
                             { it.id },
-                            { it.url })
+                            { it.url },
+                        )
 
                         val songInfoMap =
                             songDetails.associateBy({ it.id }, { it to songUrlMap[it.id] })
@@ -158,10 +158,10 @@ fun ShowPlaylistDetailPage(
                                     MediaMetadata.Builder()
                                         .setTitle(eachSong.value.first.name)
                                         .setArtist(
-                                            eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手"
+                                            eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
                                         )
                                         .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
-                                        .build()
+                                        .build(),
                                 )
                                 .setMediaId(eachSong.value.first.id.toString())
                                 .build()
@@ -172,35 +172,35 @@ fun ShowPlaylistDetailPage(
                     }
                     mediaController?.prepare()
                     mediaController?.play()
-
                 }) {
                     Text(text = "播放全部")
                 }
             }
             Spacer(Modifier.padding(16.dp))
-
         }
         LazyColumn {
             itemsIndexed(playlistSongs?.songs ?: emptyList()) { index, song ->
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth()  // 让卡片宽度占满
-                        .padding(horizontal = 16.dp, vertical = 8.dp),  // 添加间距
+                        .fillMaxWidth() // 让卡片宽度占满
+                        .padding(horizontal = 16.dp, vertical = 8.dp), // 添加间距
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // 提供阴影
                     shape = RoundedCornerShape(12.dp), // 圆角
                     onClick = {
                         if (BuildConfig.DEBUG) {
                             Log.d(
                                 "showPlaylistDetail",
-                                "Selected Song ${song.name} with id ${song.id}"
+                                "Selected Song ${song.name} with id ${song.id}",
                             )
                         }
                         CoroutineScope(Dispatchers.IO).launch {
                             val url = retrofit.songUrlV1(
                                 listOf(song.id),
-                                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey(
-                                    "onlinePlayQuality"
-                                )] ?: "standard"
+                                DataStoreManager.getAppDataStore().data.first()[
+                                    stringPreferencesKey(
+                                        "onlinePlayQuality",
+                                    ),
+                                ] ?: "standard",
                             ).data[0]
                             val mediaItem = MediaItem.Builder()
                                 .setUri(url.url)
@@ -208,10 +208,10 @@ fun ShowPlaylistDetailPage(
                                     MediaMetadata.Builder()
                                         .setTitle(song.name)
                                         .setArtist(
-                                            song.ar[0].name
+                                            song.ar[0].name,
                                         )
                                         .setArtworkUri(song.al.picUrl.toUri())
-                                        .build()
+                                        .build(),
                                 )
                                 .setMediaId(song.id.toString())
                                 .build()
@@ -222,16 +222,14 @@ fun ShowPlaylistDetailPage(
                                 mediaController?.play()
                             }
                         }
-
-                    }
+                    },
                 ) {
                     Row(
                         modifier = Modifier
                             .padding(16.dp)
                             .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically // 让内容垂直居中
+                        verticalAlignment = Alignment.CenterVertically, // 让内容垂直居中
                     ) {
-
                         // 序号
                         Text(text = (index + 1).toString())
 
@@ -243,7 +241,7 @@ fun ShowPlaylistDetailPage(
                             contentDescription = "Album Cover",
                             modifier = Modifier
                                 .size(60.dp) // 增大图片尺寸
-                                .clip(RoundedCornerShape(8.dp)) // 添加圆角
+                                .clip(RoundedCornerShape(8.dp)), // 添加圆角
                         )
 
                         Spacer(modifier = Modifier.width(16.dp)) // 图片和文本之间的间距
@@ -252,17 +250,17 @@ fun ShowPlaylistDetailPage(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = song.name,
-                                style = MaterialTheme.typography.titleMedium // 使用更合适的字体
+                                style = MaterialTheme.typography.titleMedium, // 使用更合适的字体
                             )
                             Text(
                                 text = song.ar.getOrNull(0)?.name ?: "未知歌手",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f) // 颜色稍浅
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), // 颜色稍浅
                             )
                             Text(
-                                text = song.al.name?:"未知专辑",
+                                text = song.al.name ?: "未知专辑",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) // 更浅的颜色
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), // 更浅的颜色
                             )
                         }
                     }

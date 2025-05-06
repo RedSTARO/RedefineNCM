@@ -52,7 +52,6 @@ class LyricParser {
             return sortedLyricPair
         }
 
-
         private fun parseTimeString(timeString: String): Long {
             val parts = timeString.split(":")
             val minutes = parts[0].toInt()

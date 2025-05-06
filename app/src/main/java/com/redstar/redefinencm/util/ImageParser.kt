@@ -21,14 +21,14 @@ class ImageParser {
             if (BuildConfig.DEBUG) {
                 Log.d(
                     TAG,
-                    "Hardware Bitmap: ${hardwareBitmap.width}x${hardwareBitmap.height}, Config: ${hardwareBitmap.config}"
+                    "Hardware Bitmap: ${hardwareBitmap.width}x${hardwareBitmap.height}, Config: ${hardwareBitmap.config}",
                 )
             }
             val softwareBitmap = hardwareBitmap.copy(Bitmap.Config.ARGB_8888, true)
             if (BuildConfig.DEBUG) {
                 Log.d(
                     TAG,
-                    "Bitmap: ${softwareBitmap.width}x${softwareBitmap.height}, isRecycled: ${softwareBitmap.isRecycled}"
+                    "Bitmap: ${softwareBitmap.width}x${softwareBitmap.height}, isRecycled: ${softwareBitmap.isRecycled}",
                 )
             }
             val palette = Palette.from(softwareBitmap).generate() // 同步生成Palette

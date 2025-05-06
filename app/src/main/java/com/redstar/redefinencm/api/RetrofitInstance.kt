@@ -103,7 +103,7 @@ suspend fun <T> safeApiCall(apiCall: suspend () -> T): T? {
             Toast.makeText(
                 RedefineNCMApplication.getApplicationContext(),
                 "Request failed: ${e.message}",
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_SHORT,
             ).show()
         }
         Log.e("safeApiCall", "API call failed: ${e.message}", e)

@@ -6,11 +6,11 @@ import fi.iki.elonen.NanoHTTPD
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class MyApiServer(private val context: Context) : NanoHTTPD(8080) {
+class ApiServer(private val context: Context) : NanoHTTPD(8080) {
 
     override fun serve(session: IHTTPSession): Response {
         val path = session.uri.replace("/", "_").removeSuffix("_")
-        val fileName = "${path}.json"
+        val fileName = "$path.json"
         Log.i("MyApiServer", "Received $path: $fileName")
 
         return try {

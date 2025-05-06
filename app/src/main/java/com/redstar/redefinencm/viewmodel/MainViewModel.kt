@@ -30,9 +30,8 @@ import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-
 class MainViewModel(
-    private val repo: Repository
+    private val repo: Repository,
 ) : ViewModel() {
     private val context = RedefineNCMApplication.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
@@ -148,5 +147,4 @@ class MainViewModel(
                 }
         }
     }
-
 }

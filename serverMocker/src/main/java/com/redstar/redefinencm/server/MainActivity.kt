@@ -5,11 +5,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
-    private var server: MyApiServer? = null
+    private var server: ApiServer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(Unit) {
                 try {
-                    server = MyApiServer(applicationContext)
+                    server = ApiServer(applicationContext)
                     server?.start()
                     Log.i("MyApiServer", "✅ 启动成功: http://localhost:8080")
                     serverStarted = true

@@ -12,5 +12,5 @@ data class UserDetailEntity(
     val backgroundUrl: String,
     val level: Int,
     val listenSongs: Int,
-    val profile: UserDetailProfile
+    val profile: UserDetailProfile,
 )

@@ -14,11 +14,11 @@ data class UserPlaylistEach(
     val id: Long,
     val userId: Long,
 
-    )
+)
 
 data class UserPlaylistEachCreator(
     val avatarUrl: String,
     val backgroundUrl: String,
     val userId: Long,
-    val nickname: String
+    val nickname: String,
 )

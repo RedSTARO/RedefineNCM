@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.MainActivity.MainActivity"
+            android:name=".activity.mainActivity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.RedefineNCM">
             <intent-filter>

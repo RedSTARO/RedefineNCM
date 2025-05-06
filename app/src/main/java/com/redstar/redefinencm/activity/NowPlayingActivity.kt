@@ -85,16 +85,16 @@ class NowPlayingActivity : ComponentActivity() {
                             title = {
                                 Text(
                                     "Now Playing",
-                                    style = MaterialTheme.typography.titleLarge
+                                    style = MaterialTheme.typography.titleLarge,
                                 )
                             },
                             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.onPrimary
-                            )
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
                         )
                     },
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
                     NowPlayingPage(paddingValues)
                 }
@@ -110,12 +110,12 @@ fun NowPlayingPage(paddingValues: PaddingValues) {
             .fillMaxSize()
             .padding(paddingValues)
             .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
 
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             SongDetails(modifier = Modifier.fillMaxWidth())
             PlaybackControlButtons(modifier = Modifier.fillMaxWidth())
@@ -136,7 +136,7 @@ fun SongDetails(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java),
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -157,14 +157,14 @@ fun SongDetails(modifier: Modifier = Modifier) {
             .fillMaxWidth(0.9f)
             .padding(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = themeColor
+            containerColor = themeColor,
         ),
     ) {
         Column(
             modifier = Modifier
                 .padding(24.dp) // 增加内边距
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // 专辑封面
             AsyncImage(
@@ -185,7 +185,7 @@ fun SongDetails(modifier: Modifier = Modifier) {
                         Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
                     }
                     themeColor = Color.Gray
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -196,14 +196,14 @@ fun SongDetails(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                maxLines = 1
+                maxLines = 1,
             )
             Text(
                 text = metadata?.artist?.toString() ?: "未知艺术家",
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                maxLines = 1
+                maxLines = 1,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -221,7 +221,7 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java),
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -232,13 +232,13 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Perv
         PlaybackButton(
             onClick = { mediaController?.seekToPrevious() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "上一首"
+            contentDescription = "上一首",
         )
 
         // Pause
@@ -250,14 +250,14 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
             icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
             contentDescription = "播放/暂停",
             modifier = Modifier.size(64.dp), // 更大按钮突出主操作
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
         )
 
         // Next
         PlaybackButton(
             onClick = { mediaController?.seekToNext() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "下一首"
+            contentDescription = "下一首",
         )
     }
 }
@@ -268,7 +268,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
     val repeatModes = mapOf(
         1 to Player.REPEAT_MODE_OFF,
         2 to Player.REPEAT_MODE_ONE,
-        0 to Player.REPEAT_MODE_ALL
+        0 to Player.REPEAT_MODE_ALL,
     )
     var currentRepeatStatus by remember { mutableStateOf(0) }
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
@@ -278,7 +278,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         val sessionToken =
             SessionToken(
                 applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java)
+                ComponentName(applicationContext, PlaybackService::class.java),
             )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -289,22 +289,21 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-
         FuncButton(
             onClick = { /* TODO: 添加到喜欢 */ },
-            text = "Fav"
+            text = "Fav",
         )
         FuncButton(
             onClick = { showPlaylist = true },
-            text = "Play list"
+            text = "Play list",
 
         )
 
         FuncButton(
             onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
-            text = "Random"
+            text = "Random",
         )
 
         FuncButton(
@@ -315,7 +314,7 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
                     Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
                 }
             },
-            text = "Repeat Mode"
+            text = "Repeat Mode",
         )
 
         if (showPlaylist) {
@@ -335,7 +334,7 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
     LaunchedEffect(Unit) {
         val sessionToken = SessionToken(
             applicationContext,
-            ComponentName(applicationContext, PlaybackService::class.java)
+            ComponentName(applicationContext, PlaybackService::class.java),
         )
         val controllerFuture =
             MediaController.Builder(applicationContext, sessionToken).buildAsync()
@@ -361,25 +360,25 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
                                 }
                                 .fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (currentMediaId == item.mediaId)
+                                containerColor = if (currentMediaId == item.mediaId) {
                                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                else
+                                } else {
                                     Color.Transparent
+                                },
                             ),
                             elevation = CardDefaults.cardElevation(
-                                defaultElevation = if (currentMediaId == item.mediaId) 8.dp else 2.dp
-                            )
-                        )
-                        {
+                                defaultElevation = if (currentMediaId == item.mediaId) 8.dp else 2.dp,
+                            ),
+                        ) {
                             Text(
                                 text = "$index: ${item.mediaMetadata.title}",
                                 modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
+                                    .align(Alignment.CenterHorizontally),
                             )
                             Text(
                                 text = item.mediaMetadata.artist.toString(),
                                 modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
+                                    .align(Alignment.CenterHorizontally),
                             )
                         }
                     }
@@ -393,27 +392,26 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
     }
 }
 
-
 @Composable
 fun PlaybackButton(
     onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer
+    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.size(48.dp), // 默认大小
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(containerColor = containerColor),
-        contentPadding = PaddingValues(0.dp)
+        contentPadding = PaddingValues(0.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
         )
     }
 }
@@ -423,7 +421,7 @@ fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier)
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
     ) { Text(text, color = MaterialTheme.colorScheme.onSecondary) }
 }
 

@@ -8,7 +8,7 @@ import com.redstar.redefinencm.api.data.PlaylistTrackAllSongs
 import com.redstar.redefinencm.api.data.UserDetailProfile
 import com.redstar.redefinencm.api.data.UserPlaylistEach
 
-class Converters {
+class TypeConverter {
 
     @TypeConverter
     fun fromProfile(profile: UserDetailProfile): String {

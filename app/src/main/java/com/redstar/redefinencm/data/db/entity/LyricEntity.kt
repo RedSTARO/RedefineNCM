@@ -15,4 +15,3 @@ data class LyricEntity(
     val klyric: LyricLrc,
     val tlyric: LyricLrc,
 )
-

@@ -8,5 +8,5 @@ import com.redstar.redefinencm.api.data.PlaylistTrackAllSongs
 data class PlaylistTrackAllEntity(
     @PrimaryKey val id: Long,
     val code: Int,
-    val songs: List<PlaylistTrackAllSongs>
+    val songs: List<PlaylistTrackAllSongs>,
 )

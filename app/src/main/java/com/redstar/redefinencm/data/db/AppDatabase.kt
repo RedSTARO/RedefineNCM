@@ -8,14 +8,14 @@ import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
-import com.redstar.redefinencm.util.Converters
+import com.redstar.redefinencm.util.TypeConverter
 
 @Database(
     entities = [UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class, PlaylistTrackAllEntity::class],
     version = 3,
-    exportSchema = false
+    exportSchema = false,
 )
-@TypeConverters(Converters::class)
+@TypeConverters(TypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getDao(): Dao
 }

@@ -8,5 +8,5 @@ data class SongUrlV1(
 data class SongUrlV1Data(
     val id: Long,
     val url: String,
-    val type: String
+    val type: String,
 )

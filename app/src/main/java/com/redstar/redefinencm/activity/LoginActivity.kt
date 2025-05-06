@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.activity.MainActivity.MainActivity
+import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
@@ -66,9 +66,11 @@ class LoginActivity : ComponentActivity() {
 
                     LaunchedEffect(Dispatchers.IO) {
                         gotServer = runBlocking {
-                            (DataStoreManager.getAppDataStore().data.firstOrNull()
-                                ?.get(stringPreferencesKey("server"))
-                                ?: "")
+                            (
+                                DataStoreManager.getAppDataStore().data.firstOrNull()
+                                    ?.get(stringPreferencesKey("server"))
+                                    ?: ""
+                                )
                         }.isNotEmpty()
                     }
 
@@ -77,7 +79,6 @@ class LoginActivity : ComponentActivity() {
                     } else {
                         ServerItem({ gotServer = true }) // This from SettingActivity
                     }
-
                 }
             }
         }
@@ -91,14 +92,12 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
             .fillMaxSize()
             .padding(innerPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         CookieLogin(viewModel)
 //            QrLogin(viewModel)
     }
-
 }
-
 
 @Composable
 fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
@@ -108,17 +107,17 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Text(
             text = "用户登录",
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
         )
         Text(
             text = "请输入您的 Cookie 以登录。",
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
         )
         OutlinedTextField(
             label = { Text("Cookie") },
@@ -127,7 +126,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
-                .height(64.dp) // So fixed even long cookie text
+                .height(64.dp), // So fixed even long cookie text
         )
         Button(
             onClick = {
@@ -149,12 +148,12 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(48.dp),
         ) {
             if (viewModel.cookieLoginLoading) {
                 CircularProgressIndicator(
                     color = Color.White,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 )
             } else {
                 Text("登录")
@@ -164,7 +163,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
             Text(
                 text = viewModel.cookieLoginErrorMessage,
                 color = Color.Red,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
     }
@@ -183,7 +182,7 @@ fun QrLogin(viewModel: LoginViewModel) {
 
             val qrImg = viewModel.retrofit.loginQrCreate(
                 viewModel.qrLoginUnikey,
-                true
+                true,
             ).data.qrimg.substringAfter("base64,")
             val qrBytes = Base64.decode(qrImg, Base64.DEFAULT)
             viewModel.qrLoginBitmap = BitmapFactory.decodeStream(ByteArrayInputStream(qrBytes))
@@ -201,7 +200,7 @@ fun QrLogin(viewModel: LoginViewModel) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         viewModel.qrLoginBitmap?.asImageBitmap()?.let {
             Image(bitmap = it, contentDescription = "QR Code", modifier = Modifier.size(300.dp))
