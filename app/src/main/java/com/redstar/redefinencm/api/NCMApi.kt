@@ -9,6 +9,7 @@ import com.redstar.redefinencm.api.data.LoginStatus
 import com.redstar.redefinencm.api.data.Lyric
 import com.redstar.redefinencm.api.data.PlaylistDetail
 import com.redstar.redefinencm.api.data.PlaylistTrackAll
+import com.redstar.redefinencm.api.data.PlaylistUpdatePlayCount
 import com.redstar.redefinencm.api.data.SongDetail
 import com.redstar.redefinencm.api.data.SongUrlV1
 import com.redstar.redefinencm.api.data.UserAccount
@@ -52,6 +53,9 @@ interface NCMApi {
 
     @GET("/playlist/detail")
     suspend fun playlistDetail(@Query("id") id: Long): PlaylistDetail
+
+    @GET("/playlist/update/playcount")
+    suspend fun playlistUpdatePlaycount(@Query("id") id: Long): PlaylistUpdatePlayCount
 
     @GET("/song/url/v1")
     suspend fun songUrlV1(@Query("id") id: List<Long>, @Query("level") level: String): SongUrlV1

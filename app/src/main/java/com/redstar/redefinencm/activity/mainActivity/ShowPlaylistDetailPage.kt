@@ -38,6 +38,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.MainViewModel
@@ -169,6 +170,7 @@ fun ShowPlaylistDetailPage(
                                 mediaController?.addMediaItem(mediaItem)
                             }
                         }
+                        safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
                     }
                     mediaController?.prepare()
                     mediaController?.play()
@@ -221,6 +223,7 @@ fun ShowPlaylistDetailPage(
                                 mediaController?.prepare()
                                 mediaController?.play()
                             }
+                            safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
                         }
                     },
                 ) {
