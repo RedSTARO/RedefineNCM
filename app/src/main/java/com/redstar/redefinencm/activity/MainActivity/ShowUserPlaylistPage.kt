@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity.MainActivity
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -55,16 +55,25 @@ fun ShowUserPlaylistPage(
                 modifier = Modifier
                     .fillMaxSize(),
                 contentScale = ContentScale.Crop
-
             )
+
+            // Black layer to make icon clear
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f))
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .align(Alignment.TopCenter)
+                    .drawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.5f),  // Top
+                                    Color.Black.copy(alpha = 0.0f)   // Buttom
+                                )
+                            )
                         )
-                    )
+                    }
             )
 
             Column(
