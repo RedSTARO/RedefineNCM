@@ -139,20 +139,20 @@ fun ShowPlaylistDetailPage(
                     mediaController?.stop()
                     mediaController?.clearMediaItems()
                     CoroutineScope(Dispatchers.IO).launch {
-                        val songDetails = retrofit.playlistTrackAll(songlistID).songs
-                        val songList = songDetails.map { it.id }
-                        val songUrlMap = retrofit.songUrlV1(
-                            songList,
+                        val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
+                        val songList = songDetails?.map { it.id }
+                        val songUrlMap = safeApiCall { retrofit.songUrlV1(
+                            songList?: emptyList(),
                             DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
                                 ?: "standard",
-                        ).data.associateBy(
+                        )}?.data?.associateBy(
                             { it.id },
                             { it.url },
                         )
 
                         val songInfoMap =
-                            songDetails.associateBy({ it.id }, { it to songUrlMap[it.id] })
-                        for (eachSong in songInfoMap) {
+                            songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
+                        for (eachSong in songInfoMap?: emptyMap()) {
                             val mediaItem = MediaItem.Builder()
                                 .setUri(eachSong.value.second)
                                 .setMediaMetadata(
@@ -196,16 +196,16 @@ fun ShowPlaylistDetailPage(
                             )
                         }
                         CoroutineScope(Dispatchers.IO).launch {
-                            val url = retrofit.songUrlV1(
+                            val url = safeApiCall {retrofit.songUrlV1(
                                 listOf(song.id),
                                 DataStoreManager.getAppDataStore().data.first()[
                                     stringPreferencesKey(
                                         "onlinePlayQuality",
                                     ),
                                 ] ?: "standard",
-                            ).data[0]
+                            )}?.data[0]
                             val mediaItem = MediaItem.Builder()
-                                .setUri(url.url)
+                                .setUri(url?.url)
                                 .setMediaMetadata(
                                     MediaMetadata.Builder()
                                         .setTitle(song.name)
