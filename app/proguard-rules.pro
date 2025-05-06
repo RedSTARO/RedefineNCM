@@ -20,6 +20,5 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class com.redstar.redefinencm.api.data.** { *; }
--keep class com.google.gson.** { *; }
 -keep class cn.lyric.getter.api.data.*{*;}
 -keep class cn.lyric.getter.api.API{*;}
