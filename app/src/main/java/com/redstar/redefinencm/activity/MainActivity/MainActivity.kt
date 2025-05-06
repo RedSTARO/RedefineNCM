@@ -36,15 +36,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val viewModel = MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
 
         setContent {
             RedefineNCMTheme {
                 val context = LocalContext.current
                 val navController = rememberNavController()
-
-                val viewModel =
-                    MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
-
 
                 val items = listOf(
                     NavigationItem("Home", Icons.Filled.Home, "home"),
