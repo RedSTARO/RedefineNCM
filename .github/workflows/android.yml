@@ -40,9 +40,7 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         env:
-          # override default build-tools version (33.0.0)
           BUILD_TOOLS_VERSION: "34.0.0"
-
 
       - name: Rename Signed APK
         run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
@@ -52,6 +50,18 @@ jobs:
         with:
           name: RedefineNCM_${{ github.ref_name }}
           path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+
+      - name: Upload APK to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk"
+          echo "Uploading $APK_FILE to Telegram..."
+          curl -F chat_id=$TELEGRAM_CHAT_ID \
+               -F document=@"$APK_FILE" \
+               -F caption="✅ RedefineNCM ${{ github.ref_name }} New push！" \
+               https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument
 
   release:
     needs: build
