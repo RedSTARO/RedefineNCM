@@ -58,6 +58,7 @@ class SplashActivity : ComponentActivity() {
                             if (cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java,
                         ),
                     )
+                    this.finish()
                 }
             }
         }
