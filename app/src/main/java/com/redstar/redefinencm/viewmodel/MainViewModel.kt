@@ -49,9 +49,11 @@ class MainViewModel(
     var userDetail = MutableStateFlow<UserDetailEntity?>(null)
 
     // 歌单详情与曲目
-    var playlistId = MutableStateFlow(String)
     var playlistDetail = MutableStateFlow<PlaylistDetailEntity?>(null)
     var playlistSongs = MutableStateFlow<PlaylistTrackAllEntity?>(null)
+
+    // Recommend Page
+
 
     init {
         fetchUID()

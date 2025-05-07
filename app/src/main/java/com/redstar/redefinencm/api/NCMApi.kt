@@ -10,6 +10,8 @@ import com.redstar.redefinencm.api.data.Lyric
 import com.redstar.redefinencm.api.data.PlaylistDetail
 import com.redstar.redefinencm.api.data.PlaylistTrackAll
 import com.redstar.redefinencm.api.data.PlaylistUpdatePlayCount
+import com.redstar.redefinencm.api.data.RecommendResource
+import com.redstar.redefinencm.api.data.RecommendSongs
 import com.redstar.redefinencm.api.data.SongDetail
 import com.redstar.redefinencm.api.data.SongUrlV1
 import com.redstar.redefinencm.api.data.UserAccount
@@ -63,6 +65,12 @@ interface NCMApi {
 
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): SongDetail
+
+    @GET("/recommend/songs")
+    suspend fun recommendSongs(): RecommendSongs
+
+    @GET("/recommend/resource")
+    suspend fun recommendResource(): RecommendResource
 
     @GET("/lyric")
     suspend fun lyric(@Query("id") id: Long): Lyric

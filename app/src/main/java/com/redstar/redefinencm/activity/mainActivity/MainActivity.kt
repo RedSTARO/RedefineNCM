@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 val items = listOf(
-                    NavigationItem("Home", Icons.Filled.Home, "home"),
+                    NavigationItem("Recommend", Icons.Filled.Home, "recommend"),
                     NavigationItem("My", Icons.Filled.Person, "my"),
                     NavigationItem("Settings", Icons.Filled.Settings, "settings"),
                 )
@@ -92,9 +92,21 @@ class MainActivity : ComponentActivity() {
                             // Apply padding from the scaffold but not for system bars
                             modifier = Modifier.padding(innerPadding),
                         ) {
-                            composable("home") {
-                                PlaceHolderScreen()
+                            composable("recommend") {
+                                RecommendPage(viewModel)
                             }
+
+                            composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
+                                val songId = backStackEntry.arguments?.getString("songId")
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("Main", "SongList ID: $songId")
+                                }
+                                ShowPlaylistDetailPage(
+                                    viewModel = viewModel,
+                                    songlistID = songId!!.toLong(),
+                                )
+                            }
+
                             composable("my") {
                                 ShowUserPlaylistPage(
                                     navController = navController,
