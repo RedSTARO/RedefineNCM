@@ -51,6 +51,12 @@ jobs:
           name: RedefineNCM_${{ github.ref_name }}
           path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
 
+      - name: Get commit info
+        id: gitinfo
+        run: |
+          echo "commit_msg=$(git log -1 --pretty=%s)" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Upload APK to Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -60,7 +66,7 @@ jobs:
           echo "Uploading $APK_FILE to Telegram..."
           curl -F chat_id=$TELEGRAM_CHAT_ID \
                -F document=@"$APK_FILE" \
-               -F caption="✅ RedefineNCM ${{ github.ref_name }} New push！" \
+               -F caption="✅ RedefineNCM ${{ github.ref_name }} - ${{ steps.gitinfo.outputs.commit_msg }} [${{ steps.gitinfo.outputs.commit_sha }}]" \
                https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument
 
   release:
