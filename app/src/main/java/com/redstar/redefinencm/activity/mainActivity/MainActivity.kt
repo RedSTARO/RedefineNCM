@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = "my",
+                            startDestination = "recommend",
                             // Apply padding from the scaffold but not for system bars
                             modifier = Modifier.padding(innerPadding),
                         ) {

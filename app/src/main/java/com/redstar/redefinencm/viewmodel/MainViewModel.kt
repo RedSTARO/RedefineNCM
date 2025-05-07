@@ -17,7 +17,10 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.api.data.RecommendResource
+import com.redstar.redefinencm.api.data.RecommendSongs
 import com.redstar.redefinencm.api.data.UserPlaylistEach
+import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
@@ -53,13 +56,15 @@ class MainViewModel(
     var playlistSongs = MutableStateFlow<PlaylistTrackAllEntity?>(null)
 
     // Recommend Page
-
+    var recommendResource = MutableStateFlow<RecommendResource?>(null)
+    var recommendSongs = MutableStateFlow<RecommendSongs?>(null)
 
     init {
         fetchUID()
         initMediaController()
         fetchUserData()
         fetchUserPlaylists()
+        fetchRecommend()
     }
 
     override fun onCleared() {
@@ -147,6 +152,13 @@ class MainViewModel(
                 .collect { detail ->
                     playlistSongs.value = detail
                 }
+        }
+    }
+
+    fun fetchRecommend(){
+        viewModelScope.launch {
+            recommendResource.value = safeApiCall { retrofit.recommendResource() }
+            recommendSongs.value = safeApiCall { retrofit.recommendSongs() }
         }
     }
 }
