@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.10.0"
 coilCompose = "2.7.0"
 converterGson = "2.11.0"
 datastorePreferences = "1.1.4" # Not use 1.1.5 because https://issuetracker.google.com/issues/413061399, waiting for 1.1.6

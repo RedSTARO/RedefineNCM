@@ -4,5 +4,3 @@ data class PlaylistTrackAll(
     val code: Int,
     val songs: List<SongDetailSongs>,
 )
-
-

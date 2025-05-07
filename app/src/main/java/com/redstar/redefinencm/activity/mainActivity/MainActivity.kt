@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding),
                         ) {
                             composable("recommend") {
-                                RecommendPage(navController,viewModel)
+                                RecommendPage(navController, viewModel)
                             }
 
                             composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->

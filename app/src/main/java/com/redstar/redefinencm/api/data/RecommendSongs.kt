@@ -2,7 +2,7 @@ package com.redstar.redefinencm.api.data
 
 data class RecommendSongs(
     val code: Int,
-    val data: RecommendSongsData
+    val data: RecommendSongsData,
 )
 
 data class RecommendSongsData(

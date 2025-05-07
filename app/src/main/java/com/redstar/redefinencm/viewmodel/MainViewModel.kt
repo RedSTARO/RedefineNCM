@@ -162,14 +162,14 @@ class MainViewModel(
         }
     }
 
-    fun fetchRecommend(){
+    fun fetchRecommend() {
         viewModelScope.launch {
             recommendResource.value = safeApiCall { retrofit.recommendResource() }
             recommendSongs.value = safeApiCall { retrofit.recommendSongs() }
         }
     }
 
-    fun onPlaySingleSongClick(song: SongDetailSongs){
+    fun onPlaySingleSongClick(song: SongDetailSongs) {
         if (BuildConfig.DEBUG) {
             Log.d(
                 "showPlaylistDetail",
@@ -177,14 +177,16 @@ class MainViewModel(
             )
         }
         CoroutineScope(Dispatchers.IO).launch {
-            val url = safeApiCall {retrofit.songUrlV1(
-                listOf(song.id),
-                DataStoreManager.getAppDataStore().data.first()[
-                    stringPreferencesKey(
-                        "onlinePlayQuality",
-                    ),
-                ] ?: "standard",
-            )}?.data?.get(0)
+            val url = safeApiCall {
+                retrofit.songUrlV1(
+                    listOf(song.id),
+                    DataStoreManager.getAppDataStore().data.first()[
+                        stringPreferencesKey(
+                            "onlinePlayQuality",
+                        ),
+                    ] ?: "standard",
+                )
+            }?.data?.get(0)
             val mediaItem = MediaItem.Builder()
                 .setUri(url?.url)
                 .setMediaMetadata(
@@ -207,24 +209,26 @@ class MainViewModel(
         }
     }
 
-    fun onPlayPlaylistClick(songlistID: Long){
+    fun onPlayPlaylistClick(songlistID: Long) {
         this@MainViewModel.mediaController.value?.stop()
         this@MainViewModel.mediaController.value?.clearMediaItems()
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
             val songList = songDetails?.map { it.id }
-            val songUrlMap = safeApiCall { retrofit.songUrlV1(
-                songList?: emptyList(),
-                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
-                    ?: "standard",
-            )}?.data?.associateBy(
+            val songUrlMap = safeApiCall {
+                retrofit.songUrlV1(
+                    songList ?: emptyList(),
+                    DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
+                        ?: "standard",
+                )
+            }?.data?.associateBy(
                 { it.id },
                 { it.url },
             )
 
             val songInfoMap =
                 songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
-            for (eachSong in songInfoMap?: emptyMap()) {
+            for (eachSong in songInfoMap ?: emptyMap()) {
                 val mediaItem = MediaItem.Builder()
                     .setUri(eachSong.value.second)
                     .setMediaMetadata(

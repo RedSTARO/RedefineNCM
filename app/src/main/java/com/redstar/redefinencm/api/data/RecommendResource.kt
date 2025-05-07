@@ -4,7 +4,7 @@ data class RecommendResource(
     val code: Int,
     val featureFirst: Boolean,
     val haveRcmdSongs: Boolean,
-    val recommend: List<RecommendResourceRecommend>
+    val recommend: List<RecommendResourceRecommend>,
 )
 
 data class RecommendResourceRecommend(
@@ -18,7 +18,7 @@ data class RecommendResourceRecommend(
     val creator: RecommendResourceRecommendCreator,
     val trackCount: Int,
     val userId: Long,
-    val alg: String
+    val alg: String,
 )
 
 data class RecommendResourceRecommendCreator(
