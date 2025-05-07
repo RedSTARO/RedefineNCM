@@ -68,8 +68,8 @@
             "remarkName": null,
             "authenticationTypes": 111111,
             "avatarDetail": null,
-            "backgroundImgIdStr": "AStringValue",
             "avatarImgIdStr": "AStringValue",
+            "backgroundImgIdStr": "AStringValue",
             "anchor": false,
             "avatarImgId_str": "AStringValue"
         },
