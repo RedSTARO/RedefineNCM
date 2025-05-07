@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.redstar.redefinencm.api.data.PlaylistDetailPlaylist
-import com.redstar.redefinencm.api.data.PlaylistTrackAllSongs
+import com.redstar.redefinencm.api.data.SongDetailSongs
 import com.redstar.redefinencm.api.data.UserDetailProfile
 import com.redstar.redefinencm.api.data.UserPlaylistEach
 
@@ -42,13 +42,13 @@ class TypeConverter {
     }
 
     @TypeConverter
-    fun fromPlaylistTrackAllSongs(value: List<PlaylistTrackAllSongs>): String {
+    fun fromSongDetailSongs(value: List<SongDetailSongs>): String {
         return Gson().toJson(value)
     }
 
     @TypeConverter
-    fun toPlaylistTrackAllSongs(value: String): List<PlaylistTrackAllSongs> {
-        val listType = object : TypeToken<List<PlaylistTrackAllSongs>>() {}.type
+    fun toSongDetailSongs(value: String): List<SongDetailSongs> {
+        val listType = object : TypeToken<List<SongDetailSongs>>() {}.type
         return Gson().fromJson(value, listType)
     }
 }

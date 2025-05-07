@@ -32,21 +32,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.net.toUri
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.safeApiCall
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun ShowPlaylistDetailPage(
@@ -54,7 +47,6 @@ fun ShowPlaylistDetailPage(
     songlistID: Long,
 ) {
     val retrofit = viewModel.retrofit
-    val mediaController by viewModel.mediaController.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
 
     val playlistDetail by viewModel.playlistDetail.collectAsState()
@@ -136,44 +128,7 @@ fun ShowPlaylistDetailPage(
                 Alignment.Center,
             ) {
                 Button(onClick = {
-                    mediaController?.stop()
-                    mediaController?.clearMediaItems()
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
-                        val songList = songDetails?.map { it.id }
-                        val songUrlMap = safeApiCall { retrofit.songUrlV1(
-                            songList?: emptyList(),
-                            DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
-                                ?: "standard",
-                        )}?.data?.associateBy(
-                            { it.id },
-                            { it.url },
-                        )
-
-                        val songInfoMap =
-                            songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
-                        for (eachSong in songInfoMap?: emptyMap()) {
-                            val mediaItem = MediaItem.Builder()
-                                .setUri(eachSong.value.second)
-                                .setMediaMetadata(
-                                    MediaMetadata.Builder()
-                                        .setTitle(eachSong.value.first.name)
-                                        .setArtist(
-                                            eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
-                                        )
-                                        .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
-                                        .build(),
-                                )
-                                .setMediaId(eachSong.value.first.id.toString())
-                                .build()
-                            withContext(Dispatchers.Main) {
-                                mediaController?.addMediaItem(mediaItem)
-                            }
-                        }
-                        safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
-                    }
-                    mediaController?.prepare()
-                    mediaController?.play()
+                    viewModel.onPlayPlaylistClick(songlistID)
                 }) {
                     Text(text = "播放全部")
                 }
@@ -196,33 +151,7 @@ fun ShowPlaylistDetailPage(
                             )
                         }
                         CoroutineScope(Dispatchers.IO).launch {
-                            val url = safeApiCall {retrofit.songUrlV1(
-                                listOf(song.id),
-                                DataStoreManager.getAppDataStore().data.first()[
-                                    stringPreferencesKey(
-                                        "onlinePlayQuality",
-                                    ),
-                                ] ?: "standard",
-                            )}?.data[0]
-                            val mediaItem = MediaItem.Builder()
-                                .setUri(url?.url)
-                                .setMediaMetadata(
-                                    MediaMetadata.Builder()
-                                        .setTitle(song.name)
-                                        .setArtist(
-                                            song.ar[0].name,
-                                        )
-                                        .setArtworkUri(song.al.picUrl.toUri())
-                                        .build(),
-                                )
-                                .setMediaId(song.id.toString())
-                                .build()
-                            withContext(Dispatchers.Main) {
-                                mediaController?.clearMediaItems()
-                                mediaController?.addMediaItem(mediaItem)
-                                mediaController?.prepare()
-                                mediaController?.play()
-                            }
+                            viewModel.onPlaySingleSongClick(song)
                             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
                         }
                     },

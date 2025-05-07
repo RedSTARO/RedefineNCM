@@ -5,10 +5,13 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
@@ -19,6 +22,7 @@ import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.api.data.RecommendResource
 import com.redstar.redefinencm.api.data.RecommendSongs
+import com.redstar.redefinencm.api.data.SongDetailSongs
 import com.redstar.redefinencm.api.data.UserPlaylistEach
 import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
@@ -27,11 +31,14 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.repository.Repository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class MainViewModel(
     private val repo: Repository,
@@ -160,5 +167,84 @@ class MainViewModel(
             recommendResource.value = safeApiCall { retrofit.recommendResource() }
             recommendSongs.value = safeApiCall { retrofit.recommendSongs() }
         }
+    }
+
+    fun onPlaySingleSongClick(song: SongDetailSongs){
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                "showPlaylistDetail",
+                "Selected Song ${song.name} with id ${song.id}",
+            )
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            val url = safeApiCall {retrofit.songUrlV1(
+                listOf(song.id),
+                DataStoreManager.getAppDataStore().data.first()[
+                    stringPreferencesKey(
+                        "onlinePlayQuality",
+                    ),
+                ] ?: "standard",
+            )}?.data?.get(0)
+            val mediaItem = MediaItem.Builder()
+                .setUri(url?.url)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(song.name)
+                        .setArtist(
+                            song.ar[0].name,
+                        )
+                        .setArtworkUri(song.al.picUrl.toUri())
+                        .build(),
+                )
+                .setMediaId(song.id.toString())
+                .build()
+            withContext(Dispatchers.Main) {
+                this@MainViewModel.mediaController.value?.clearMediaItems()
+                this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
+                this@MainViewModel.mediaController.value?.prepare()
+                this@MainViewModel.mediaController.value?.play()
+            }
+        }
+    }
+
+    fun onPlayPlaylistClick(songlistID: Long){
+        this@MainViewModel.mediaController.value?.stop()
+        this@MainViewModel.mediaController.value?.clearMediaItems()
+        CoroutineScope(Dispatchers.IO).launch {
+            val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
+            val songList = songDetails?.map { it.id }
+            val songUrlMap = safeApiCall { retrofit.songUrlV1(
+                songList?: emptyList(),
+                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
+                    ?: "standard",
+            )}?.data?.associateBy(
+                { it.id },
+                { it.url },
+            )
+
+            val songInfoMap =
+                songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
+            for (eachSong in songInfoMap?: emptyMap()) {
+                val mediaItem = MediaItem.Builder()
+                    .setUri(eachSong.value.second)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setTitle(eachSong.value.first.name)
+                            .setArtist(
+                                eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
+                            )
+                            .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
+                            .build(),
+                    )
+                    .setMediaId(eachSong.value.first.id.toString())
+                    .build()
+                withContext(Dispatchers.Main) {
+                    this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
+                }
+            }
+            safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
+        }
+        this@MainViewModel.mediaController.value?.prepare()
+        this@MainViewModel.mediaController.value?.play()
     }
 }
