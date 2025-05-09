@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -43,18 +44,24 @@ object RetrofitInstance {
             if (!NO_COOKIE_URLS.any { originalUrl.encodedPath.contains(it) }) {
                 requestBuilder.addHeader("Cookie", COOKIE)
             }
-
             // Build the final request
             val finalRequest = requestBuilder.build()
-
-            // Log URL and headers in debug mode
-            if (BuildConfig.DEBUG) {
-                Log.d("RetrofitInstance", "URL: ${finalRequest.url}")
-//                Log.d("RetrofitInstance", "Header Cookie: ${finalRequest.header("Cookie")}")
-            }
-
             // Proceed with the modified request
             chain.proceed(finalRequest)
+        }
+        .addInterceptor {chain ->
+            val request = chain.request()
+            val t1 = System.nanoTime()
+            val response: Response = chain.proceed(request)
+            val t2 = System.nanoTime()
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                    "RetrofitInstance",
+                    "Received response for ${response.request.url.toString().substringBefore("=")} in ${(t2 - t1) / 1e6} ms"
+                )
+            }
+            response
+
         }
         .build()
 
