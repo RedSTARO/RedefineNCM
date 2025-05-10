@@ -14,6 +14,7 @@ import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import java.util.Calendar
 
 class Repository(
     private val Dao: Dao,
@@ -111,7 +112,11 @@ class Repository(
         val networkDetail = safeApiCall { retrofit.recommendSongs() }
         if (networkDetail != null) {
             val entity = RecommendSongsEntity(
-                timestamp = System.currentTimeMillis(),
+                timestamp = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis,
                 code = networkDetail.code,
                 data = networkDetail.data
             )
@@ -130,7 +135,11 @@ class Repository(
         val networkDetail = safeApiCall { retrofit.recommendResource() }
         if (networkDetail != null) {
             val entity = RecommendResourceEntity(
-                timestamp = System.currentTimeMillis(),
+                timestamp = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis,
                 code = networkDetail.code,
                 featureFirst = networkDetail.featureFirst,
                 haveRcmdSongs = networkDetail.haveRcmdSongs,
