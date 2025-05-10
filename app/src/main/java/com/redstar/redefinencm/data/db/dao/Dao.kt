@@ -38,13 +38,13 @@ interface Dao {
     @Query("SELECT * FROM playlistTrackAll WHERE id = :id LIMIT 1")
     fun getPlaylistTrackAll(id: Long): Flow<PlaylistTrackAllEntity?>
 
-    @Query("SELECT * FROM recommendResource LIMIT 1")
+    @Query("SELECT * FROM recommendResource ORDER BY timestamp DESC LIMIT 1")
     fun getRecommendResource(): Flow<RecommendResourceEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecommendResource(detail: RecommendResourceEntity)
 
-    @Query("SELECT * FROM recommendSongs LIMIT 1")
+    @Query("SELECT * FROM recommendSongs ORDER BY timestamp DESC LIMIT 1")
     fun getRecommendSongs(): Flow<RecommendSongsEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
