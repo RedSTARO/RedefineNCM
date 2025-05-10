@@ -7,6 +7,8 @@ import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
+import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
+import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import kotlinx.coroutines.flow.Flow
@@ -98,4 +100,45 @@ class Repository(
             emit(entity)
         }
     }
+
+    fun getRecommendSongs(): Flow<RecommendSongsEntity> = flow {
+        val cachedDetail = Dao.getRecommendSongs().first()
+        if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
+            emit(cachedDetail)
+        }
+
+        val networkDetail = safeApiCall { retrofit.recommendSongs() }
+        if (networkDetail != null) {
+            val entity = RecommendSongsEntity(
+                timestamp = System.currentTimeMillis(),
+                code = networkDetail.code,
+                data = networkDetail.data
+            )
+            Dao.insertRecommendSongs(entity)
+            emit(entity)
+            }
+        }
+
+    fun getRecommendResource(): Flow<RecommendResourceEntity> = flow {
+        val cachedDetail = Dao.getRecommendResource().first()
+        if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
+            emit(cachedDetail)
+        }
+
+        val networkDetail = safeApiCall { retrofit.recommendResource() }
+        if (networkDetail != null) {
+            val entity = RecommendResourceEntity(
+                timestamp = System.currentTimeMillis(),
+                code = networkDetail.code,
+                featureFirst = networkDetail.featureFirst,
+                haveRcmdSongs = networkDetail.haveRcmdSongs,
+                recommend = networkDetail.recommend
+            )
+            Dao.insertRecommendResource(entity)
+            emit(entity)
+        }
+    }
 }
+

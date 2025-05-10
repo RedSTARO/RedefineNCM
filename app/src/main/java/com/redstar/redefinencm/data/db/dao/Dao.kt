@@ -6,6 +6,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
+import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
+import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import kotlinx.coroutines.flow.Flow
@@ -35,4 +37,16 @@ interface Dao {
 
     @Query("SELECT * FROM playlistTrackAll WHERE id = :id LIMIT 1")
     fun getPlaylistTrackAll(id: Long): Flow<PlaylistTrackAllEntity?>
+
+    @Query("SELECT * FROM recommendResource LIMIT 1")
+    fun getRecommendResource(): Flow<RecommendResourceEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecommendResource(detail: RecommendResourceEntity)
+
+    @Query("SELECT * FROM recommendSongs LIMIT 1")
+    fun getRecommendSongs(): Flow<RecommendSongsEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecommendSongs(detail: RecommendSongsEntity)
 }

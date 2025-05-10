@@ -17,6 +17,7 @@ object DatabaseProvider {
                 AppDatabase::class.java,
                 "redefinencm.db",
             )
+                .fallbackToDestructiveMigration(true) // 强制重建数据库
                 .build().also { database = it }
         }
     }
