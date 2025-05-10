@@ -29,7 +29,7 @@ fun RecommendPage(
         SearchBox()
 
         SectionWithLazyRow(
-            title = "Recommend Resource",
+            title = "Recommend Resources",
             items = recommendResource.value?.recommend ?: emptyList(),
             itemContent = { eachRecommend ->
                 RecommendResourceCard(eachRecommend, navController)
