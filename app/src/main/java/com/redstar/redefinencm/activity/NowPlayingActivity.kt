@@ -66,11 +66,17 @@ import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.api.NCMApi
+import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.launch
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -292,7 +298,14 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         FuncButton(
-            onClick = { /* TODO: 添加到喜欢 */ },
+            onClick = {
+                val mediaId = mediaController?.currentMediaItem?.mediaId
+                CoroutineScope(Dispatchers.IO).launch {
+                    safeApiCall {
+                        RetrofitInstance.retrofit.create(NCMApi::class.java).like(mediaId?.toLong())
+                    }
+                }
+            },
             text = "Fav",
         )
         FuncButton(

@@ -2,6 +2,8 @@ package com.redstar.redefinencm.api
 
 import com.redstar.redefinencm.api.data.Dailysignin
 import com.redstar.redefinencm.api.data.InnerVersion
+import com.redstar.redefinencm.api.data.Like
+import com.redstar.redefinencm.api.data.LikeList
 import com.redstar.redefinencm.api.data.LoginQrCheck
 import com.redstar.redefinencm.api.data.LoginQrCreate
 import com.redstar.redefinencm.api.data.LoginQrKey
@@ -74,6 +76,12 @@ interface NCMApi {
 
     @GET("/lyric")
     suspend fun lyric(@Query("id") id: Long): Lyric
+
+    @POST("/like")
+    suspend fun like(@Query("id") id: Long?): Like
+
+    @POST("/likelist")
+    suspend fun likelist(@Query("uid") uid: Long): LikeList
 
     // @GET("/inner/version")
     @GET
