@@ -329,7 +329,8 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
     var mediaController by remember { mutableStateOf<MediaController?>(null) }
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
-    val currentMediaId = mediaController?.currentMediaItem?.mediaId
+    var currentMediaId by remember { mutableStateOf<String?>(null) }
+
 
     LaunchedEffect(Unit) {
         val sessionToken = SessionToken(
@@ -346,6 +347,13 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
             mediaController?.getMediaItemAt(i)?.let { mediaItems.add(it) }
         }
         playlist = mediaItems
+
+        mediaController!!.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                currentMediaId = mediaItem?.mediaId
+            }
+        })
+        currentMediaId = mediaController!!.currentMediaItem?.mediaId
     }
     if (!playlist.isNullOrEmpty()) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
@@ -359,15 +367,12 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
                                     mediaController?.seekTo(index, 0)
                                 }
                                 .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
+                                colors = CardDefaults.cardColors(
                                 containerColor = if (currentMediaId == item.mediaId) {
                                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                                 } else {
                                     Color.Transparent
                                 },
-                            ),
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = if (currentMediaId == item.mediaId) 8.dp else 2.dp,
                             ),
                         ) {
                             Text(
