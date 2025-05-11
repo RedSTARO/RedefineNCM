@@ -19,7 +19,7 @@ jobs:
         id: commitcount
         run: |
           git fetch --tags
-          latest_tag=$(git describe --tags --abbrev=0)
+          latest_tag=$(git tag --sort=-creatordate | head -n1)
           count=$(git rev-list --count ${latest_tag}..HEAD)
           echo "count=$count" >> $GITHUB_OUTPUT
 
