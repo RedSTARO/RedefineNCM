@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     branches: [ "master" ]
-    tags: [ "v*" ] # 当 tag 以 "v" 开头时触发
+    tags: [ "v*" ]
   pull_request:
     branches: [ "master" ]
 
@@ -14,8 +14,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
+      - name: Count commits since last tag
+        id: commitcount
+        run: |
+          git fetch --tags
+          latest_tag=$(git describe --tags --abbrev=0)
+          count=$(git rev-list --count ${latest_tag}..HEAD)
+          echo "count=$count" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -64,9 +70,18 @@ jobs:
         run: |
           APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk"
           echo "Uploading $APK_FILE to Telegram..."
-          curl -F chat_id=$TELEGRAM_CHAT_ID \
+
+          CAPTION=$(cat <<EOF
+          ✅ *RedefineNCM* \`${{ github.ref_name }}\`
+          📝 _${{ steps.gitinfo.outputs.commit_msg }}_ \`[${{ steps.gitinfo.outputs.commit_sha }}]\`
+          📦 *${{ steps.commitcount.outputs.count }}* commits since last tag
+          EOF
+          )
+
+          curl -F chat_id="$TELEGRAM_CHAT_ID" \
                -F document=@"$APK_FILE" \
-               -F caption="✅ RedefineNCM ${{ github.ref_name }} - ${{ steps.gitinfo.outputs.commit_msg }} [${{ steps.gitinfo.outputs.commit_sha }}]" \
+               -F caption="$CAPTION" \
+               -F parse_mode="Markdown" \
                https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument
 
   release:
@@ -77,6 +92,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Get commit messages since last tag
+        id: commits
+        run: |
+          git fetch --tags
+          tags=($(git tag --sort=-creatordate))
+          current_tag=${tags[0]}
+          previous_tag=${tags[1]}
+
+          echo "Previous tag: $previous_tag"
+          echo "Current tag: $current_tag"
+
+          commit_log=$(git log --oneline ${previous_tag}..${current_tag})
+          commit_count=$(git rev-list --count ${previous_tag}..${current_tag})
+
+          echo "log<<EOF" >> $GITHUB_OUTPUT
+          echo "$commit_log" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "count=$commit_count" >> $GITHUB_OUTPUT
 
       - name: Download APK from Artifacts
         uses: actions/download-artifact@v4
@@ -90,8 +124,14 @@ jobs:
           files: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
           tag_name: ${{ github.ref_name }}
           release_name: "Release ${{ github.ref_name }}"
-          body: "Auto build Release Version! 🎉"
+          body: |
+            🎉 **Auto build new version!**
+            
+            📦 **${{ steps.commits.outputs.count }} commits since last release**
+            ```
+            ${{ steps.commits.outputs.log }}
+            ```
           draft: false
-          prerelease: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
