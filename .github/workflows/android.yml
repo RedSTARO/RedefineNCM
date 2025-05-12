@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Count commits since last tag
         id: commitcount
@@ -21,6 +23,8 @@ jobs:
           git fetch --tags
           latest_tag=$(git tag --sort=-creatordate | head -n1)
           count=$(git rev-list --count ${latest_tag}..HEAD)
+          echo "Latest tag: $latest_tag"
+          echo "Commit count since last tag: $count"
           echo "count=$count" >> $GITHUB_OUTPUT
 
       - name: Set up JDK 17
@@ -81,27 +85,30 @@ jobs:
         run: |
           APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk"
           MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
+          COMPRESSED_MAPPING_FILE="app/build/outputs/mapping/release/mapping.zip"
 
-          echo "Uploading APK and Mapping to Telegram..."
+          echo "Uploading APK and Compressed Mapping to Telegram..."
+
+          # Compress the Proguard mapping file into a ZIP
+          zip -r "$COMPRESSED_MAPPING_FILE" "$MAPPING_FILE"
 
           CAPTION=$(cat <<EOF
           ✅ *RedefineNCM* \`${{ github.ref_name }}\`
           📝 _${{ steps.gitinfo.outputs.commit_msg }}_ \`[${{ steps.gitinfo.outputs.commit_sha }}]\`
           📦 *${{ steps.commitcount.outputs.count }}* commits since last tag
-
-          Includes:
-          - APK
-          - Proguard Mapping
           EOF
           )
 
-          curl -F chat_id="$TELEGRAM_CHAT_ID" \
-               -F document=@"$APK_FILE" \
-               -F document=@"$MAPPING_FILE" \
-               -F caption="$CAPTION" \
-               -F parse_mode="Markdown" \
-               https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMediaGroup
-  
+          curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMediaGroup" \
+          -F chat_id="$TELEGRAM_CHAT_ID" \
+          -F media='[
+          {"type":"document","media":"attach://apk", "caption":"'"$CAPTION"'"},
+          {"type":"document","media":"attach://mapping"}
+          ]' \
+          -F apk=@"$APK_FILE" \
+          -F mapping=@"$COMPRESSED_MAPPING_FILE"
+          -F parse_mode="Markdown"
+
 
   release:
     needs: build
