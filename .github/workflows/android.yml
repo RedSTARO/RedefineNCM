@@ -106,7 +106,7 @@ jobs:
           {"type":"document","media":"attach://mapping"}
           ]' \
           -F apk=@"$APK_FILE" \
-          -F mapping=@"$COMPRESSED_MAPPING_FILE"
+          -F mapping=@"$COMPRESSED_MAPPING_FILE" \
           -F parse_mode="Markdown"
 
 
