@@ -232,8 +232,10 @@ class MainViewModel(
 
             val songInfoMap =
                 songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
-            this@MainViewModel.mediaController.value?.stop()
-            this@MainViewModel.mediaController.value?.clearMediaItems()
+            withContext(Dispatchers.Main) {
+                this@MainViewModel.mediaController.value?.stop()
+                this@MainViewModel.mediaController.value?.clearMediaItems()
+            }
             for (eachSong in songInfoMap ?: emptyMap()) {
                 val mediaItem = MediaItem.Builder()
                     .setUri(eachSong.value.second)
