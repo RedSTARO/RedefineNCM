@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,14 +17,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,6 +44,7 @@ import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -44,6 +53,8 @@ class MainActivity : ComponentActivity() {
         val viewModel = MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
 
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
+            val widthClass = windowSizeClass.widthSizeClass
             RedefineNCMTheme {
                 val context = LocalContext.current
                 val navController = rememberNavController()
@@ -67,64 +78,56 @@ class MainActivity : ComponentActivity() {
                         contentWindowInsets = WindowInsets(0, 0, 0, 0),
                         floatingActionButton = { MiniNowPlaying(context, viewModel = viewModel) },
                         bottomBar = {
-                            NavigationBar {
-                                items.forEach { item ->
-                                    NavigationBarItem(
-                                        icon = { Icon(item.icon, contentDescription = item.label) },
-                                        label = { Text(item.label) },
-                                        selected = currentRoute?.startsWith(item.route) == true,
-                                        onClick = {
-                                            navController.navigate(item.route) {
-                                                popUpTo("my") {
-                                                    inclusive = false
-                                                }
-                                                launchSingleTop = true
-                                            }
-                                        },
-                                    )
-                                }
+                            if (widthClass == WindowWidthSizeClass.Compact) {
+                                ResponsiveNavigation(navController, items, currentRoute, widthClass)
                             }
                         },
                     ) { innerPadding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = "recommend",
-                            // Apply padding from the scaffold but not for system bars
-                            modifier = Modifier.padding(innerPadding),
-                        ) {
-                            composable("recommend") {
-                                RecommendPage(navController, viewModel)
+                        Row(modifier = Modifier.padding(innerPadding)) {
+                            if (widthClass != WindowWidthSizeClass.Compact) {
+                                // 放在左边
+                                ResponsiveNavigation(navController, items, currentRoute, widthClass)
                             }
-
-                            composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
-                                val songId = backStackEntry.arguments?.getString("songId")
-                                if (BuildConfig.DEBUG) {
-                                    Log.d("Main", "SongList ID: $songId")
+                            NavHost(
+                                navController = navController,
+                                startDestination = "recommend",
+                                // Apply padding from the scaffold but not for system bars
+                                modifier = Modifier.padding(innerPadding),
+                            ) {
+                                composable("recommend") {
+                                    RecommendPage(navController, viewModel)
                                 }
-                                ShowPlaylistDetailPage(
-                                    viewModel = viewModel,
-                                    songlistID = songId!!.toLong(),
-                                )
-                            }
 
-                            composable("my") {
-                                ShowUserPlaylistPage(
-                                    navController = navController,
-                                    viewModel = viewModel,
-                                )
-                            }
-                            composable("my/playlistDetailPage/{songId}") { backStackEntry ->
-                                val songId = backStackEntry.arguments?.getString("songId")
-                                if (BuildConfig.DEBUG) {
-                                    Log.d("Main", "SongList ID: $songId")
+                                composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
+                                    val songId = backStackEntry.arguments?.getString("songId")
+                                    if (BuildConfig.DEBUG) {
+                                        Log.d("Main", "SongList ID: $songId")
+                                    }
+                                    ShowPlaylistDetailPage(
+                                        viewModel = viewModel,
+                                        songlistID = songId!!.toLong(),
+                                    )
                                 }
-                                ShowPlaylistDetailPage(
-                                    viewModel = viewModel,
-                                    songlistID = songId!!.toLong(),
-                                )
-                            }
-                            composable("settings") {
-                                SettingPage()
+
+                                composable("my") {
+                                    ShowUserPlaylistPage(
+                                        navController = navController,
+                                        viewModel = viewModel,
+                                    )
+                                }
+                                composable("my/playlistDetailPage/{songId}") { backStackEntry ->
+                                    val songId = backStackEntry.arguments?.getString("songId")
+                                    if (BuildConfig.DEBUG) {
+                                        Log.d("Main", "SongList ID: $songId")
+                                    }
+                                    ShowPlaylistDetailPage(
+                                        viewModel = viewModel,
+                                        songlistID = songId!!.toLong(),
+                                    )
+                                }
+                                composable("settings") {
+                                    SettingPage()
+                                }
                             }
                         }
                     }
@@ -139,3 +142,49 @@ data class NavigationItem(
     val icon: ImageVector,
     val route: String,
 )
+
+
+@Composable
+fun ResponsiveNavigation(
+    navController: NavHostController,
+    items: List<NavigationItem>,
+    currentRoute: String?,
+    widthClass: WindowWidthSizeClass
+) {
+    if (widthClass == WindowWidthSizeClass.Compact) {
+        // 底部导航栏
+        NavigationBar {
+            items.forEach { item ->
+                NavigationBarItem(
+                    icon = { Icon(item.icon, contentDescription = item.label) },
+                    label = { Text(item.label) },
+                    selected = currentRoute?.startsWith(item.route) == true,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo("my") { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
+        }
+    } else {
+        // 侧边导航栏
+        NavigationRail {
+            items.forEach { item ->
+                NavigationRailItem(
+                    icon = { Icon(item.icon, contentDescription = item.label) },
+                    label = { Text(item.label) },
+                    selected = currentRoute?.startsWith(item.route) == true,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo("my") { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
