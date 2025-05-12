@@ -93,12 +93,16 @@ jobs:
           zip -r "$COMPRESSED_MAPPING_FILE" "$MAPPING_FILE"
 
           CAPTION=$(cat <<EOF
-          ✅ *RedefineNCM* \`${{ github.ref_name }}\`
-          📝 _${{ steps.gitinfo.outputs.commit_msg }}_ \`[${{ steps.gitinfo.outputs.commit_sha }}]\`
-          📦 *${{ steps.commitcount.outputs.count }}* commits since last tag
+          ✅ RedefineNCM: ${{ github.ref_name }}
+  
+          📝 ${{
+          steps.gitinfo.outputs.commit_msg
+          }} [${{ steps.gitinfo.outputs.commit_sha }}]
+
+          📦 Commits since last tag: ${{ steps.commitcount.outputs.count }}
           EOF
           )
-
+  
           curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMediaGroup" \
           -F chat_id="$TELEGRAM_CHAT_ID" \
           -F media='[
@@ -106,8 +110,7 @@ jobs:
           {"type":"document","media":"attach://mapping"}
           ]' \
           -F apk=@"$APK_FILE" \
-          -F mapping=@"$COMPRESSED_MAPPING_FILE" \
-          -F parse_mode="Markdown"
+          -F mapping=@"$COMPRESSED_MAPPING_FILE"
 
 
   release:
@@ -118,6 +121,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
         
       - name: Get commit messages since last tag
         id: commits
