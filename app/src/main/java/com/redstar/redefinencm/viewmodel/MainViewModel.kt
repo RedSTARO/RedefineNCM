@@ -216,8 +216,6 @@ class MainViewModel(
     }
 
     fun onPlayPlaylistClick(songlistID: Long) {
-        this@MainViewModel.mediaController.value?.stop()
-        this@MainViewModel.mediaController.value?.clearMediaItems()
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
             val songList = songDetails?.map { it.id }
@@ -234,6 +232,8 @@ class MainViewModel(
 
             val songInfoMap =
                 songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
+            this@MainViewModel.mediaController.value?.stop()
+            this@MainViewModel.mediaController.value?.clearMediaItems()
             for (eachSong in songInfoMap ?: emptyMap()) {
                 val mediaItem = MediaItem.Builder()
                     .setUri(eachSong.value.second)
