@@ -72,6 +72,7 @@ import com.redstar.redefinencm.api.safeApiCall
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
+import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,6 +84,7 @@ class NowPlayingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val viewModel = NowPlayingViewModel()
         setContent {
             RedefineNCMTheme {
                 Scaffold(
@@ -102,7 +104,23 @@ class NowPlayingActivity : ComponentActivity() {
                     },
                     containerColor = MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
-                    NowPlayingPage(paddingValues)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .background(MaterialTheme.colorScheme.background),
+                        contentAlignment = Alignment.Center,
+
+                        ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            SongDetails(viewModel, modifier = Modifier.fillMaxWidth())
+                            PlaybackControlButtons(viewModel, modifier = Modifier.fillMaxWidth())
+                            PlaylistButtons(viewModel, modifier = Modifier.fillMaxWidth())
+                        }
+                    }
                 }
             }
         }
@@ -110,53 +128,10 @@ class NowPlayingActivity : ComponentActivity() {
 }
 
 @Composable
-fun NowPlayingPage(paddingValues: PaddingValues) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center,
-
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            SongDetails(modifier = Modifier.fillMaxWidth())
-            PlaybackControlButtons(modifier = Modifier.fillMaxWidth())
-            PlaylistButtons(modifier = Modifier.fillMaxWidth())
-        }
-    }
-}
-
-@Composable
-fun SongDetails(modifier: Modifier = Modifier) {
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    val metadataFlow = remember { MutableStateFlow<MediaMetadata?>(null) }
-    val metadata by metadataFlow.collectAsState()
     var themeColor by remember { mutableStateOf(Color.Gray) }
-
-    LaunchedEffect(Unit) {
-        val sessionToken =
-            SessionToken(
-                applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java),
-            )
-        val controllerFuture =
-            MediaController.Builder(applicationContext, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-        mediaController?.let { controller ->
-            val listener = object : Player.Listener {
-                override fun onMediaMetadataChanged(metadata: MediaMetadata) {
-                    metadataFlow.value = metadata
-                }
-            }
-            controller.addListener(listener)
-            metadataFlow.value = controller.mediaMetadata // 初始化
-        }
-    }
+    val metadata by viewModel.nowPlayingMetadata.collectAsState()
 
     Card(
         modifier = Modifier
@@ -218,21 +193,10 @@ fun SongDetails(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PlaybackControlButtons(modifier: Modifier = Modifier) {
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-    var isPlaying by remember { mutableStateOf(mediaController?.isPlaying == true) }
+fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
+    val isPlaying by viewModel.nowPayingIsPlaying.collectAsState()
+    val mediaController by viewModel.mediaController.collectAsState()
 
-    LaunchedEffect(Unit) {
-        val sessionToken =
-            SessionToken(
-                applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java),
-            )
-        val controllerFuture =
-            MediaController.Builder(applicationContext, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-    }
 
     // Control buttons
     Row(
@@ -242,6 +206,7 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
     ) {
         // Perv
         PlaybackButton(
+            viewModel,
             onClick = { mediaController?.seekToPrevious() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "上一首",
@@ -249,8 +214,8 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
 
         // Pause
         PlaybackButton(
+            viewModel,
             onClick = {
-                isPlaying = mediaController?.isPlaying == true
                 if (isPlaying) mediaController?.pause() else mediaController?.play()
             },
             icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
@@ -261,6 +226,7 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
 
         // Next
         PlaybackButton(
+            viewModel,
             onClick = { mediaController?.seekToNext() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "下一首",
@@ -269,7 +235,7 @@ fun PlaybackControlButtons(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PlaylistButtons(modifier: Modifier = Modifier) {
+fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
     var showPlaylist by remember { mutableStateOf(false) }
     val repeatModes = mapOf(
         1 to Player.REPEAT_MODE_OFF,
@@ -277,20 +243,8 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         0 to Player.REPEAT_MODE_ALL,
     )
     var currentRepeatStatus by remember { mutableStateOf(0) }
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
+    val mediaController by viewModel.mediaController.collectAsState()
     val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
-
-    LaunchedEffect(Unit) {
-        val sessionToken =
-            SessionToken(
-                applicationContext,
-                ComponentName(applicationContext, PlaybackService::class.java),
-            )
-        val controllerFuture =
-            MediaController.Builder(applicationContext, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-        currentRepeatStatus = mediaController?.repeatMode ?: 0
-    }
 
     Row(
         modifier = modifier,
@@ -331,29 +285,20 @@ fun PlaylistButtons(modifier: Modifier = Modifier) {
         )
 
         if (showPlaylist) {
-            CurrentPlayList(onDismiss = { showPlaylist = false })
+            CurrentPlayList(viewModel, onDismiss = { showPlaylist = false })
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentPlayList(onDismiss: () -> Unit) {
-    var mediaController by remember { mutableStateOf<MediaController?>(null) }
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+fun CurrentPlayList(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
+    val mediaController by viewModel.mediaController.collectAsState()
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
     var currentMediaId by remember { mutableStateOf<String?>(null) }
 
 
     LaunchedEffect(Unit) {
-        val sessionToken = SessionToken(
-            applicationContext,
-            ComponentName(applicationContext, PlaybackService::class.java),
-        )
-        val controllerFuture =
-            MediaController.Builder(applicationContext, sessionToken).buildAsync()
-        mediaController = controllerFuture.await()
-
         val mediaItemCount = mediaController?.mediaItemCount ?: 0
         val mediaItems = mutableListOf<MediaItem>()
         for (i in 0 until mediaItemCount) {
@@ -368,6 +313,7 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
         })
         currentMediaId = mediaController!!.currentMediaItem?.mediaId
     }
+
     if (!playlist.isNullOrEmpty()) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
             LazyColumn {
@@ -412,6 +358,7 @@ fun CurrentPlayList(onDismiss: () -> Unit) {
 
 @Composable
 fun PlaybackButton(
+    viewModel: NowPlayingViewModel,
     onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String,
@@ -443,8 +390,3 @@ fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier)
     ) { Text(text, color = MaterialTheme.colorScheme.onSecondary) }
 }
 
-@Composable
-@Preview
-fun NowPlayingPagePreview() {
-    NowPlayingPage(PaddingValues.Absolute(5.dp))
-}
