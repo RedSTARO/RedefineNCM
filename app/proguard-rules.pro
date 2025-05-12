@@ -25,3 +25,4 @@
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
 -keepattributes AnnotationDefault,RuntimeVisibleAnnotations
+-keep class androidx.datastore.*.** {*;}
