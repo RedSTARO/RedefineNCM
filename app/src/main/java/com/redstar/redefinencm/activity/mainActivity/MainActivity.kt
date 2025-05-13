@@ -83,9 +83,8 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                     ) { innerPadding ->
-                        Row(modifier = Modifier.padding(innerPadding)) {
+                        Row() {
                             if (widthClass != WindowWidthSizeClass.Compact) {
-                                // 放在左边
                                 ResponsiveNavigation(navController, items, currentRoute, widthClass)
                             }
                             NavHost(
