@@ -215,6 +215,58 @@ class MainViewModel(
         }
     }
 
+    fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long){
+        CoroutineScope(Dispatchers.IO).launch {
+            val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
+            val songList = songDetails?.map { it.id }
+            var targetSongId = 0
+            val songUrlMap = safeApiCall {
+                retrofit.songUrlV1(
+                    songList ?: emptyList(),
+                    DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
+                        ?: "standard",
+                )
+            }?.data?.associateBy(
+                { it.id },
+                { it.url },
+            )
+
+            val songInfoMap =
+                songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
+            withContext(Dispatchers.Main) {
+                this@MainViewModel.mediaController.value?.stop()
+                this@MainViewModel.mediaController.value?.clearMediaItems()
+            }
+            songInfoMap?.entries?.forEachIndexed { index, eachSong ->
+                if (eachSong.value.first.id == songId) {
+                    targetSongId = index
+                }
+                val mediaItem = MediaItem.Builder()
+                    .setUri(eachSong.value.second)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setTitle(eachSong.value.first.name)
+                            .setArtist(
+                                eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
+                            )
+                            .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
+                            .build(),
+                    )
+                    .setMediaId(eachSong.value.first.id.toString())
+                    .build()
+                withContext(Dispatchers.Main) {
+                    this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
+                }
+            }
+            withContext(Dispatchers.Main) {
+                this@MainViewModel.mediaController.value?.prepare()
+                this@MainViewModel.mediaController.value?.seekTo(targetSongId, 0)
+                this@MainViewModel.mediaController.value?.play()
+            }
+            safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
+        }
+    }
+
     fun onPlayPlaylistClick(songlistID: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }

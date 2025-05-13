@@ -150,8 +150,9 @@ fun ShowPlaylistDetailPage(
                                 "Selected Song ${song.name} with id ${song.id}",
                             )
                         }
+                        //                            viewModel.onPlaySingleSongClick(song)
+                        viewModel.onPlaySingleSongInPlaylistClick(playlistDetail!!.id, song.id)
                         CoroutineScope(Dispatchers.IO).launch {
-                            viewModel.onPlaySingleSongClick(song)
                             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
                         }
                     },
