@@ -32,13 +32,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.api.safeApiCall
+import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Composable
@@ -51,9 +54,13 @@ fun ShowPlaylistDetailPage(
 
     val playlistDetail by viewModel.playlistDetail.collectAsState()
     val playlistSongs by viewModel.playlistSongs.collectAsState()
+    var replacePlaylist by remember { mutableStateOf(false) }
 
     LaunchedEffect(songlistID) {
         viewModel.fetchPlaylistDetail(songlistID)
+        replacePlaylist = DataStoreManager.getAppDataStore().data
+            .firstOrNull()
+            ?.get(booleanPreferencesKey("statusBarLyric")) ?: false
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -150,8 +157,11 @@ fun ShowPlaylistDetailPage(
                                 "Selected Song ${song.name} with id ${song.id}",
                             )
                         }
-                        //                            viewModel.onPlaySingleSongClick(song)
-                        viewModel.onPlaySingleSongInPlaylistClick(playlistDetail!!.id, song.id)
+                        if (replacePlaylist) {
+                        viewModel.onPlaySingleSongClick(song)
+                        }else {
+                            viewModel.onPlaySingleSongInPlaylistClick(playlistDetail!!.id, song.id)
+                        }
                         CoroutineScope(Dispatchers.IO).launch {
                             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
                         }

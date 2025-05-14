@@ -101,6 +101,7 @@ fun SettingPage() {
             SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
             SelectItem("downloadQuality", "Music Quality Download", soundQuality)
             SwitchItem("statusBarLyric", "Status Bar Lyric")
+            SwitchItem("replacePlaylist", "Replace playlist when click single songs")
         }
     }
 }
