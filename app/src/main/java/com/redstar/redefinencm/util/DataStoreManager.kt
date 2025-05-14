@@ -3,7 +3,9 @@ package com.redstar.redefinencm.util
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import com.redstar.redefinencm.RedefineNCMApplication
+import kotlinx.coroutines.flow.firstOrNull
 import java.io.File
 
 object DataStoreManager {
@@ -29,5 +31,11 @@ object DataStoreManager {
                 },
             )
         }
+    }
+
+    suspend fun getBooleanItem(itemKey: String, defaultValue: Boolean): Boolean{
+        return getAppDataStore().data
+            .firstOrNull()
+            ?.get(booleanPreferencesKey(itemKey)) ?: defaultValue
     }
 }

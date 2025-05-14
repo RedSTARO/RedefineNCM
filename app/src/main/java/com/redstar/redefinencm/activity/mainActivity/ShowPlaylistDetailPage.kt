@@ -58,9 +58,7 @@ fun ShowPlaylistDetailPage(
 
     LaunchedEffect(songlistID) {
         viewModel.fetchPlaylistDetail(songlistID)
-        replacePlaylist = DataStoreManager.getAppDataStore().data
-            .firstOrNull()
-            ?.get(booleanPreferencesKey("statusBarLyric")) ?: false
+        replacePlaylist = DataStoreManager.getBooleanItem("replacePlaylist", false)
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -158,9 +156,9 @@ fun ShowPlaylistDetailPage(
                             )
                         }
                         if (replacePlaylist) {
-                        viewModel.onPlaySingleSongClick(song)
-                        }else {
                             viewModel.onPlaySingleSongInPlaylistClick(playlistDetail!!.id, song.id)
+                        }else {
+                            viewModel.onPlaySingleSongClick(song)
                         }
                         CoroutineScope(Dispatchers.IO).launch {
                             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
