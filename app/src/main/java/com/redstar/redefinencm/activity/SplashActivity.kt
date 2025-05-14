@@ -46,11 +46,7 @@ class SplashActivity : ComponentActivity() {
                         checkAppUpdate()
                     }
                     cookie = runBlocking {
-                        DataStoreManager.getAppDataStore().data.first()[
-                            stringPreferencesKey(
-                                "cookie",
-                            ),
-                        ] ?: ""
+                        DataStoreManager.getStringItem("cookie", "")
                     }
                     this.startActivity(
                         Intent(

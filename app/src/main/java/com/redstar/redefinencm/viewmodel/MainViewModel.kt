@@ -87,14 +87,12 @@ class MainViewModel(
     private fun fetchUID() {
         runBlocking {
             val value =
-                DataStoreManager.getAppDataStore().data.first()[longPreferencesKey("uid")]
+                DataStoreManager.getLongItem("uid", 0L)
             if (value != null) {
                 uid = value
             } else {
                 uid = retrofit.userAccount().account.id
-                DataStoreManager.getAppDataStore().edit { preferences ->
-                    preferences[longPreferencesKey("uid")] = uid
-                }
+                DataStoreManager.setLongItem("uid", uid)
             }
         }
     }
@@ -186,11 +184,7 @@ class MainViewModel(
             val url = safeApiCall {
                 retrofit.songUrlV1(
                     listOf(song.id),
-                    DataStoreManager.getAppDataStore().data.first()[
-                        stringPreferencesKey(
-                            "onlinePlayQuality",
-                        ),
-                    ] ?: "standard",
+                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
                 )
             }?.data?.get(0)
             val mediaItem = MediaItem.Builder()
@@ -223,8 +217,7 @@ class MainViewModel(
             val songUrlMap = safeApiCall {
                 retrofit.songUrlV1(
                     songList ?: emptyList(),
-                    DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
-                        ?: "standard",
+                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
                 )
             }?.data?.associateBy(
                 { it.id },
@@ -274,8 +267,7 @@ class MainViewModel(
             val songUrlMap = safeApiCall {
                 retrofit.songUrlV1(
                     songList ?: emptyList(),
-                    DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("onlinePlayQuality")]
-                        ?: "standard",
+                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
                 )
             }?.data?.associateBy(
                 { it.id },

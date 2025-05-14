@@ -25,7 +25,7 @@ class DebugActivity : ComponentActivity() {
         setContent {
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ShowAllSettingsData()
+//                    ShowAllSettingsData()
 //                    showUrlStatus(Modifier.padding(innerPadding))
                 }
             }
@@ -33,17 +33,17 @@ class DebugActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun ShowAllSettingsData() {
-    RedefineNCMApplication.getApplicationContext() as Context
-    val datas = runBlocking {
-        DataStoreManager.getAppDataStore().data.first()
-    }
-    Text(
-        text = datas.toString(),
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
-    )
-}
+//@Composable
+//fun ShowAllSettingsData() {
+//    RedefineNCMApplication.getApplicationContext() as Context
+//    val datas = runBlocking {
+//        DataStoreManager.getAppDataStore().data.first()
+//    }
+//    Text(
+//        text = datas.toString(),
+//        modifier = Modifier.horizontalScroll(rememberScrollState()),
+//    )
+//}
 
 // @Composable
 // fun showUrlStatus(modifier: Modifier = Modifier){

@@ -114,8 +114,7 @@ fun TextItem(settingItemKey: String, hintText: String) {
 
     // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
     LaunchedEffect(settingItemKey) {
-        settingValue = DataStoreManager.getAppDataStore().data
-            .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
+        settingValue = DataStoreManager.getStringItem(settingItemKey, "")
     }
 
     // 处理 TextField 输入框更新
@@ -125,9 +124,7 @@ fun TextItem(settingItemKey: String, hintText: String) {
         onValueChange = { newValue ->
             settingValue = newValue // 更新本地状态
             scope.launch {
-                DataStoreManager.getAppDataStore().edit { preferences ->
-                    preferences[stringPreferencesKey(settingItemKey)] = settingValue
-                }
+                DataStoreManager.setStringItem(settingItemKey, newValue)
             }
         },
         modifier = Modifier
@@ -144,8 +141,7 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(settingItemKey) {
-        checked = DataStoreManager.getAppDataStore().data
-            .firstOrNull()?.get(booleanPreferencesKey(settingItemKey)) == true
+        checked = DataStoreManager.getBooleanItem(settingItemKey, false)
     }
     Row {
         Text(text = hintText)
@@ -154,9 +150,7 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
             onCheckedChange = {
                 coroutineScope.launch(Dispatchers.IO) {
                     checked = it
-                    DataStoreManager.getAppDataStore().edit { preferences ->
-                        preferences[booleanPreferencesKey(settingItemKey)] = checked
-                    }
+                    DataStoreManager.setBooleanItem(settingItemKey, checked)
                 }
             },
         )
@@ -170,8 +164,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(settingItemKey) {
-        itemSelected = DataStoreManager.getAppDataStore().data
-            .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
+        itemSelected = DataStoreManager.getStringItem(settingItemKey, "")
     }
 
     Card(
@@ -222,9 +215,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
                         itemSelected = value
                         expanded = false
                         coroutineScope.launch(Dispatchers.IO) {
-                            DataStoreManager.getAppDataStore().edit { preferences ->
-                                preferences[stringPreferencesKey(settingItemKey)] = value
-                            }
+                            DataStoreManager.setStringItem(settingItemKey, value)
                         }
                     },
                 )
@@ -245,8 +236,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
 
     // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
     LaunchedEffect(settingItemKey) {
-        settingValue = DataStoreManager.getAppDataStore().data
-            .firstOrNull()?.get(stringPreferencesKey(settingItemKey)) ?: ""
+        settingValue = DataStoreManager.getStringItem(settingItemKey, "")
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -285,9 +275,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
         if (status) {
             Text("Server version: $data, OK")
             runBlocking {
-                DataStoreManager.getAppDataStore().edit { preferences ->
-                    preferences[stringPreferencesKey(settingItemKey)] = settingValue
-                }
+                DataStoreManager.setStringItem(settingItemKey, settingValue)
             }
             gotServerCallback(settingValue)
         } else {

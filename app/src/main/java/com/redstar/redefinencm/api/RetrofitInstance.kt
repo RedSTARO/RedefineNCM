@@ -78,7 +78,7 @@ fun getRealIP(): String {
 
 fun getCookie(): String {
     val rawCookie = runBlocking {
-        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")] ?: ""
+        DataStoreManager.getStringItem("cookie", "")
     }
     if (rawCookie.isEmpty()) return ""
 
@@ -97,7 +97,7 @@ fun getCookie(): String {
 
 fun getBaseUrl(): String {
     return runBlocking {
-        DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")] ?: ""
+        DataStoreManager.getStringItem("server", "")
     }
 }
 

@@ -47,9 +47,7 @@ class PlaybackService : MediaSessionService() {
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
             val status = (
-                DataStoreManager.getAppDataStore().data
-                    .firstOrNull()
-                    ?.get(booleanPreferencesKey("statusBarLyric")) ?: false
+                DataStoreManager.getBooleanItem("statusBarLyric", false)
                 )
 
             withContext(Dispatchers.Main) {

@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.api.NCMApi
 import com.redstar.redefinencm.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
@@ -36,36 +37,23 @@ class LoginViewModel : ViewModel() {
     private fun loadServer() {
         viewModelScope.launch {
             val value =
-                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("server")]
-                    ?: ""
+                DataStoreManager.getStringItem("server", "")
             server = value
         }
-    }
-
-    fun updateServer(newServer: String) {
-        server = newServer
-        updateDatastore("server", newServer)
     }
 
     private fun loadCookie() {
         viewModelScope.launch {
             val value =
-                DataStoreManager.getAppDataStore().data.first()[stringPreferencesKey("cookie")]
-                    ?: ""
+                DataStoreManager.getStringItem("cookie", "")
             cookie = value
         }
     }
 
     fun updateCookie(newCookie: String) {
         cookie = newCookie
-        updateDatastore("cookie", newCookie)
-    }
-
-    private fun updateDatastore(key: String, value: String) {
         viewModelScope.launch {
-            DataStoreManager.getAppDataStore().edit { preferences ->
-                preferences[stringPreferencesKey(key)] = value
-            }
+            DataStoreManager.setStringItem("cookie", newCookie)
         }
     }
 }

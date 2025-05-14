@@ -66,11 +66,7 @@ class LoginActivity : ComponentActivity() {
 
                     LaunchedEffect(Dispatchers.IO) {
                         gotServer = runBlocking {
-                            (
-                                DataStoreManager.getAppDataStore().data.firstOrNull()
-                                    ?.get(stringPreferencesKey("server"))
-                                    ?: ""
-                                )
+                            (DataStoreManager.getStringItem("server", ""))
                         }.isNotEmpty()
                     }
 
