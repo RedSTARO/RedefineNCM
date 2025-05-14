@@ -4,15 +4,11 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {

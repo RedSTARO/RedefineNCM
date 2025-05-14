@@ -2,7 +2,7 @@ package com.redstar.redefinencm.data.db.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.redstar.redefinencm.api.data.LyricLrc
+import com.redstar.redefinencm.data.api.data.LyricLrc
 
 @Entity(tableName = "lyricEntity")
 data class LyricEntity(

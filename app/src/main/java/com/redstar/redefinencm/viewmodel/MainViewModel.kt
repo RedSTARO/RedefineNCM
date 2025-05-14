@@ -6,9 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -18,11 +15,11 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.data.SongDetailSongs
-import com.redstar.redefinencm.api.data.UserPlaylistEach
-import com.redstar.redefinencm.api.safeApiCall
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.data.SongDetailSongs
+import com.redstar.redefinencm.data.api.data.UserPlaylistEach
+import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -34,7 +31,6 @@ import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -88,7 +84,7 @@ class MainViewModel(
         runBlocking {
             val value =
                 DataStoreManager.getLongItem("uid", 0L)
-            if (value != null) {
+            if (value != 0L) {
                 uid = value
             } else {
                 uid = retrofit.userAccount().account.id
@@ -162,11 +158,11 @@ class MainViewModel(
 
     fun fetchRecommend() {
         viewModelScope.launch {
-            repo.getRecommendResource().collect{ detail ->
+            repo.getRecommendResource().collect { detail ->
                 recommendResource.value = detail
 
             }
-            repo.getRecommendSongs().collect{ detail ->
+            repo.getRecommendSongs().collect { detail ->
                 recommendSongs.value = detail
 
             }
@@ -209,7 +205,7 @@ class MainViewModel(
         }
     }
 
-    fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long){
+    fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
             val songList = songDetails?.map { it.id }

@@ -1,13 +1,11 @@
-package com.redstar.redefinencm.api
+package com.redstar.redefinencm.data.api
 
 import android.util.Log
 import android.widget.Toast
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -49,7 +47,7 @@ object RetrofitInstance {
             // Proceed with the modified request
             chain.proceed(finalRequest)
         }
-        .addInterceptor {chain ->
+        .addInterceptor { chain ->
             val request = chain.request()
             val t1 = System.nanoTime()
             val response: Response = chain.proceed(request)
@@ -57,7 +55,9 @@ object RetrofitInstance {
             if (BuildConfig.DEBUG) {
                 Log.d(
                     "RetrofitInstance",
-                    "Received response for ${response.request.url.toString().substringBefore("=")} in ${(t2 - t1) / 1e6} ms"
+                    "Received response for ${
+                        response.request.url.toString().substringBefore("=")
+                    } in ${(t2 - t1) / 1e6} ms"
                 )
             }
             response

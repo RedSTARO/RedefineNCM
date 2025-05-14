@@ -3,7 +3,6 @@ package com.redstar.redefinencm.services
 import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -17,8 +16,8 @@ import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -47,8 +45,8 @@ class PlaybackService : MediaSessionService() {
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
             val status = (
-                DataStoreManager.getBooleanItem("statusBarLyric", false)
-                )
+                    DataStoreManager.getBooleanItem("statusBarLyric", false)
+                    )
 
             withContext(Dispatchers.Main) {
                 if (status) {

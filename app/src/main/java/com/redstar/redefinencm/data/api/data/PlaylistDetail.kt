@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.api.data
+package com.redstar.redefinencm.data.api.data
 
 data class PlaylistDetail(
     val code: Int,
@@ -21,4 +21,4 @@ data class PlaylistDetailPlaylistCreator(
     val userId: Long,
     val nickname: String,
 
-)
+    )

@@ -1,13 +1,7 @@
 package com.redstar.redefinencm.viewmodel
 
 import android.content.ComponentName
-import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaMetadata
@@ -15,13 +9,10 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.services.PlaybackService
-import com.redstar.redefinencm.util.DataStoreManager
-import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
@@ -32,9 +23,10 @@ class NowPlayingViewModel : ViewModel() {
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
 
-    init{
+    init {
         initMediaController()
     }
+
     private fun initMediaController() {
         viewModelScope.launch {
             try {

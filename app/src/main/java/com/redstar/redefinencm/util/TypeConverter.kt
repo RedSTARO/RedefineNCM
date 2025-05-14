@@ -3,12 +3,12 @@ package com.redstar.redefinencm.util
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.redstar.redefinencm.api.data.PlaylistDetailPlaylist
-import com.redstar.redefinencm.api.data.RecommendResourceRecommend
-import com.redstar.redefinencm.api.data.RecommendSongsData
-import com.redstar.redefinencm.api.data.SongDetailSongs
-import com.redstar.redefinencm.api.data.UserDetailProfile
-import com.redstar.redefinencm.api.data.UserPlaylistEach
+import com.redstar.redefinencm.data.api.data.PlaylistDetailPlaylist
+import com.redstar.redefinencm.data.api.data.RecommendResourceRecommend
+import com.redstar.redefinencm.data.api.data.RecommendSongsData
+import com.redstar.redefinencm.data.api.data.SongDetailSongs
+import com.redstar.redefinencm.data.api.data.UserDetailProfile
+import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 
 class TypeConverter {
 

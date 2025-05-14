@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.api.data
+package com.redstar.redefinencm.data.api.data
 
 data class InnerVersion(
     // {"code":200,"data":{"version":"4.25.0"}}

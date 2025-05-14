@@ -36,7 +36,7 @@ object DataStoreManager {
         }
     }
 
-    suspend fun getBooleanItem(itemKey: String, defaultValue: Boolean): Boolean{
+    suspend fun getBooleanItem(itemKey: String, defaultValue: Boolean): Boolean {
         return getAppDataStore().data
             .firstOrNull()
             ?.get(booleanPreferencesKey(itemKey)) ?: defaultValue
@@ -48,7 +48,7 @@ object DataStoreManager {
         }
     }
 
-    suspend fun getStringItem(itemKey: String, defaultValue: String): String{
+    suspend fun getStringItem(itemKey: String, defaultValue: String): String {
         return getAppDataStore().data
             .firstOrNull()
             ?.get(stringPreferencesKey(itemKey)) ?: defaultValue
@@ -60,7 +60,7 @@ object DataStoreManager {
         }
     }
 
-    suspend fun getLongItem(itemKey: String, defaultValue: Long): Long{
+    suspend fun getLongItem(itemKey: String, defaultValue: Long): Long {
         return getAppDataStore().data
             .firstOrNull()
             ?.get(longPreferencesKey(itemKey)) ?: defaultValue

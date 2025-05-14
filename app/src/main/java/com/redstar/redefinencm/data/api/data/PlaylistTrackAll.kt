@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.api.data
+package com.redstar.redefinencm.data.api.data
 
 data class PlaylistTrackAll(
     val code: Int,

@@ -1,22 +1,13 @@
 package com.redstar.redefinencm.activity
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
-import com.redstar.redefinencm.util.DataStoreManager
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 class DebugActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -32,7 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.redstar.redefinencm.api.data.UserPlaylistEach
+import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 import com.redstar.redefinencm.viewmodel.MainViewModel
 
 @Composable

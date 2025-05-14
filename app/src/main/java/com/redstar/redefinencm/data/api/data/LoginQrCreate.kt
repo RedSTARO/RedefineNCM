@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.api.data
+package com.redstar.redefinencm.data.api.data
 
 data class LoginQrCreate(
     //    {"code":200,"data":{"qrurl":"https://music.163.com/login?codekey=undefined","qrimg":""}}

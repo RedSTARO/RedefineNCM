@@ -1,9 +1,9 @@
 package com.redstar.redefinencm.data.repository
 
 import android.util.Log
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.safeApiCall
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
@@ -123,8 +123,8 @@ class Repository(
             )
             Dao.insertRecommendSongs(entity)
             emit(entity)
-            }
         }
+    }
 
     fun getRecommendResource(): Flow<RecommendResourceEntity> = flow {
         val cachedDetail = Dao.getRecommendResource().first()

@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.activity
 
-import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -54,29 +53,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
-import com.redstar.redefinencm.api.NCMApi
-import com.redstar.redefinencm.api.RetrofitInstance
-import com.redstar.redefinencm.api.safeApiCall
-import com.redstar.redefinencm.services.PlaybackService
+import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 class NowPlayingActivity : ComponentActivity() {
@@ -266,7 +258,7 @@ fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifie
             onClick = { showPlaylist = true },
             text = "Play list",
 
-        )
+            )
 
         FuncButton(
             onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
@@ -326,7 +318,7 @@ fun CurrentPlayList(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
                                     mediaController?.seekTo(index, 0)
                                 }
                                 .fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
+                            colors = CardDefaults.cardColors(
                                 containerColor = if (currentMediaId == item.mediaId) {
                                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                                 } else {

@@ -18,13 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.activity.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Call
 import okhttp3.Callback
