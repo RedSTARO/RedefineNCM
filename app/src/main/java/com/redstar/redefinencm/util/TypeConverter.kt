@@ -13,12 +13,12 @@ import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 class TypeConverter {
 
     @TypeConverter
-    fun fromProfile(profile: UserDetailProfile): String {
+    fun fromUserDetailProfile(profile: UserDetailProfile): String {
         return Gson().toJson(profile)
     }
 
     @TypeConverter
-    fun toProfile(profileString: String): UserDetailProfile {
+    fun toUserDetailProfile(profileString: String): UserDetailProfile {
         return Gson().fromJson(profileString, UserDetailProfile::class.java)
     }
 

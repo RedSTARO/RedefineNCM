@@ -19,7 +19,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep class com.redstar.redefinencm.api.data.** { *; }
+-keep class com.redstar.redefinencm.data.api.data.** { *; }
 -keep class cn.lyric.getter.api.data.*{*;}
 -keep class cn.lyric.getter.api.API{*;}
 -keep class com.google.gson.reflect.TypeToken { *; }
