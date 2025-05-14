@@ -25,7 +25,7 @@ import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
-import com.redstar.redefinencm.data.repository.Repository
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.CoroutineScope

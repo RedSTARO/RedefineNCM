@@ -39,7 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.SettingPage
 import com.redstar.redefinencm.data.db.DatabaseProvider
-import com.redstar.redefinencm.data.repository.Repository
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
 

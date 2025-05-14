@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.data.repository
+package com.redstar.redefinencm.data
 
 import android.util.Log
 import com.redstar.redefinencm.data.api.NCMApi
@@ -152,4 +152,3 @@ class Repository(
         }
     }
 }
-
