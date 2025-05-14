@@ -45,14 +45,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.DebugActivity"
-            android:exported="true"
-            android:theme="@style/Theme.RedefineNCM">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".activity.SettingActivity"
             android:exported="true"
             android:theme="@style/Theme.RedefineNCM">
