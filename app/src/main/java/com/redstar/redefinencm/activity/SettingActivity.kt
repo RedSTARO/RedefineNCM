@@ -78,11 +78,6 @@ fun SettingPage() {
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            ServerItem()
-            Spacer(modifier = Modifier.height(16.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-            TextItem("cookie", "Account Cookie")
-//                            standard => 标准,higher => 较高, exhigh=>极高, lossless=>无损, hires=>Hi-Res, jyeffect => 高清环绕声, sky => 沉浸环绕声, dolby => 杜比全景声, jymaster => 超清母带
             val soundQuality = mapOf(
                 "standard" to "标准",
                 "higher" to "较高",
@@ -94,10 +89,15 @@ fun SettingPage() {
                 "dolby" to "杜比全景声",
                 "jymaster" to "超清母带",
             )
+            ServerItem()
+            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            TextItem("cookie", "Account Cookie")
             SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
             SelectItem("downloadQuality", "Music Quality Download", soundQuality)
             SwitchItem("statusBarLyric", "Status Bar Lyric")
             SwitchItem("replacePlaylist", "Replace playlist when click single songs")
+            SwitchItem("checkUpdate", "Check update when app start")
         }
     }
 }

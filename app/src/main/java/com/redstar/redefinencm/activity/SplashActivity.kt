@@ -41,7 +41,9 @@ class SplashActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     var cookie by remember { mutableStateOf("") }
                     LaunchedEffect(Unit) {
-                        checkAppUpdate()
+                        if (DataStoreManager.getBooleanItem("checkUpdate", false)) {
+                            checkAppUpdate()
+                        }
                     }
                     cookie = runBlocking {
                         DataStoreManager.getStringItem("cookie", "")
@@ -60,6 +62,7 @@ class SplashActivity : ComponentActivity() {
 }
 
 fun checkAppUpdate() {
+    Log.d("UpdateCheck", "Checking app ver: ${BuildConfig.RELEASE_VER}")
     try {
         if (BuildConfig.DEBUG) {
             val url = "https://api.github.com/repos/RedSTARO/RedefineNCM/commits/master"
@@ -85,6 +88,7 @@ fun checkAppUpdate() {
                             val jsonObject = JSONObject(responseBody)
                             val latestCommitSha = jsonObject.getString("sha")
                             val savedSha = BuildConfig.GIT_SHA
+                            Log.d("UpdateCheck", "Same ver: ${savedSha == latestCommitSha}")
 
                             if (latestCommitSha != savedSha) {
                                 Handler(Looper.getMainLooper()).post {
@@ -125,9 +129,9 @@ fun checkAppUpdate() {
                         response.body?.string()?.let { responseBody ->
                             val jsonObject = JSONObject(responseBody)
                             val latestVersion = jsonObject.getString("tag_name")
-                            val currentVersion = "v_${BuildConfig.RELEASE_VER}"
+                            Log.d("UpdateCheck", "Same ver: ${latestVersion == BuildConfig.RELEASE_VER}")
 
-                            if (latestVersion != currentVersion) {
+                            if (latestVersion != BuildConfig.RELEASE_VER) {
                                 // 发现新版本，通知用户
                                 Handler(Looper.getMainLooper()).post {
                                     Toast.makeText(
