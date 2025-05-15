@@ -87,31 +87,29 @@ jobs:
           MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
           COMPRESSED_MAPPING_FILE="app/build/outputs/mapping/release/mapping.zip"
 
-          echo "Uploading APK and Compressed Mapping to Telegram..."
+          echo "Compressing mapping.txt to mapping.zip..."
+          zip -j "$COMPRESSED_MAPPING_FILE" "$MAPPING_FILE"
 
-          # Compress the Proguard mapping file into a ZIP
-          zip -r "$COMPRESSED_MAPPING_FILE" "$MAPPING_FILE"
+          COMMIT_MSG="${{ steps.gitinfo.outputs.commit_msg }}"
+          COMMIT_SHA="${{ steps.gitinfo.outputs.commit_sha }}"
+          COMMIT_COUNT="${{ steps.commitcount.outputs.count }}"
+          VERSION_NAME="${{ github.ref_name }}"
 
-          CAPTION=$(cat <<EOF
-          ✅ RedefineNCM: ${{ github.ref_name }}
-  
-          📝 ${{
-          steps.gitinfo.outputs.commit_msg
-          }} [${{ steps.gitinfo.outputs.commit_sha }}]
+          # Escape newlines for JSON
+          CAPTION="✅ RedefineNCM: ${VERSION_NAME}
+          
+          📝 ${COMMIT_MSG} [${COMMIT_SHA}]
+          
+          📦 Commits since last tag: ${COMMIT_COUNT}"
 
-          📦 Commits since last tag: ${{ steps.commitcount.outputs.count }}
-          EOF
-          )
-  
+          JSON_PAYLOAD=$(jq -nc --arg caption "$CAPTION" '[{"type":"document","media":"attach://apk", "caption":$caption}, {"type":"document","media":"attach://mapping"}]')
+
+          echo "Uploading to Telegram..."
           curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMediaGroup" \
-          -F chat_id="$TELEGRAM_CHAT_ID" \
-          -F media='[
-          {"type":"document","media":"attach://apk", "caption":"'"$CAPTION"'"},
-          {"type":"document","media":"attach://mapping"}
-          ]' \
-          -F apk=@"$APK_FILE" \
-          -F mapping=@"$COMPRESSED_MAPPING_FILE"
-
+            -F chat_id="$TELEGRAM_CHAT_ID" \
+            -F media="$JSON_PAYLOAD" \
+            -F apk=@"$APK_FILE" \
+            -F mapping=@"$COMPRESSED_MAPPING_FILE"
 
   release:
     needs: build
@@ -123,7 +121,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - name: Get commit messages since last tag
         id: commits
         run: |
