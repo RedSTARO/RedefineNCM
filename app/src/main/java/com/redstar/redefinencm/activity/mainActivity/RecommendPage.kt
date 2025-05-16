@@ -1,10 +1,11 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,13 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.redstar.redefinencm.data.api.data.RecommendResourceRecommend
-import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.viewmodel.MainViewModel
 
 @Composable
@@ -41,7 +43,12 @@ fun RecommendPage(
             title = "Recommend Resources",
             items = recommendResource.value?.recommend ?: emptyList(),
             itemContent = { eachRecommend ->
-                RecommendResourceCard(eachRecommend, navController)
+
+                RecommendSquareCard(
+                    eachRecommend.picUrl,
+                    eachRecommend.name,
+                    { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") })
+
             }
         )
 
@@ -49,7 +56,9 @@ fun RecommendPage(
             title = "Recommend Songs",
             items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
             itemContent = { eachSong ->
-                RecommendSongCard(eachSong, viewModel)
+                RecommendSquareCard(
+                    eachSong.al.picUrl, eachSong.name,
+                    { viewModel.onPlaySingleSongClick(eachSong) })
             }
         )
     }
@@ -69,53 +78,64 @@ fun SearchBox() {
     }
 }
 
+
 @Composable
-fun RecommendResourceCard(eachRecommend: RecommendResourceRecommend, navController: NavController) {
+fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
     Card(
-        onClick = { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+        onClick = { onClick() },
         modifier = Modifier
             .padding(8.dp)
             .size(150.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(8.dp)
-        ) {
+        Box(Modifier.fillMaxSize()) {
             AsyncImage(
-                model = eachRecommend.picUrl,
+                model = picUrl,
                 contentDescription = null,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = eachRecommend.name, fontSize = 14.sp, maxLines = 1)
+
+            if (text != "私人雷达") {
+                // Black Background for text
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
+                                startY = 200f
+                            )
+                        )
+                )
+
+                Text(
+                    text = text,
+                    fontSize = 17.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 2,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .basicMarquee() // Scroll display
+                )
+            } else {
+                Text(
+                    text = "", // 私人雷达 already have text on picture
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(8.dp)
+                )
+            }
         }
     }
 }
 
-@Composable
-fun RecommendSongCard(eachSong: SongDetailSongs, viewModel: MainViewModel) {
-    Card(
-        onClick = { viewModel.onPlaySingleSongClick(eachSong) },
-        modifier = Modifier
-            .padding(8.dp)
-            .size(150.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(8.dp)
-        ) {
-            AsyncImage(
-                model = eachSong.al.picUrl,
-                contentDescription = null,
-                modifier = Modifier.size(100.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = eachSong.name, fontSize = 14.sp, maxLines = 1)
-        }
-    }
-}
 
 @Composable
 fun <T> SectionWithLazyRow(
