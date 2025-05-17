@@ -182,9 +182,7 @@ class MainViewModel(
             )
         }
         viewModelScope.launch {
-            val uri = repo.getSongUri(song.id)
             val mediaItem = MediaItem.Builder()
-                .setUri(uri)
                 .setMediaMetadata(
                     MediaMetadata.Builder()
                         .setTitle(song.name)
@@ -209,40 +207,27 @@ class MainViewModel(
     fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
-            val songList = songDetails?.map { it.id }
             var targetSongId = 0
-            val songUrlMap = safeApiCall {
-                retrofit.songUrlV1(
-                    songList ?: emptyList(),
-                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
-                )
-            }?.data?.associateBy(
-                { it.id },
-                { it.url },
-            )
 
-            val songInfoMap =
-                songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
             withContext(Dispatchers.Main) {
                 this@MainViewModel.mediaController.value?.stop()
                 this@MainViewModel.mediaController.value?.clearMediaItems()
             }
-            songInfoMap?.entries?.forEachIndexed { index, eachSong ->
-                if (eachSong.value.first.id == songId) {
+            songDetails?.forEachIndexed { index, eachSong ->
+                if (eachSong.id == songId) {
                     targetSongId = index
                 }
                 val mediaItem = MediaItem.Builder()
-                    .setUri(eachSong.value.second)
                     .setMediaMetadata(
                         MediaMetadata.Builder()
-                            .setTitle(eachSong.value.first.name)
+                            .setTitle(eachSong.name)
                             .setArtist(
-                                eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
+                                eachSong.ar.first().name,
                             )
-                            .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
+                            .setArtworkUri(eachSong.al.picUrl.toUri())
                             .build(),
                     )
-                    .setMediaId(eachSong.value.first.id.toString())
+                    .setMediaId(eachSong.id.toString())
                     .build()
                 withContext(Dispatchers.Main) {
                     this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
@@ -255,50 +240,6 @@ class MainViewModel(
             }
             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
         }
-    }
-
-    fun onPlayPlaylistClick(songlistID: Long) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
-            val songList = songDetails?.map { it.id }
-            val songUrlMap = safeApiCall {
-                retrofit.songUrlV1(
-                    songList ?: emptyList(),
-                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
-                )
-            }?.data?.associateBy(
-                { it.id },
-                { it.url },
-            )
-
-            val songInfoMap =
-                songDetails?.associateBy({ it.id }, { it to songUrlMap?.get(it.id) })
-            withContext(Dispatchers.Main) {
-                this@MainViewModel.mediaController.value?.stop()
-                this@MainViewModel.mediaController.value?.clearMediaItems()
-            }
-            for (eachSong in songInfoMap ?: emptyMap()) {
-                val mediaItem = MediaItem.Builder()
-                    .setUri(eachSong.value.second)
-                    .setMediaMetadata(
-                        MediaMetadata.Builder()
-                            .setTitle(eachSong.value.first.name)
-                            .setArtist(
-                                eachSong.value.first.ar.getOrNull(0)?.name ?: "未知歌手",
-                            )
-                            .setArtworkUri(eachSong.value.first.al.picUrl.toUri())
-                            .build(),
-                    )
-                    .setMediaId(eachSong.value.first.id.toString())
-                    .build()
-                withContext(Dispatchers.Main) {
-                    this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
-                }
-            }
-            safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
-        }
-        this@MainViewModel.mediaController.value?.prepare()
-        this@MainViewModel.mediaController.value?.play()
     }
 
     fun onDownloadPlaylistClick(songlistID: Long) {

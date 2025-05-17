@@ -133,7 +133,7 @@ fun ShowPlaylistDetailPage(
 
                 Row {
                     Button(onClick = {
-                        viewModel.onPlayPlaylistClick(songlistID)
+                        viewModel.onPlaySingleSongInPlaylistClick(songlistID, 0)
                     }) {
                         Text(text = "播放全部")
                     }
