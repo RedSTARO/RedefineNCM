@@ -36,6 +36,7 @@ import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -210,6 +211,9 @@ fun ShowPlaylistDetailPage(
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), // 更浅的颜色
                             )
                         }
+
+                        Text(text = "Downloaded: " + DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString()).toString())
+
                     }
                 }
             }
