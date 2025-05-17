@@ -1,6 +1,7 @@
 package com.redstar.redefinencm.viewmodel
 
 import android.content.ComponentName
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -183,6 +184,7 @@ class MainViewModel(
         }
         viewModelScope.launch {
             val mediaItem = MediaItem.Builder()
+                .setUri("placeholder://pending/${song.id}".toUri())
                 .setMediaMetadata(
                     MediaMetadata.Builder()
                         .setTitle(song.name)
@@ -194,6 +196,9 @@ class MainViewModel(
                 )
                 .setMediaId(song.id.toString())
                 .build()
+            Log.d("showPlaylistDetail", mediaItem.mediaId)
+            Log.d("showPlaylistDetail", mediaItem.localConfiguration?.uri.toString())
+            Log.d("showPlaylistDetail", mediaItem.mediaMetadata.title.toString())
             withContext(Dispatchers.Main) {
                 this@MainViewModel.mediaController.value?.clearMediaItems()
                 this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
@@ -218,6 +223,7 @@ class MainViewModel(
                     targetSongId = index
                 }
                 val mediaItem = MediaItem.Builder()
+                    .setUri("placeholder://pending/${eachSong.id}".toUri())
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(eachSong.name)

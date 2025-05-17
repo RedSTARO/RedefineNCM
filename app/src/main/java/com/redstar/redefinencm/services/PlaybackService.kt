@@ -2,9 +2,11 @@ package com.redstar.redefinencm.services
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -16,8 +18,10 @@ import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +42,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+        val repo = Repository(DatabaseProvider.getDao(applicationContext))
         player = ExoPlayer.Builder(this).build()
         mediaSession = MediaSession.Builder(this, player).build()
         val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
@@ -82,12 +87,49 @@ class PlaybackService : MediaSessionService() {
 
                     // 监听播放状态变化
                     player.addListener(object : Player.Listener {
+                        @OptIn(UnstableApi::class)
                         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                             super.onMediaItemTransition(mediaItem, reason)
-                            mediaItem?.mediaId?.let { mediaId ->
-                                fetchLyrics(mediaId)
+                            if (mediaItem == null) return
+
+                            val mediaId = mediaItem.mediaId
+                            fetchLyrics(mediaId)
+
+                            if (!mediaItem.localConfiguration?.uri.toString().startsWith("placeholder")) {
                                 startLyricSync()
+                                return
                             }
+
+                                try {
+                                    val uri = repo.getSongUri(mediaId.toLong())
+                                    if (uri != null) {
+                                            // 获取当前播放位置的媒体项，确保它仍然是我们要处理的同一个项目
+                                            val currentItem = player.currentMediaItem
+                                            if (currentItem != null && currentItem.mediaId == mediaId) {
+                                                // 创建一个新的媒体项，包含URI
+                                                val updatedItem = currentItem.buildUpon()
+                                                    .setUri(uri)
+                                                    .build()
+
+                                                val currentIndex = player.currentMediaItemIndex
+                                                player.removeMediaItem(currentIndex)
+                                                player.addMediaItem(currentIndex, updatedItem)
+                                                if (player.playbackState == Player.STATE_IDLE) {
+                                                    player.prepare()
+                                                }
+                                                if (!player.isPlaying) {
+                                                    player.play()
+                                                }
+                                                startLyricSync()
+                                            }
+
+                                    } else {
+                                        Log.e(TAG, "无法获取歌曲URI: $mediaId")
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "获取歌曲URI时出错: ${e.message}", e)
+                                }
+
                         }
 
                         override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
