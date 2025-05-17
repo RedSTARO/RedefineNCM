@@ -54,7 +54,7 @@ class DownloadWorker(
 
         val request = DownloadManager.Request(uri).apply {
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/RedefineNCM/" + fileName)
         }
 
         downloadManager.enqueue(request)
