@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import android.app.DownloadManager
+import android.util.Log
 import androidx.core.net.toUri
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
@@ -52,6 +53,11 @@ class DownloadWorker(
         val uri = url.toUri()
         val fileName = fileName + "." + uri.lastPathSegment?.substringAfterLast(".")
 
+        if (DownloadUtil.fileAlreadyExists(fileName)){
+            Log.d("DownloadWorker", "File already exists: $fileName")
+            return
+        }
+
         val request = DownloadManager.Request(uri).apply {
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/RedefineNCM/" + fileName)
@@ -69,4 +75,33 @@ class DownloadWorker(
         }
         return response?.data?.map { it } ?: emptyList()
     }
+}
+
+object DownloadUtil{
+    fun fileAlreadyExists(fileName: String): Boolean {
+        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        val file = java.io.File(dir, fileName)
+        return file.exists()
+    }
+
+    fun fileAlreadyExistsByBaseName(baseName: String): Boolean {
+        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        if (!dir.exists() || !dir.isDirectory) return false
+
+        return dir.listFiles()?.any { file ->
+            file.nameWithoutExtension == baseName
+        } ?: false
+    }
+
+    fun getExistingFileUriByBaseName(baseName: String): Uri? {
+        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        if (!dir.exists() || !dir.isDirectory) return null
+
+        val matchedFile = dir.listFiles()?.firstOrNull { file ->
+            file.nameWithoutExtension == baseName
+        }
+
+        return matchedFile?.let { Uri.fromFile(it) }
+    }
+
 }

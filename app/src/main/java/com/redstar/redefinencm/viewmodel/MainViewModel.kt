@@ -181,15 +181,10 @@ class MainViewModel(
                 "Selected Song ${song.name} with id ${song.id}",
             )
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            val url = safeApiCall {
-                retrofit.songUrlV1(
-                    listOf(song.id),
-                    DataStoreManager.getStringItem("onlinePlayQuality", "standard")
-                )
-            }?.data?.get(0)
+        viewModelScope.launch {
+            val uri = repo.getSongUri(song.id)
             val mediaItem = MediaItem.Builder()
-                .setUri(url?.url)
+                .setUri(uri)
                 .setMediaMetadata(
                     MediaMetadata.Builder()
                         .setTitle(song.name)
@@ -209,6 +204,7 @@ class MainViewModel(
             }
         }
     }
+
 
     fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
         CoroutineScope(Dispatchers.IO).launch {

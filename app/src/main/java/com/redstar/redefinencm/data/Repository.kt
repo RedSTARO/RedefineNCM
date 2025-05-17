@@ -1,6 +1,8 @@
 package com.redstar.redefinencm.data
 
+import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.safeApiCall
@@ -11,9 +13,12 @@ import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
+import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.DownloadUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
 class Repository(
@@ -149,6 +154,23 @@ class Repository(
             )
             Dao.insertRecommendResource(entity)
             emit(entity)
+        }
+    }
+
+    fun getSongUri(songId: Long): Uri? {
+        if (DownloadUtil.fileAlreadyExistsByBaseName(songId.toString())) {
+            Log.d("Repository", "Found existing file with base name $songId")
+            return DownloadUtil.getExistingFileUriByBaseName(songId.toString())
+        } else {
+            Log.d("Repository", "Fetching uri with base name $songId")
+            return runBlocking {
+               safeApiCall {
+                   retrofit.songUrlV1(
+                       listOf(songId),
+                       DataStoreManager.getStringItem("onlinePlayQuality", "standard")
+                   ).data.first().url.toUri()
+               }
+           }
         }
     }
 }
