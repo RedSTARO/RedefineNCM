@@ -113,4 +113,6 @@ dependencies {
     ksp(libs.androidx.room.compiler.v261)
     implementation(libs.hilt.android)
     implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.work.runtime.ktx)
+
 }

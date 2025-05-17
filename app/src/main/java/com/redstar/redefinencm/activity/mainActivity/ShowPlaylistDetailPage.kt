@@ -130,10 +130,18 @@ fun ShowPlaylistDetailPage(
                 Modifier.fillMaxWidth(),
                 Alignment.Center,
             ) {
-                Button(onClick = {
-                    viewModel.onPlayPlaylistClick(songlistID)
-                }) {
-                    Text(text = "播放全部")
+
+                Row {
+                    Button(onClick = {
+                        viewModel.onPlayPlaylistClick(songlistID)
+                    }) {
+                        Text(text = "播放全部")
+                    }
+
+                    Button(onClick = { viewModel.onDownloadPlaylistClick(songlistID) }) {
+                        Text(text = "下载全部")
+                    }
+
                 }
             }
             Spacer(Modifier.padding(16.dp))
