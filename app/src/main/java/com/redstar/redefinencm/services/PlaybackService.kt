@@ -89,12 +89,14 @@ class PlaybackService : MediaSessionService() {
                     player.addListener(object : Player.Listener {
                         @OptIn(UnstableApi::class)
                         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                            Log.d("onMediaItemTransition", mediaItem?.mediaMetadata?.title.toString())
                             super.onMediaItemTransition(mediaItem, reason)
                             if (mediaItem == null) return
 
                             val mediaId = mediaItem.mediaId
                             fetchLyrics(mediaId)
 
+                            Log.d("onMediaItemTransition", mediaItem.localConfiguration?.uri.toString())
                             if (!mediaItem.localConfiguration?.uri.toString().startsWith("placeholder")) {
                                 startLyricSync()
                                 return
@@ -102,6 +104,8 @@ class PlaybackService : MediaSessionService() {
 
                                 try {
                                     val uri = repo.getSongUri(mediaId.toLong())
+                                    Log.d("onMediaItemTransition", mediaItem.localConfiguration?.uri.toString())
+                                    Log.d("onMediaItemTransition", uri.toString())
                                     if (uri != null) {
                                             // 获取当前播放位置的媒体项，确保它仍然是我们要处理的同一个项目
                                             val currentItem = player.currentMediaItem
@@ -114,6 +118,7 @@ class PlaybackService : MediaSessionService() {
                                                 val currentIndex = player.currentMediaItemIndex
                                                 player.removeMediaItem(currentIndex)
                                                 player.addMediaItem(currentIndex, updatedItem)
+                                                player.seekTo(currentIndex, 0)
                                                 if (player.playbackState == Player.STATE_IDLE) {
                                                     player.prepare()
                                                 }
