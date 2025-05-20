@@ -168,9 +168,10 @@ class MainViewModel(
                 recommendResource.value = detail
 
             }
+        }
+        viewModelScope.launch {
             repo.getRecommendSongs().collect { detail ->
                 recommendSongs.value = detail
-
             }
         }
     }
@@ -239,7 +240,7 @@ class MainViewModel(
             withContext(Dispatchers.Main) {
                 this@MainViewModel.mediaController.value?.prepare()
                 this@MainViewModel.mediaController.value?.seekTo(targetSongId, 0)
-                this@MainViewModel.mediaController.value?.play()
+//                this@MainViewModel.mediaController.value?.play()
             }
             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
         }
