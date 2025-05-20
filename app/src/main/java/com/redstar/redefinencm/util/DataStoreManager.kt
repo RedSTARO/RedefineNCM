@@ -43,7 +43,7 @@ object DataStoreManager {
     }
 
     suspend fun setBooleanItem(itemKey: String, value: Boolean) {
-        DataStoreManager.getAppDataStore().edit { preferences ->
+        getAppDataStore().edit { preferences ->
             preferences[booleanPreferencesKey(itemKey)] = value
         }
     }
