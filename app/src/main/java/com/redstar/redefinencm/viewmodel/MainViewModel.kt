@@ -184,6 +184,7 @@ class MainViewModel(
         }
         viewModelScope.launch {
             val mediaItem = MediaItem.Builder()
+                .setUri("redefinencm://playbackPlaceHolder?id=${song.id}")
                 .setMediaMetadata(
                     MediaMetadata.Builder()
                         .setTitle(song.name)
@@ -219,6 +220,7 @@ class MainViewModel(
                     targetSongId = index
                 }
                 val mediaItem = MediaItem.Builder()
+                    .setUri("redefinencm://playbackPlaceHolder?id=${eachSong.id}")
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(eachSong.name)

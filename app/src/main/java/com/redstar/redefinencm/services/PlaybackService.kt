@@ -2,10 +2,14 @@ package com.redstar.redefinencm.services
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import cn.lyric.getter.api.API
@@ -20,6 +24,7 @@ import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
+import com.redstar.redefinencm.util.RedirectingDataSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,9 +41,18 @@ class PlaybackService : MediaSessionService() {
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        player = ExoPlayer.Builder(this).build()
+        val dataSourceFactory = RedirectingDataSourceFactory(DefaultDataSource.Factory(
+            RedefineNCMApplication.getApplicationContext()))
+
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+
+        player = ExoPlayer.Builder(RedefineNCMApplication.getApplicationContext())
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build()
+
         mediaSession = MediaSession.Builder(this, player).build()
         val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
 
