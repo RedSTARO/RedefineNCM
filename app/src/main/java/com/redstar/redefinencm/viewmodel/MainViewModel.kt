@@ -197,6 +197,9 @@ class MainViewModel(
                 )
                 .setMediaId(song.id.toString())
                 .build()
+            Log.d("showPlaylistDetail", mediaItem.mediaId)
+            Log.d("showPlaylistDetail", mediaItem.localConfiguration?.uri.toString())
+            Log.d("showPlaylistDetail", mediaItem.mediaMetadata.title.toString())
             withContext(Dispatchers.Main) {
                 this@MainViewModel.mediaController.value?.clearMediaItems()
                 this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
