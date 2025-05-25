@@ -209,41 +209,40 @@ class MainViewModel(
     fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
-            var targetSongId = 0
+            if (songDetails == null) return@launch
 
-            withContext(Dispatchers.Main) {
-                this@MainViewModel.mediaController.value?.stop()
-                this@MainViewModel.mediaController.value?.clearMediaItems()
-            }
-            songDetails?.forEachIndexed { index, eachSong ->
+            val mediaItems = mutableListOf<MediaItem>()
+            var targetSongIndex = 0
+
+            songDetails.forEachIndexed { index, eachSong ->
                 if (eachSong.id == songId) {
-                    targetSongId = index
+                    targetSongIndex = index
                 }
                 val mediaItem = MediaItem.Builder()
                     .setUri("redefinencm://playbackPlaceHolder?id=${eachSong.id}")
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(eachSong.name)
-                            .setArtist(
-                                eachSong.ar.first().name,
-                            )
+                            .setArtist(eachSong.ar.first().name)
                             .setArtworkUri(eachSong.al.picUrl.toUri())
-                            .build(),
+                            .build()
                     )
                     .setMediaId(eachSong.id.toString())
                     .build()
-                withContext(Dispatchers.Main) {
-                    this@MainViewModel.mediaController.value?.addMediaItem(mediaItem)
-                }
+                mediaItems.add(mediaItem)
             }
+
             withContext(Dispatchers.Main) {
-                this@MainViewModel.mediaController.value?.prepare()
-                this@MainViewModel.mediaController.value?.seekTo(targetSongId, 0)
-//                this@MainViewModel.mediaController.value?.play()
+                mediaController.value?.stop()
+                mediaController.value?.setMediaItems(mediaItems, targetSongIndex, 0L)
+                mediaController.value?.prepare()
+                mediaController.value?.play()
             }
+
             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
         }
     }
+
 
     fun onDownloadPlaylistClick(songlistID: Long) {
         viewModelScope.launch {
