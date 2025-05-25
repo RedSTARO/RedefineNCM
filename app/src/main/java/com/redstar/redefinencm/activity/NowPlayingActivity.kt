@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -288,6 +289,7 @@ fun CurrentPlayList(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
     val mediaController by viewModel.mediaController.collectAsState()
     var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
     var currentMediaId by remember { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
 
 
     LaunchedEffect(Unit) {
@@ -304,11 +306,16 @@ fun CurrentPlayList(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
             }
         })
         currentMediaId = mediaController!!.currentMediaItem?.mediaId
+
+        val currentIndex = playlist?.indexOfFirst { it.mediaId == currentMediaId } ?: -1
+        if (currentIndex >= 0) {
+            listState.animateScrollToItem(currentIndex)
+        }
     }
 
     if (!playlist.isNullOrEmpty()) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
-            LazyColumn {
+            LazyColumn(state = listState) {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
                     Row {
                         Spacer(Modifier.padding(5.dp))
