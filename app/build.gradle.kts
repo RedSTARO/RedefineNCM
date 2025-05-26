@@ -18,7 +18,7 @@ android {
         minSdk = 29
         targetSdk = 35
         versionCode = generateVersionCode()
-        versionName = "v0.0.3"
+        versionName = "v0.0.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionNameSuffix = "_EarlyAccess_${getGitSha().substring(0..5)}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
