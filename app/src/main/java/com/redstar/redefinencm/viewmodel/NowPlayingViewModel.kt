@@ -22,6 +22,7 @@ class NowPlayingViewModel : ViewModel() {
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
+    val currentLyric = MutableStateFlow("")
 
     init {
         initMediaController()

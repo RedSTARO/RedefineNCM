@@ -25,6 +25,7 @@ import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import com.redstar.redefinencm.util.RedirectingDataSourceFactory
+import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,6 +41,9 @@ class PlaybackService : MediaSessionService() {
     private var lyricMap: LinkedHashMap<Long?, String?> = linkedMapOf() // 存储解析后的歌词
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
+    object LyricBridge {
+        var viewModel: NowPlayingViewModel? = null
+    }
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -58,12 +62,12 @@ class PlaybackService : MediaSessionService() {
 
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
-            val status = (
+            val statusBarLyricEnabled = (
                     DataStoreManager.getBooleanItem("statusBarLyric", false)
                     )
 
             withContext(Dispatchers.Main) {
-                if (status) {
+                if (statusBarLyricEnabled) {
                     val receiver = LyricReceiver(object : LyricListener() {})
                     val lga by lazy { API() }
 
@@ -73,6 +77,7 @@ class PlaybackService : MediaSessionService() {
                             if (BuildConfig.DEBUG) {
                                 Log.d("StatusBarLyric", "歌词更新： $lyric")
                             }
+                            LyricBridge.viewModel?.currentLyric?.value = lyric
                             lga.sendLyric(
                                 lyric,
                                 extra = cn.lyric.getter.api.data.ExtraData().apply {

@@ -71,14 +71,20 @@ import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.redstar.redefinencm.services.PlaybackService
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModel = NowPlayingViewModel()
+
         setContent {
+            val viewModel: NowPlayingViewModel = viewModel()
+            LaunchedEffect(Unit) {
+                PlaybackService.LyricBridge.viewModel = viewModel
+            }
             RedefineNCMTheme {
                 Scaffold(
                     topBar = {
@@ -110,6 +116,7 @@ class NowPlayingActivity : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             SongDetails(viewModel, modifier = Modifier.fillMaxWidth())
+                            Lyric(viewModel)
                             PlaybackControlButtons(viewModel, modifier = Modifier.fillMaxWidth())
                             PlaylistButtons(viewModel, modifier = Modifier.fillMaxWidth())
                         }
@@ -183,6 +190,21 @@ fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+@Composable
+fun Lyric(viewModel: NowPlayingViewModel){
+    val lyric by viewModel.currentLyric.collectAsState()
+
+    Text(
+        text = lyric,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        textAlign = TextAlign.Center,
+        fontSize = 18.sp,
+        color = MaterialTheme.colorScheme.primary,
+    )
 }
 
 @Composable
