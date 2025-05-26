@@ -29,6 +29,7 @@ import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.Repository
+import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadWorker
@@ -42,10 +43,10 @@ import kotlinx.coroutines.withContext
 import kotlin.collections.map
 
 class MainViewModel(
-    private val repo: Repository,
 ) : ViewModel() {
     private val context = RedefineNCMApplication.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
+    val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
 
     var uid by mutableStateOf(0L)
 

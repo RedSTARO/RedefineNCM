@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,6 +43,7 @@ import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
+import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -50,9 +52,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val viewModel = MainViewModel(Repository(DatabaseProvider.getDao(applicationContext)))
-
         setContent {
+            val viewModel: MainViewModel = viewModel()
             val windowSizeClass = calculateWindowSizeClass(this)
             val widthClass = windowSizeClass.widthSizeClass
             RedefineNCMTheme {

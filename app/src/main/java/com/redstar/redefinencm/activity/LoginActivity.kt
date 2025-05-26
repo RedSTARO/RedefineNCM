@@ -58,6 +58,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel: LoginViewModel = viewModel()
             RedefineNCMTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     var gotServer by remember { mutableStateOf(false) }
@@ -69,7 +70,7 @@ class LoginActivity : ComponentActivity() {
                     }
 
                     if (gotServer) {
-                        LoginPage(innerPadding = innerPadding, viewModel = viewModel())
+                        LoginPage(innerPadding = innerPadding, viewModel = viewModel)
                     } else {
                         ServerItem({ gotServer = true }) // This from SettingActivity
                     }
