@@ -41,8 +41,14 @@ class PlaybackService : MediaSessionService() {
     private var lyricMap: LinkedHashMap<Long?, String?> = linkedMapOf() // 存储解析后的歌词
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
+
     object LyricBridge {
         var viewModel: NowPlayingViewModel? = null
+    }
+
+    private var lyricCallback: LyricCallback? = null
+    fun setLyricCallback(callback: LyricCallback) {
+        lyricCallback = callback
     }
 
     @OptIn(UnstableApi::class)
@@ -77,7 +83,6 @@ class PlaybackService : MediaSessionService() {
                             if (BuildConfig.DEBUG) {
                                 Log.d("StatusBarLyric", "歌词更新： $lyric")
                             }
-                            LyricBridge.viewModel?.currentLyric?.value = lyric
                             lga.sendLyric(
                                 lyric,
                                 extra = cn.lyric.getter.api.data.ExtraData().apply {
@@ -167,34 +172,42 @@ class PlaybackService : MediaSessionService() {
 
     private fun startLyricSync() {
         lyricJob?.cancel()
+        LyricBridge.viewModel?.lyricMap?.value = lyricMap
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
                 if (!isPlaying) break
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
-                val (currentLyric, duration) = getCurrentLyric(currentPosition)
+                val (currentLyric, duration, index) = getCurrentLyric(currentPosition)
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
+                withContext(Dispatchers.Main) {
+                    LyricBridge.viewModel?.lyricIndex?.value = index
+                }
                 delay(duration)
             }
         }
     }
 
     /**
-     * 获取当前时间对应的歌词和持续时间
+     * 获取当前时间对应的歌词和持续时间和map的index
      */
-    private fun getCurrentLyric(position: Long): Pair<String?, Long> {
+    private fun getCurrentLyric(position: Long): Triple<String?, Long, Int> {
         var lastLyric: String? = null
         var lastTime: Long? = null
         var nextTime: Long? = null
+        var index = -1
+        var currentIndex = 0
 
         for ((time, lyric) in lyricMap) {
             if (time != null && position >= time) {
                 lastLyric = lyric
                 lastTime = time
+                index = currentIndex
             } else {
                 nextTime = time
                 break
             }
+            currentIndex++
         }
 
         val duration = if (lastTime != null && nextTime != null) {
@@ -203,19 +216,12 @@ class PlaybackService : MediaSessionService() {
             2000L
         }
 
-        return Pair(lastLyric, duration)
+        return Triple(lastLyric, duration, index)
     }
 
-    fun getLyricMap(): LinkedHashMap<Long?, String?> {
-        return lyricMap
-    }
+
 }
 
-private var lyricCallback: LyricCallback? = null
-
-fun setLyricCallback(callback: LyricCallback) {
-    lyricCallback = callback
-}
 
 interface LyricCallback {
     fun onLyricUpdated(lyric: String, duration: Int)

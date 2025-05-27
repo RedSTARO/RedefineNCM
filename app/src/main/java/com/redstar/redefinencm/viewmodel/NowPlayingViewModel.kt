@@ -26,8 +26,10 @@ class NowPlayingViewModel : ViewModel() {
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
-    val currentLyric = MutableStateFlow("")
+//    val currentLyric = MutableStateFlow("")
     val comments = MutableStateFlow<CommentMusicEntity>(CommentMusicEntity(0, false, 0, emptyList(), false, emptyList()))
+    val lyricIndex = MutableStateFlow(0)
+    val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf())
 
     init {
         initMediaController()

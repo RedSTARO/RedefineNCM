@@ -50,9 +50,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -194,17 +196,40 @@ fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 fun Lyric(viewModel: NowPlayingViewModel) {
-    val lyric by viewModel.currentLyric.collectAsState()
+    val lyricMap by viewModel.lyricMap.collectAsState()
+    val lyricIndex by viewModel.lyricIndex.collectAsState()
+    val listState = rememberLazyListState()
 
-    Text(
-        text = lyric,
+    val lyrics = remember(lyricMap) { lyricMap.values.toList() }
+
+    // 自动滚动到当前歌词行
+    LaunchedEffect(lyricIndex) {
+        if (lyricIndex >= 0 && lyricIndex < lyrics.size) {
+            listState.animateScrollToItem(lyricIndex)
+        }
+    }
+
+    LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        textAlign = TextAlign.Center,
-        fontSize = 18.sp,
-        color = MaterialTheme.colorScheme.primary,
-    )
+            .height(150.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        itemsIndexed(lyrics) { index, line ->
+            val isCurrent = index == lyricIndex
+            Text(
+                text = line.toString(),
+                fontSize = if (isCurrent) 20.sp else 16.sp,
+                fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                color = if (isCurrent) MaterialTheme.colorScheme.primary else Color.Gray,
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .alpha(if (isCurrent) 1f else 0.6f),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 }
 
 @Composable
