@@ -3,12 +3,15 @@ package com.redstar.redefinencm.util
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.redstar.redefinencm.data.api.data.CommentMusic
+import com.redstar.redefinencm.data.api.data.CommentMusicComments
 import com.redstar.redefinencm.data.api.data.PlaylistDetailPlaylist
 import com.redstar.redefinencm.data.api.data.RecommendResourceRecommend
 import com.redstar.redefinencm.data.api.data.RecommendSongsData
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserDetailProfile
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
+import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 
 class TypeConverter {
 
@@ -73,5 +76,26 @@ class TypeConverter {
     @TypeConverter
     fun toRecommendSongsData(value: String): RecommendSongsData {
         return Gson().fromJson(value, RecommendSongsData::class.java)
+    }
+
+    @TypeConverter
+    fun fromCommentMusic(value: CommentMusic): String {
+        return Gson().toJson(value)
+    }
+
+    @TypeConverter
+    fun toCommentMusic(value: String): CommentMusic {
+        return Gson().fromJson(value, CommentMusic::class.java)
+    }
+
+    @TypeConverter
+    fun fromCommentMusicComments(value: List<CommentMusicComments>): String {
+        return Gson().toJson(value)
+    }
+
+    @TypeConverter
+    fun toCommentMusicComments(value: String): List<CommentMusicComments> {
+        val listType = object : TypeToken<List<CommentMusicComments>>() {}.type
+        return Gson().fromJson(value, listType)
     }
 }

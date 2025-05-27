@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.data.api
 
+import com.redstar.redefinencm.data.api.data.CommentMusic
 import com.redstar.redefinencm.data.api.data.Dailysignin
 import com.redstar.redefinencm.data.api.data.InnerVersion
 import com.redstar.redefinencm.data.api.data.Like
@@ -82,6 +83,9 @@ interface NCMApi {
 
     @POST("/likelist")
     suspend fun likelist(@Query("uid") uid: Long): LikeList
+
+    @GET("/comment/music")
+    suspend fun commentMusic(@Query("id") id: Long): CommentMusic
 
     // @GET("/inner/version")
     @GET

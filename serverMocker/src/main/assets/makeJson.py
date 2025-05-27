@@ -73,7 +73,7 @@ spApis = [f"/login/qr/create?key=5606f361-1708-49aa-a201-c966bcde8cac&qrimg=true
 apis = ["/user/account", f"/user/detail?uid={uid}", f"/login/status?cookie={headers["Cookie"]}",
         "/login/qr/key", f"/daily_signin", f"/user/playlist?uid={uid}", f"/playlist/track/all?id={songlistid}", f"/playlist/detail?id={songlistid}", f"/song/url/v1?id={songid}&level=standard",
         f"/song/detail?id={songid}", f"/lyric?id={songid}", f"/inner/version", "/playlist/update/playcount", "/recommend/resource", "/recommend/songs",
-        f"/likelist?uid={uid}", f"/like?id={songid}"]
+        f"/likelist?uid={uid}", f"/like?id={songid}", f"/comment/music?id={songid}"]
 # for i in apis:
 #     main(i)
 

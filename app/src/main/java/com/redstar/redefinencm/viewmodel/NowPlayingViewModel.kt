@@ -9,8 +9,11 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.db.DatabaseProvider
+import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.services.PlaybackService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.guava.await
@@ -19,10 +22,12 @@ import kotlinx.coroutines.launch
 class NowPlayingViewModel : ViewModel() {
     private val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     private val context = RedefineNCMApplication.getApplicationContext()
+    val repo = Repository(DatabaseProvider.getDao(context))
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
     val currentLyric = MutableStateFlow("")
+    val comments = MutableStateFlow<CommentMusicEntity>(CommentMusicEntity(0, false, 0, emptyList(), false, emptyList()))
 
     init {
         initMediaController()
@@ -50,6 +55,14 @@ class NowPlayingViewModel : ViewModel() {
                 nowPayingIsPlaying.value = controller.isPlaying
             } catch (e: Exception) {
                 Log.e("NowPlayingViewModel", "Failed to init MediaController: ${e.message}")
+            }
+        }
+    }
+
+    fun getComments(id: Long){
+        viewModelScope.launch {
+            repo.getCommentMusic(id).collect { detail ->
+                comments.value = detail
             }
         }
     }

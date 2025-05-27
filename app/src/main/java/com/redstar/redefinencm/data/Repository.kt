@@ -7,6 +7,7 @@ import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
+import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -34,7 +35,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.userDetail(uid) }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = UserDetailEntity(
                 userId = uid,
                 avatarUrl = networkDetail.profile.avatarUrl,
@@ -57,7 +58,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.userPlaylist(uid) }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = UserPlaylistEntity(
                 userId = uid,
                 code = networkDetail.code,
@@ -77,7 +78,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.playlistDetail(id) }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = PlaylistDetailEntity(
                 id = id,
                 code = networkDetail.code,
@@ -96,7 +97,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.playlistTrackAll(id) }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = PlaylistTrackAllEntity(
                 id = id,
                 code = networkDetail.code,
@@ -115,7 +116,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.recommendSongs() }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = RecommendSongsEntity(
                 timestamp = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0)
@@ -139,7 +140,7 @@ class Repository(
         }
 
         val networkDetail = safeApiCall { retrofit.recommendResource() }
-        if (networkDetail != null) {
+        if (networkDetail != null && networkDetail != cachedDetail) {
             val entity = RecommendResourceEntity(
                 timestamp = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0)
@@ -155,6 +156,29 @@ class Repository(
             Dao.insertRecommendResource(entity)
             emit(entity)
         }
+    }
+
+    fun getCommentMusic(id: Long): Flow<CommentMusicEntity> = flow {
+        val cachedDetail = Dao.getCommentMusic(id).first()
+        if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
+            emit(cachedDetail)
+        }
+
+        val networkDetail = safeApiCall { retrofit.commentMusic(id) }
+        if (networkDetail != null && networkDetail != cachedDetail) {
+            val entity = CommentMusicEntity(
+                id = id,
+                isMusician = networkDetail.isMusician,
+                userId = networkDetail.userId,
+                topComments = networkDetail.topComments,
+                moreHot = networkDetail.moreHot,
+                hotComments = networkDetail.hotComments,
+            )
+            Dao.insertCommentMusic(entity)
+            emit(entity)
+        }
+
     }
 
     fun getSongUri(songId: Long): Uri? {

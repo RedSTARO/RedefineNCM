@@ -1,0 +1,442 @@
+{
+    "isMusician": false,
+    "userId": 111111,
+    "topComments": [],
+    "moreHot": false,
+    "hotComments": [
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": null,
+                    "musicPackage": null,
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": null,
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": "AStringValue",
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": {},
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": 111111
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        },
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "musicPackage": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": null,
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": null,
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": {},
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": null
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        },
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": null,
+                    "musicPackage": null,
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": null,
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": null,
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": null,
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": null
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        }
+    ],
+    "commentBanner": null,
+    "code": 200,
+    "comments": [
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "musicPackage": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": {
+                "id": 111111,
+                "imageUrl": "AStringValue"
+            },
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": "AStringValue",
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": {},
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": 111111
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        },
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "musicPackage": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": null,
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": "AStringValue",
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": {},
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": 111111
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        },
+        {
+            "user": {
+                "locationInfo": null,
+                "liveInfo": null,
+                "anonym": 111111,
+                "highlight": false,
+                "avatarDetail": null,
+                "userType": 111111,
+                "avatarUrl": "AStringValue",
+                "followed": false,
+                "mutual": false,
+                "remarkName": null,
+                "socialUserId": null,
+                "vipRights": {
+                    "associator": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "musicPackage": {
+                        "vipCode": 111111,
+                        "rights": false,
+                        "iconUrl": "AStringValue"
+                    },
+                    "redplus": null,
+                    "redVipAnnualCount": 111111,
+                    "redVipLevel": 111111,
+                    "relationType": 111111,
+                    "memberLogo": null,
+                    "extInfo": null
+                },
+                "nickname": "AStringValue",
+                "authStatus": 111111,
+                "expertTags": null,
+                "experts": null,
+                "vipType": 111111,
+                "commonIdentity": null,
+                "userId": 111111,
+                "target": null
+            },
+            "beReplied": [],
+            "pendantData": {
+                "id": 111111,
+                "imageUrl": "AStringValue"
+            },
+            "showFloorComment": {
+                "replyCount": 111111,
+                "comments": null,
+                "showReplyCount": false
+            },
+            "status": 111111,
+            "commentId": 111111,
+            "content": "AStringValue",
+            "richContent": "AStringValue",
+            "contentResource": null,
+            "time": 111111,
+            "timeStr": "AStringValue",
+            "needDisplayTime": false,
+            "likedCount": 111111,
+            "expressionUrl": null,
+            "commentLocationType": 111111,
+            "parentCommentId": 111111,
+            "decoration": {},
+            "repliedMark": null,
+            "grade": null,
+            "userBizLevels": null,
+            "ipLocation": {
+                "ip": null,
+                "location": "AStringValue",
+                "userId": 111111
+            },
+            "owner": false,
+            "medal": null,
+            "likeAnimationMap": {},
+            "liked": false
+        }
+    ],
+    "total": 111111,
+    "more": false
+}

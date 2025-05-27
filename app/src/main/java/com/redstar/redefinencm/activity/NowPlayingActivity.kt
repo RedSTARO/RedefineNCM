@@ -57,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import coil.compose.AsyncImage
@@ -65,14 +66,13 @@ import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.safeApiCall
+import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.redstar.redefinencm.services.PlaybackService
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -129,7 +129,7 @@ class NowPlayingActivity : ComponentActivity() {
 
 @Composable
 fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+    RedefineNCMApplication.getApplicationContext() as Context
     var themeColor by remember { mutableStateOf(Color.Gray) }
     val metadata by viewModel.nowPlayingMetadata.collectAsState()
 
@@ -193,7 +193,7 @@ fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Lyric(viewModel: NowPlayingViewModel){
+fun Lyric(viewModel: NowPlayingViewModel) {
     val lyric by viewModel.currentLyric.collectAsState()
 
     Text(
@@ -252,6 +252,7 @@ fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = 
 @Composable
 fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
     var showPlaylist by remember { mutableStateOf(false) }
+    var showComments by remember { mutableStateOf(false) }
     val repeatModes = mapOf(
         1 to Player.REPEAT_MODE_OFF,
         2 to Player.REPEAT_MODE_ONE,
@@ -259,48 +260,69 @@ fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifie
     )
     var currentRepeatStatus by remember { mutableStateOf(0) }
     val mediaController by viewModel.mediaController.collectAsState()
-    val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
 
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        FuncButton(
-            onClick = {
-                val mediaId = mediaController?.currentMediaItem?.mediaId
-                CoroutineScope(Dispatchers.IO).launch {
-                    safeApiCall {
-                        RetrofitInstance.retrofit.create(NCMApi::class.java).like(mediaId?.toLong())
-                    }
-                }
-            },
-            text = "Fav",
-        )
-        FuncButton(
-            onClick = { showPlaylist = true },
-            text = "Play list",
+    Column {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
 
+            FuncButton(
+                onClick = { showPlaylist = true },
+                text = "Play list",
+            )
+            if (showPlaylist) {
+                CurrentPlayList(viewModel, onDismiss = { showPlaylist = false })
+            }
+
+            FuncButton(
+                onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
+                text = "Random",
             )
 
-        FuncButton(
-            onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
-            text = "Random",
-        )
+            FuncButton(
+                onClick = {
+                    mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
+                    currentRepeatStatus = (currentRepeatStatus) % 3
+                    if (BuildConfig.DEBUG) {
+                        Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
+                    }
+                },
+                text = "Repeat Mode",
+            )
 
-        FuncButton(
-            onClick = {
-                mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
-                currentRepeatStatus = (currentRepeatStatus) % 3
-                if (BuildConfig.DEBUG) {
-                    Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
-                }
-            },
-            text = "Repeat Mode",
-        )
 
-        if (showPlaylist) {
-            CurrentPlayList(viewModel, onDismiss = { showPlaylist = false })
+        }
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FuncButton(
+                onClick = {
+                    val mediaId = mediaController?.currentMediaItem?.mediaId
+                    CoroutineScope(Dispatchers.IO).launch {
+                        safeApiCall {
+                            RetrofitInstance.retrofit.create(NCMApi::class.java)
+                                .like(mediaId?.toLong())
+                        }
+                    }
+                },
+                text = "Fav",
+            )
+
+            FuncButton(
+                onClick = {
+                    showComments = true
+                },
+                text = "Comments",
+            )
+
+            if (showComments) {
+                Comments(viewModel, onDismiss = { showComments = false })
+            }
+
         }
     }
 }
@@ -372,6 +394,25 @@ fun CurrentPlayList(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
                         Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Comments(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
+    val mediaController by viewModel.mediaController.collectAsState()
+    val comments by viewModel.comments.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getComments(mediaController!!.currentMediaItem!!.mediaId.toLong())
+    }
+
+    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+        LazyColumn {
+            itemsIndexed(comments.hotComments) { index, item ->
+                Text(text = "$index, ${item.user.nickname}: ${item.content}")
             }
         }
     }
