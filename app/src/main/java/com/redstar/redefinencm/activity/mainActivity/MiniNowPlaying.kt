@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -89,7 +90,7 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
 //                        isPlaying = mediaController?.isPlaying == true
                     }) {
                         Icon(
-                            imageVector = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
+                            imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                             contentDescription = "Play/Pause",
                         )
                     }

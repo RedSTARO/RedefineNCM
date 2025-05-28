@@ -114,5 +114,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.androidx.work.runtime.ktx)
-
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
 }

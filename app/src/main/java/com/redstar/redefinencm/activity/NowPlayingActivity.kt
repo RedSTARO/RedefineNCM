@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -258,7 +259,7 @@ fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = 
             onClick = {
                 if (isPlaying) mediaController?.pause() else mediaController?.play()
             },
-            icon = if (isPlaying) Icons.Default.Home else Icons.Default.PlayArrow,
+            icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
             contentDescription = "播放/暂停",
             modifier = Modifier.size(64.dp), // 更大按钮突出主操作
             containerColor = MaterialTheme.colorScheme.primary,
