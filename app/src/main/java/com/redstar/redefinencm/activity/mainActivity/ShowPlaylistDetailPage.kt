@@ -1,6 +1,7 @@
 package com.redstar.redefinencm.activity.mainActivity
 
 import android.util.Log
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,6 +114,7 @@ fun ShowPlaylistDetailPage(
                     text = playlistDetail?.playlist?.name ?: "加载中...",
                     style = MaterialTheme.typography.titleLarge, // 设置为大标题
                     color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.basicMarquee()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp)) // 间距
@@ -156,6 +158,7 @@ fun ShowPlaylistDetailPage(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth() // 让卡片宽度占满
+                        .height(120.dp)
                         .padding(horizontal = 16.dp, vertical = 8.dp), // 添加间距
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // 提供阴影
                     shape = RoundedCornerShape(12.dp), // 圆角
@@ -203,16 +206,19 @@ fun ShowPlaylistDetailPage(
                             Text(
                                 text = song.name,
                                 style = MaterialTheme.typography.titleMedium, // 使用更合适的字体
+                                modifier = Modifier.basicMarquee(),
                             )
                             Text(
                                 text = song.ar.getOrNull(0)?.name ?: "未知歌手",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), // 颜色稍浅
+                                modifier = Modifier.basicMarquee(),
                             )
                             Text(
                                 text = song.al.name,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), // 更浅的颜色
+                                modifier = Modifier.basicMarquee(),
                             )
                         }
 
