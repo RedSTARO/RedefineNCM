@@ -25,11 +25,19 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.ShuffleOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,6 +45,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -121,7 +130,6 @@ class NowPlayingActivity : ComponentActivity() {
                             SongDetails(viewModel, modifier = Modifier.fillMaxWidth())
                             Lyric(viewModel)
                             PlaybackControlButtons(viewModel, modifier = Modifier.fillMaxWidth())
-                            PlaylistButtons(viewModel, modifier = Modifier.fillMaxWidth())
                         }
                     }
                 }
@@ -236,7 +244,18 @@ fun Lyric(viewModel: NowPlayingViewModel) {
 @Composable
 fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
     val isPlaying by viewModel.nowPayingIsPlaying.collectAsState()
+    var showPlaylist by remember { mutableStateOf(false) }
+    var showComments by remember { mutableStateOf(false) }
+    val repeatModes = mapOf(
+        1 to Player.REPEAT_MODE_OFF,
+        2 to Player.REPEAT_MODE_ONE,
+        0 to Player.REPEAT_MODE_ALL,
+    )
     val mediaController by viewModel.mediaController.collectAsState()
+    var currentRepeatStatus by remember { mutableStateOf(0) }
+    var currentRandomStatus by remember { mutableStateOf(mediaController?.shuffleModeEnabled?:false) }
+
+
 
 
     // Control buttons
@@ -245,47 +264,55 @@ fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = 
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        IconButton_(
+            onClick = {
+                val mediaId = mediaController?.currentMediaItem?.mediaId
+                CoroutineScope(Dispatchers.IO).launch {
+                    safeApiCall {
+                        RetrofitInstance.retrofit.create(NCMApi::class.java)
+                            .like(mediaId?.toLong())
+                    }
+                }
+            },
+            icon = Icons.Filled.FavoriteBorder, // TODO: 根据是否已收藏更改图标
+            contentDescription = "Like this music"
+        )
+
         // Perv
-        PlaybackButton(
-            viewModel,
+        IconButton_(
             onClick = { mediaController?.seekToPrevious() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "上一首",
         )
 
         // Pause
-        PlaybackButton(
-            viewModel,
+        IconButton_(
             onClick = {
                 if (isPlaying) mediaController?.pause() else mediaController?.play()
             },
             icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
             contentDescription = "播放/暂停",
-            modifier = Modifier.size(64.dp), // 更大按钮突出主操作
-            containerColor = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(64.dp)
         )
 
         // Next
-        PlaybackButton(
-            viewModel,
+        IconButton_(
             onClick = { mediaController?.seekToNext() },
             icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "下一首",
         )
-    }
-}
 
-@Composable
-fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
-    var showPlaylist by remember { mutableStateOf(false) }
-    var showComments by remember { mutableStateOf(false) }
-    val repeatModes = mapOf(
-        1 to Player.REPEAT_MODE_OFF,
-        2 to Player.REPEAT_MODE_ONE,
-        0 to Player.REPEAT_MODE_ALL,
-    )
-    var currentRepeatStatus by remember { mutableStateOf(0) }
-    val mediaController by viewModel.mediaController.collectAsState()
+        IconButton_(
+            onClick = {
+                showPlaylist = true
+            },
+            icon = Icons.AutoMirrored.Filled.QueueMusic,
+            contentDescription = "Current playlist"
+        )
+        if (showPlaylist) {
+            CurrentPlayList(viewModel, onDismiss = { showPlaylist = false })
+        }
+    }
 
     Column {
         Row(
@@ -294,55 +321,34 @@ fun PlaylistButtons(viewModel: NowPlayingViewModel, modifier: Modifier = Modifie
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            FuncButton(
-                onClick = { showPlaylist = true },
-                text = "Play list",
-            )
-            if (showPlaylist) {
-                CurrentPlayList(viewModel, onDismiss = { showPlaylist = false })
-            }
 
-            FuncButton(
-                onClick = { mediaController?.setShuffleModeEnabled(!mediaController?.shuffleModeEnabled!!) },
-                text = "Random",
-            )
 
-            FuncButton(
+            IconButton_(
                 onClick = {
-                    mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
-                    currentRepeatStatus = (currentRepeatStatus) % 3
-                    if (BuildConfig.DEBUG) {
-                        Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
-                    }
+                    currentRandomStatus = !currentRandomStatus
+                    mediaController?.setShuffleModeEnabled(currentRandomStatus)
                 },
-                text = "Repeat Mode",
+                icon = if (!currentRandomStatus) Icons.Filled.Shuffle else Icons.Filled.ShuffleOn,
+                contentDescription = "Shuffle: $currentRandomStatus"
             )
 
+//            FuncButton(
+//                onClick = {
+//                    mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
+//                    currentRepeatStatus = (currentRepeatStatus) % 3
+//                    if (BuildConfig.DEBUG) {
+//                        Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
+//                    }
+//                },
+//                text = "Repeat Mode",
+//            )
 
-        }
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            FuncButton(
-                onClick = {
-                    val mediaId = mediaController?.currentMediaItem?.mediaId
-                    CoroutineScope(Dispatchers.IO).launch {
-                        safeApiCall {
-                            RetrofitInstance.retrofit.create(NCMApi::class.java)
-                                .like(mediaId?.toLong())
-                        }
-                    }
-                },
-                text = "Fav",
-            )
-
-            FuncButton(
+            IconButton_(
                 onClick = {
                     showComments = true
                 },
-                text = "Comments",
+                contentDescription = "Comments",
+                icon = Icons.AutoMirrored.Filled.Comment
             )
 
             if (showComments) {
@@ -445,26 +451,20 @@ fun Comments(viewModel: NowPlayingViewModel, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun PlaybackButton(
-    viewModel: NowPlayingViewModel,
+fun IconButton_(
     onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.secondaryContainer,
 ) {
-    Button(
+    IconButton(
         onClick = onClick,
-        modifier = modifier.size(48.dp), // 默认大小
-        shape = CircleShape,
-        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
-        contentPadding = PaddingValues(0.dp),
+        modifier = modifier.size(50.dp)
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
