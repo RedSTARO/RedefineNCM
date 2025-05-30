@@ -3,6 +3,7 @@ package com.redstar.redefinencm.activity.mainActivity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,8 +52,9 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
     val metadata by viewModel.nowPlayingMetadata.collectAsState()
     val isPlaying by viewModel.nowPayingIsPlaying.collectAsState()
-    val initialColor = MaterialTheme.colorScheme.background
-    var themeColor by remember { mutableStateOf(initialColor) }
+    val initialColor = MaterialTheme.colorScheme
+    var themeColor by remember { mutableStateOf(initialColor.primary) }
+//    var textColor by remember { mutableStateOf(initialColor.onPrimary) }
     val mediaController by viewModel.mediaController.collectAsState()
 
     Card(
@@ -71,7 +73,6 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
             ) {
                 Text(
                     text  = (metadata?.title ?: "Not Playing").toString(),
-                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth().basicMarquee(),
                     textAlign = TextAlign.Center,
@@ -126,6 +127,7 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     }),
                 onSuccess = { result ->
                     themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
+//                    textColor = ImageParser.getContrastingTextColor(textColor)
                     if (BuildConfig.DEBUG) {
                         Log.d("AlbumArt", "Image theme color: $themeColor")
                     }

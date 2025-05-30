@@ -3,6 +3,7 @@ package com.redstar.redefinencm.util
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.palette.graphics.Palette
 import com.redstar.redefinencm.BuildConfig
 
@@ -46,6 +47,10 @@ class ImageParser {
                 Log.d(TAG, "Theme color: $themeColor")
             }
             return themeColor // 返回提取的颜色
+        }
+
+        fun getContrastingTextColor(background: Color): Color {
+            return if (background.luminance() > 0.5f) Color.Black else Color.White
         }
     }
 }
