@@ -1,12 +1,14 @@
 package com.redstar.redefinencm.activity
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +16,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -62,15 +66,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
@@ -100,18 +107,6 @@ class NowPlayingActivity : ComponentActivity() {
             RedefineNCMTheme {
                 Scaffold(
                     topBar = {
-                        CenterAlignedTopAppBar(
-                            title = {
-                                Text(
-                                    "Now Playing",
-                                    style = MaterialTheme.typography.titleLarge,
-                                )
-                            },
-                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                            ),
-                        )
                     },
                     containerColor = MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
@@ -120,16 +115,14 @@ class NowPlayingActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(paddingValues)
                             .background(MaterialTheme.colorScheme.background),
-                        contentAlignment = Alignment.Center,
+//                        contentAlignment = Alignment.Center,
 
                         ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
+//                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            SongDetails(viewModel, modifier = Modifier.fillMaxWidth())
-                            Lyric(viewModel)
-                            PlaybackControlButtons(viewModel, modifier = Modifier.fillMaxWidth())
+                            NowPlaying(viewModel)
                         }
                     }
                 }
@@ -139,69 +132,78 @@ class NowPlayingActivity : ComponentActivity() {
 }
 
 @Composable
+fun NowPlaying(viewModel: NowPlayingViewModel) {
+    SongDetails(viewModel)
+//                            Lyric(viewModel)
+    PlaybackControlButtons(viewModel, modifier = Modifier.fillMaxWidth())
+}
+
+@Composable
 fun SongDetails(viewModel: NowPlayingViewModel, modifier: Modifier = Modifier) {
-    RedefineNCMApplication.getApplicationContext() as Context
     var themeColor by remember { mutableStateOf(Color.Gray) }
     val metadata by viewModel.nowPlayingMetadata.collectAsState()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = themeColor,
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp) // 增加内边距
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // 专辑封面
-            AsyncImage(
-                model = metadata?.artworkUri,
-                contentDescription = "专辑封面",
+            // 图片 + 文本层叠
+            Box(
                 modifier = Modifier
-                    .size(200.dp) // 固定大小，突出封面
-                    .clip(RoundedCornerShape(12.dp)) // 圆角封面
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                onSuccess = { result ->
-                    themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
-                    if (BuildConfig.DEBUG) {
-                        Log.d("AlbumArt", "Image theme color: $themeColor")
-                    }
-                },
-                onError = { error ->
-                    if (BuildConfig.DEBUG) {
-                        Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
-                    }
-                    themeColor = Color.Gray
-                },
-            )
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                // 专辑封面
+                AsyncImage(
+                    model = metadata?.artworkUri,
+                    contentDescription = "专辑封面",
+                    modifier = Modifier.fillMaxSize(),
+                    onSuccess = { result ->
+                        themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
+                        if (BuildConfig.DEBUG) {
+                            Log.d("AlbumArt", "Image theme color: $themeColor")
+                        }
+                    },
+                    onError = { error ->
+                        if (BuildConfig.DEBUG) {
+                            Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
+                        }
+                        themeColor = Color.Gray
+                    },
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 歌曲信息
-            Text(
-                text = metadata?.title?.toString() ?: "未知标题",
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-            )
-            Text(
-                text = metadata?.artist?.toString() ?: "未知艺术家",
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
+                // 悬浮的文字信息（带背景半透明遮罩）
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.6f)
+                                )
+                            )
+                        )
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = metadata?.title?.toString() ?: "未知标题",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontSize = 18.sp,
+                        ),
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
+                    )
+                    Text(
+                        text = metadata?.artist?.toString() ?: "未知艺术家",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 14.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        ),
+                        maxLines = 1,
+                        modifier = Modifier.basicMarquee()
+                    )
+                }
+            }
 }
+
 
 @Composable
 fun Lyric(viewModel: NowPlayingViewModel) {
@@ -254,6 +256,7 @@ fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = 
     val mediaController by viewModel.mediaController.collectAsState()
     var currentRepeatStatus by remember { mutableStateOf(0) }
     var currentRandomStatus by remember { mutableStateOf(mediaController?.shuffleModeEnabled?:false) }
+    var currentFavStatus by remember { mutableStateOf(false) }
 
 
 
@@ -273,8 +276,9 @@ fun PlaybackControlButtons(viewModel: NowPlayingViewModel, modifier: Modifier = 
                             .like(mediaId?.toLong())
                     }
                 }
+                currentFavStatus = !currentFavStatus // TODO: Really do remove fav
             },
-            icon = Icons.Filled.FavoriteBorder, // TODO: 根据是否已收藏更改图标
+            icon = if (currentFavStatus) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
             contentDescription = "Like this music"
         )
 
@@ -464,7 +468,7 @@ fun IconButton_(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.size(35.dp) // This must be less than above
         )
     }
 }
