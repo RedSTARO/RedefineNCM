@@ -3,6 +3,7 @@ package com.redstar.redefinencm.activity.mainActivity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,7 +51,8 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
     val metadata by viewModel.nowPlayingMetadata.collectAsState()
     val isPlaying by viewModel.nowPayingIsPlaying.collectAsState()
-    var themeColor by remember { mutableStateOf(Color.Gray) }
+    val initialColor = MaterialTheme.colorScheme.background
+    var themeColor by remember { mutableStateOf(initialColor) }
     val mediaController by viewModel.mediaController.collectAsState()
 
     Card(
@@ -67,17 +70,16 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxWidth(0.7f),
             ) {
                 Text(
-                    text = metadata?.title.toString(),
+                    text  = (metadata?.title ?: "Not Playing").toString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().basicMarquee(),
                     textAlign = TextAlign.Center,
                 )
                 // 播放控制按钮
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
                 ) {
                     IconButton(onClick = { mediaController?.seekToPrevious() }) {
                         Icon(
@@ -87,7 +89,6 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     }
                     IconButton(onClick = {
                         if (isPlaying) mediaController?.pause() else mediaController?.play()
-//                        isPlaying = mediaController?.isPlaying == true
                     }) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
@@ -109,9 +110,11 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     .crossfade(true)
                     .build(),
                 contentDescription = "Album art",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .fillMaxSize()
+                    .align(Alignment.CenterVertically)
                     .clickable(onClick = {
                         // 启动 NowPlayingActivity
                         context.startActivity(
@@ -131,7 +134,6 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     if (BuildConfig.DEBUG) {
                         Log.e("AlbumArt", "Image load failed: ${error.result.throwable.message}")
                     }
-                    themeColor = Color.Gray
                 },
             )
         }
