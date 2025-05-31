@@ -130,6 +130,8 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     val mediaController by viewModel.mediaController.collectAsState()
     val comments by viewModel.comments.collectAsState()
     val currentIndex by viewModel.currentMediaIndexInList.collectAsState()
+    val lyricMap by viewModel.lyricMap.collectAsState()
+    val lyricIndex by viewModel.lyricIndex.collectAsState()
     var showPlaylist by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
     var currentRandomStatus by remember { mutableStateOf(false) }
@@ -137,7 +139,10 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
 
     Column {
         SongDetails(metadata)
-//                            Lyric(viewModel)
+        Lyric(
+            lyricMap = lyricMap,
+            lyricIndex = lyricIndex
+        )
         PlaybackControlButtons(
             isPlaying = mediaController?.isPlaying ?: false,
             onFavClick = { viewModel.onFavClick() },
@@ -527,4 +532,18 @@ fun CommentsPreview(){
     )
 
     Comments(CommentMusicEntity, {})
+}
+
+@Preview
+@Composable
+fun LyricPreview(){
+
+    val lyricMap = mutableMapOf<Long?, String?>()
+    lyricMap[0] = "LyricLine"
+    lyricMap[1] = "LyricLine1"
+    lyricMap[2] = "LyricLine2"
+    Lyric(
+        lyricMap = lyricMap as LinkedHashMap<Long?, String?>,
+        lyricIndex = 0
+    )
 }
