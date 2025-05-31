@@ -5,6 +5,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.redstar.redefinencm.data.api.data.CommentMusic
 import com.redstar.redefinencm.data.api.data.CommentMusicComments
+import com.redstar.redefinencm.data.api.data.Lyric
+import com.redstar.redefinencm.data.api.data.LyricLrc
 import com.redstar.redefinencm.data.api.data.PlaylistDetailPlaylist
 import com.redstar.redefinencm.data.api.data.RecommendResourceRecommend
 import com.redstar.redefinencm.data.api.data.RecommendSongsData
@@ -79,13 +81,13 @@ class TypeConverter {
     }
 
     @TypeConverter
-    fun fromCommentMusic(value: CommentMusic): String {
+    fun fromLyricLrc(value: LyricLrc): String {
         return Gson().toJson(value)
     }
 
     @TypeConverter
-    fun toCommentMusic(value: String): CommentMusic {
-        return Gson().fromJson(value, CommentMusic::class.java)
+    fun toLyric(value: String): LyricLrc {
+        return Gson().fromJson(value, LyricLrc::class.java)
     }
 
     @TypeConverter

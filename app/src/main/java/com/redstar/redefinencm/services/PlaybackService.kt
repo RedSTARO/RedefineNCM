@@ -20,8 +20,10 @@ import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import com.redstar.redefinencm.util.RedirectingDataSourceFactory
@@ -39,6 +41,7 @@ class PlaybackService : MediaSessionService() {
     private lateinit var player: ExoPlayer
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var lyricMap: LinkedHashMap<Long?, String?> = linkedMapOf() // 存储解析后的歌词
+    private val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
 
@@ -150,16 +153,18 @@ class PlaybackService : MediaSessionService() {
      */
     private fun fetchLyrics(mediaId: String) {
         coroutineScope.launch {
-            try {
-                val response = retrofit.lyric(mediaId.toLong())
-                val lyricText = response.lrc.lyric
-                lyricMap = LyricParser.parse(lyricText)
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
-                }
-            } catch (e: Exception) {
-                if (BuildConfig.DEBUG) {
-                    Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
+            repo.getLyric(mediaId.toLong()).collect {
+                val response = it
+                try {
+                    val lyricText = response.lrc.lyric
+                    lyricMap = LyricParser.parse(lyricText)
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
+                    }
+                } catch (e: Exception) {
+                    if (BuildConfig.DEBUG) {
+                        Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
+                    }
                 }
             }
         }

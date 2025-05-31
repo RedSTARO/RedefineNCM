@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
+import com.redstar.redefinencm.data.db.entity.LyricEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -56,4 +57,10 @@ interface Dao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCommentMusic(detail: CommentMusicEntity)
+
+    @Query("SELECT * FROM lyric WHERE id = :id LIMIT 1")
+    fun getLyric(id: Long): Flow<LyricEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLyric(detail: LyricEntity)
 }

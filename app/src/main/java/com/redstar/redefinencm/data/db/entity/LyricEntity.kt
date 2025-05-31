@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.redstar.redefinencm.data.api.data.LyricLrc
 
-@Entity(tableName = "lyricEntity")
+@Entity(tableName = "lyric")
 data class LyricEntity(
     @PrimaryKey val id: Long,
     val sgc: Boolean,

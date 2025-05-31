@@ -8,6 +8,7 @@ import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
+import com.redstar.redefinencm.data.db.entity.LyricEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -176,6 +177,31 @@ class Repository(
                 hotComments = networkDetail.hotComments,
             )
             Dao.insertCommentMusic(entity)
+            emit(entity)
+        }
+
+    }
+
+    fun getLyric(id: Long): Flow<LyricEntity> = flow {
+        val cachedDetail = Dao.getLyric(id).first()
+        if (cachedDetail != null) {
+            Log.d("UserRepository", "从缓存获取数据")
+            emit(cachedDetail)
+        }
+
+        val networkDetail = safeApiCall { retrofit.lyric(id) }
+        if (networkDetail != null && networkDetail != cachedDetail) {
+            val entity = LyricEntity(
+                id = id,
+                sgc = networkDetail.sgc,
+                sfy = networkDetail.sfy,
+                qfy = networkDetail.qfy,
+                code = networkDetail.code,
+                lrc = networkDetail.lrc,
+                klyric = networkDetail.klyric,
+                tlyric = networkDetail.tlyric
+            )
+            Dao.insertLyric(entity)
             emit(entity)
         }
 
