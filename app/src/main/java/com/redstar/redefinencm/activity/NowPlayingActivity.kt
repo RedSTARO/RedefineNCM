@@ -74,6 +74,8 @@ import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.data.CommentMusicComments
+import com.redstar.redefinencm.data.api.data.UserDetailProfile
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.services.PlaybackService
@@ -423,7 +425,6 @@ fun CurrentPlayList(currentIndex: Int,onSeekClick: (Int) -> Unit  ,onDismiss: ()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Comments(comments: CommentMusicEntity, onDismiss: () -> Unit) {
-
     ModalBottomSheet(onDismissRequest = { onDismiss() }) {
         LazyColumn {
             itemsIndexed(comments.hotComments) { index, item ->
@@ -485,4 +486,45 @@ fun NowPlayingPreview() {
             currentFavStatus = false
         )
     }
+}
+
+@Preview
+@Composable
+fun CommentsPreview(){
+    val CommentMusicEntity = CommentMusicEntity(
+        id = 0,
+        isMusician = false,
+        userId = 0,
+        topComments = listOf(CommentMusicComments(
+            user = UserDetailProfile(
+                avatarUrl = "",
+                nickname = "NickName",
+                backgroundUrl = "",
+                userId = 0
+            ),
+            commentId = 0,
+            content = "CommentContent",
+            richContent = "",
+            time = 0,
+            timeStr = "TimeOfComment",
+            likedCount = 99
+        )),
+        moreHot = false,
+        hotComments = listOf(CommentMusicComments(
+            user = UserDetailProfile(
+                avatarUrl = "",
+                nickname = "NickName",
+                backgroundUrl = "",
+                userId = 0
+            ),
+            commentId = 0,
+            content = "CommentContent",
+            richContent = "",
+            time = 0,
+            timeStr = "TimeOfComment",
+            likedCount = 99
+        ))
+    )
+
+    Comments(CommentMusicEntity, {})
 }
