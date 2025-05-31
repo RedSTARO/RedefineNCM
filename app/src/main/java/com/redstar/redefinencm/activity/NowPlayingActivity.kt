@@ -135,10 +135,11 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     var showPlaylist by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
     var currentRandomStatus by remember { mutableStateOf(false) }
+    var showLyric by remember { mutableStateOf(false) }
     viewModel.getComments()
 
     Column {
-        SongDetails(metadata)
+        SongDetails(metadata, onShowLyricClick = { showLyric = true})
         Lyric(
             lyricMap = lyricMap,
             lyricIndex = lyricIndex
@@ -173,10 +174,14 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     if (showComments) {
         Comments(comments, onDismiss = { showComments = false })
     }
+
+    if (showLyric){
+        Lyric(lyricMap, lyricIndex)
+    }
 }
 
 @Composable
-fun SongDetails(metadata: MediaMetadata?) {
+fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
     var themeColor by remember { mutableStateOf(Color.Gray) }
 
             // 图片 + 文本层叠
@@ -190,7 +195,9 @@ fun SongDetails(metadata: MediaMetadata?) {
                 AsyncImage(
                     model = metadata?.artworkUri,
                     contentDescription = "专辑封面",
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = { onShowLyricClick() }),
                     onSuccess = { result ->
                         themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
                         if (BuildConfig.DEBUG) {
@@ -475,7 +482,7 @@ fun NowPlayingPreview() {
         .setArtist("SongArtist")
         .build()
     Column {
-        SongDetails(metadata)
+        SongDetails(metadata, onShowLyricClick = {})
 //                            Lyric(viewModel)
         PlaybackControlButtons(
             onFavClick = {},
