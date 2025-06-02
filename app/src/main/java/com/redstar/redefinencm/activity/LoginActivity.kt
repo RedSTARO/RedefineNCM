@@ -44,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.viewmodel.LoginViewModel
@@ -133,7 +134,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
                 viewModel.cookieLoginErrorMessage = ""
                 coroutineScope.launch {
                     try {
-                        checkLoggedInAndJump(viewModel.retrofit, viewModel.cookie, context)
+                        checkLoggedInAndJump(RetrofitInstance.retrofit.create(NCMApi::class.java), viewModel.cookie, context)
                     } catch (e: Exception) {
                         viewModel.cookieLoginErrorMessage = "登录失败：${e.message}"
                     } finally {
@@ -168,14 +169,15 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
 fun QrLogin(viewModel: LoginViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
     // 获取二维码
     LaunchedEffect(Unit) {
         try {
-            val keyResponse = viewModel.retrofit.loginQrKey()
+            val keyResponse = retrofit.loginQrKey()
             viewModel.qrLoginUnikey = keyResponse.data.unikey
 
-            val qrImg = viewModel.retrofit.loginQrCreate(
+            val qrImg = retrofit.loginQrCreate(
                 viewModel.qrLoginUnikey,
                 true,
             ).data.qrimg.substringAfter("base64,")
@@ -209,7 +211,7 @@ fun QrLogin(viewModel: LoginViewModel) {
         coroutineScope.launch {
             while (viewModel.cookie.isNotEmpty()) {
                 try {
-                    val response = viewModel.retrofit.loginQrCheck(viewModel.qrLoginUnikey)
+                    val response = retrofit.loginQrCheck(viewModel.qrLoginUnikey)
                     when (response.code) {
                         800 -> {
                             viewModel.qrLoginScanStatus = "QR Code Expired. Generating new one..."
@@ -223,7 +225,7 @@ fun QrLogin(viewModel: LoginViewModel) {
                         803 -> {
                             viewModel.updateCookie(response.cookie)
                             viewModel.qrLoginScanStatus = "Login Successful!"
-                            checkLoggedInAndJump(viewModel.retrofit, viewModel.cookie, context)
+                            checkLoggedInAndJump(retrofit, viewModel.cookie, context)
                         }
                     }
                     delay(2000)

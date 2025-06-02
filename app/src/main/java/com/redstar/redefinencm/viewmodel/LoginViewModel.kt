@@ -16,7 +16,6 @@ class LoginViewModel : ViewModel() {
         private set
     var cookie by mutableStateOf("")
         private set
-    val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
     var cookieLoginLoading by mutableStateOf(false)
     var cookieLoginErrorMessage by mutableStateOf("")
