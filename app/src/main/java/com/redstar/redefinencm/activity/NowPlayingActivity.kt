@@ -139,7 +139,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     viewModel.getComments()
 
     Column {
-        SongDetails(metadata, onShowLyricClick = { showLyric = true})
+        SongDetails(metadata, onShowLyricClick = { })
         Lyric(
             lyricMap = lyricMap,
             lyricIndex = lyricIndex
@@ -173,10 +173,6 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
 
     if (showComments) {
         Comments(comments, onDismiss = { showComments = false })
-    }
-
-    if (showLyric){
-        Lyric(lyricMap, lyricIndex)
     }
 }
 
@@ -251,7 +247,7 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
 @Composable
 fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
     val listState = rememberLazyListState()
-    val lyrics = remember(lyricMap) { lyricMap.values.toList() }
+    val lyrics = lyricMap.values.toList()
 
     // 自动滚动到当前歌词行
     LaunchedEffect(lyricIndex) {
@@ -264,7 +260,7 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
         state = listState,
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp),
+            .height(300.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         itemsIndexed(lyrics) { index, line ->
