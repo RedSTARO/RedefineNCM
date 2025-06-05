@@ -31,7 +31,7 @@ class Repository(
     fun getUserDetail(uid: Long): Flow<UserDetailEntity> = flow {
         val cachedDetail = Dao.getUserDetail(uid).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getUserDetail从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -54,7 +54,7 @@ class Repository(
     fun getUserPlaylist(uid: Long): Flow<UserPlaylistEntity> = flow {
         val cachedDetail = Dao.getUserPlaylist(uid).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getUserPlaylist从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -74,7 +74,7 @@ class Repository(
     fun getPlaylistDetail(id: Long): Flow<PlaylistDetailEntity> = flow {
         val cachedDetail = Dao.getPlaylistDetail(id).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getPlaylistDetail从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -93,7 +93,7 @@ class Repository(
     fun getPlaylistTrackAll(id: Long): Flow<PlaylistTrackAllEntity> = flow {
         val cachedDetail = Dao.getPlaylistTrackAll(id).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getPlaylistTrackAll从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -112,7 +112,7 @@ class Repository(
     fun getRecommendSongs(): Flow<RecommendSongsEntity> = flow {
         val cachedDetail = Dao.getRecommendSongs().first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getRecommendSongs从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -136,7 +136,7 @@ class Repository(
     fun getRecommendResource(): Flow<RecommendResourceEntity> = flow {
         val cachedDetail = Dao.getRecommendResource().first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getRecommendResource从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -162,7 +162,7 @@ class Repository(
     fun getCommentMusic(id: Long): Flow<CommentMusicEntity> = flow {
         val cachedDetail = Dao.getCommentMusic(id).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getCommentMusic从缓存获取数据")
             emit(cachedDetail)
         }
 
@@ -185,7 +185,7 @@ class Repository(
     fun getLyric(id: Long): Flow<LyricEntity> = flow {
         val cachedDetail = Dao.getLyric(id).first()
         if (cachedDetail != null) {
-            Log.d("UserRepository", "从缓存获取数据")
+            Log.d("UserRepository", "getLyric从缓存获取数据")
             emit(cachedDetail)
         }
 

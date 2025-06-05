@@ -133,7 +133,11 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     var showComments by remember { mutableStateOf(false) }
     var currentRandomStatus by remember { mutableStateOf(false) }
     var showLyric by remember { mutableStateOf(false) }
-    viewModel.getComments()
+
+
+    LaunchedEffect(Unit) {
+        viewModel.getComments()
+    }
 
     Column {
         SongDetails(metadata, onShowLyricClick = { })
