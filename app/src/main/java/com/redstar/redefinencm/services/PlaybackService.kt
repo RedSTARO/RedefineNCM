@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -49,6 +50,9 @@ class PlaybackService : MediaSessionService() {
     object LyricBus {
         val lyricMapFlow = MutableSharedFlow<LinkedHashMap<Long?, String?>>(replay = 1)
         val lyricIndexFlow = MutableSharedFlow<Int>(replay = 1)
+        val currentPosition = MutableSharedFlow<Long>(replay = 1)
+        val isPlaying = MutableSharedFlow<Boolean>(replay = 1)
+        val songLength = MutableSharedFlow<Long>(replay = 1)
     }
 
 
@@ -130,7 +134,26 @@ class PlaybackService : MediaSessionService() {
                         override fun onPlaybackStateChanged(playbackState: Int) {
                             super.onPlaybackStateChanged(playbackState)
                             startLyricSync()
+                            val songLength = player.duration
+                            if (songLength != C.TIME_UNSET) {
+                                coroutineScope.launch {
+                                    LyricBus.songLength.emit(songLength)
+                                }
+                            }
                         }
+
+                        override fun onIsPlayingChanged(isPlaying: Boolean) {
+                            super.onIsPlayingChanged(isPlaying)
+                            CoroutineScope(Dispatchers.IO).launch {
+                                LyricBus.isPlaying.emit(isPlaying)
+                            }
+                            if (isPlaying) {
+                                startPositionSync(player)
+                            } else {
+                                stopPositionSync()
+                            }
+                        }
+
                     })
                 }
             }
@@ -228,6 +251,26 @@ class PlaybackService : MediaSessionService() {
 
         return Triple(lastLyric, duration, index)
     }
+
+    private var positionJob: Job? = null
+
+    fun startPositionSync(player: ExoPlayer) {
+        positionJob?.cancel()
+
+        positionJob = CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
+                LyricBus.currentPosition.emit(currentPosition)
+                delay(200)
+            }
+        }
+    }
+
+    fun stopPositionSync() {
+        positionJob?.cancel()
+        positionJob = null
+    }
+
 
 
 }

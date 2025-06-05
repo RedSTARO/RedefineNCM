@@ -45,6 +45,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -133,6 +134,9 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     var showComments by remember { mutableStateOf(false) }
     var currentRandomStatus by remember { mutableStateOf(false) }
     var showLyric by remember { mutableStateOf(false) }
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val position by viewModel.currentPosition.collectAsState()
+    val songLength by viewModel.songLength.collectAsState()
 
 
     LaunchedEffect(Unit) {
@@ -145,8 +149,13 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
             lyricMap = lyricMap,
             lyricIndex = lyricIndex
         )
+        ProgressBar(
+            currentPosition = position,
+            songLength = songLength,
+            onSeekChanged = { viewModel.onPositionSeekClick(it) }
+        )
         PlaybackControlButtons(
-            isPlaying = mediaController?.isPlaying ?: false,
+            isPlaying = isPlaying,
             onFavClick = { viewModel.onFavClick() },
             onPervClick = { viewModel.onPervClick() },
             onPauseClick = { viewModel.onPauseClick() },
@@ -279,6 +288,28 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
         }
     }
 }
+
+@Composable
+fun ProgressBar(
+    currentPosition: Long,
+    songLength: Long,
+    onSeekChanged: (Long) -> Unit,
+) {
+    val progress = if (songLength > 0) {
+        currentPosition.toFloat() / songLength.toFloat()
+    } else {
+        0f
+    }
+
+    Slider(
+        value = progress.coerceIn(0f, 1f),
+        onValueChange = { percentage ->
+            onSeekChanged((percentage * songLength).toLong())
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
 
 @Composable
 fun PlaybackControlButtons(onFavClick: () -> Unit,onPervClick: () -> Unit, onPauseClick: () -> Unit, onNextClick: () -> Unit,

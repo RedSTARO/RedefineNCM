@@ -35,22 +35,41 @@ class NowPlayingViewModel : ViewModel() {
     val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf(Pair(0, "Loading Lyric")))
     val playList = MutableStateFlow<List<MediaItem>>(emptyList())
     val currentMediaIndexInList = MutableStateFlow<String?>(null)
+    val isPlaying = MutableStateFlow(false)
+    val currentPosition = MutableStateFlow(0L)
+    val songLength = MutableStateFlow(0L)
+
 
     init {
         initMediaController()
-        initLyricSync()
+        initPlayingStatusSync()
     }
 
-    private fun initLyricSync(){
+    private fun initPlayingStatusSync(){
         viewModelScope.launch {
             launch {
-                LyricBus.lyricMapFlow.collect { map ->
-                    lyricMap.value = map
+                LyricBus.lyricMapFlow.collect { value ->
+                    lyricMap.value = value
                 }
             }
             launch {
-                LyricBus.lyricIndexFlow.collect { index ->
-                    lyricIndex.value = index
+                LyricBus.lyricIndexFlow.collect { value ->
+                    lyricIndex.value = value
+                }
+            }
+            launch {
+                LyricBus.currentPosition.collect { value ->
+                    currentPosition.value = value
+                }
+            }
+            launch {
+                LyricBus.isPlaying.collect { value ->
+                    isPlaying.value = value
+                }
+            }
+            launch {
+                LyricBus.songLength.collect { value ->
+                    songLength.value = value
                 }
             }
         }
@@ -114,6 +133,10 @@ class NowPlayingViewModel : ViewModel() {
 
     fun onSeekClick(targetId: Int){
         mediaController.value?.seekTo(targetId, 0)
+    }
+
+    fun onPositionSeekClick(newPosition: Long){
+        mediaController.value?.seekTo(newPosition)
     }
 
     fun onPlaylistClick(){
