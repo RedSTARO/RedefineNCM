@@ -31,6 +31,12 @@ cd RedefineNCM
 We welcome contributions! Please ensure your code follows the project guidelines before submitting a
 PR.
 
+## Thanks
+- [AmeChanRain](https://github.com/AmeChanRain)
+- [Miku-UI](https://github.com/Miku-UI)
+- ChatGPT (by OpenAI) – for code assistance and architecture suggestions
+
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

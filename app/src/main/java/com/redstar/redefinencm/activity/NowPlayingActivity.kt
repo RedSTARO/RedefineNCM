@@ -39,12 +39,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -279,6 +282,8 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
     }
 }
 
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProgressBar(
     currentPosition: Long,
@@ -291,14 +296,36 @@ fun ProgressBar(
         0f
     }
 
-    Slider(
-        value = progress.coerceIn(0f, 1f),
-        onValueChange = { percentage ->
-            onSeekChanged((percentage * songLength).toLong())
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(24.dp)) {
+
+        // 背后是漂亮的波浪进度条
+        LinearWavyProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+        )
+
+        // 透明 Slider 覆盖在上面处理拖动
+        Slider(
+            value = progress.coerceIn(0f, 1f),
+            onValueChange = { percent ->
+                onSeekChanged((percent * songLength).toLong())
+            },
+            colors = SliderDefaults.colors(
+                thumbColor = Color.Transparent,
+                activeTrackColor = Color.Transparent,
+                inactiveTrackColor = Color.Transparent
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+        )
+    }
 }
+
 
 
 @Composable
