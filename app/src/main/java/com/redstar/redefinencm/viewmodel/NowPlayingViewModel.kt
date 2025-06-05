@@ -33,7 +33,7 @@ class NowPlayingViewModel : ViewModel() {
 //    val currentLyric = MutableStateFlow("")
     val comments = MutableStateFlow<CommentMusicEntity>(CommentMusicEntity(0, false, 0, emptyList(), false, emptyList()))
     val lyricIndex = MutableStateFlow(0)
-    val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf())
+    val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf(Pair(0, "Loading Lyric")))
     val playList = MutableStateFlow<List<MediaItem>>(emptyList())
     val currentMediaIndexInList = MutableStateFlow<String?>(null)
 
@@ -115,5 +115,8 @@ class NowPlayingViewModel : ViewModel() {
         mediaController.value?.setShuffleModeEnabled(status)
     }
 
-
+    fun onLyricUpdate(lyricMap_: LinkedHashMap<Long?, String?>, index_: Int){
+        lyricMap.value = lyricMap_
+        lyricIndex.value = index_
+    }
 }

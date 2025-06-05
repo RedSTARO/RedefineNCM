@@ -110,6 +110,7 @@ class PlaybackService : MediaSessionService() {
                     // 监听播放状态变化
                     player.addListener(object : Player.Listener {
                         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                            Log.d("StatusBarLyric", "onMediaItemTransition")
                             super.onMediaItemTransition(mediaItem, reason)
                             mediaItem?.mediaId?.let { mediaId ->
                                 fetchLyrics(mediaId)
@@ -118,6 +119,7 @@ class PlaybackService : MediaSessionService() {
                         }
 
                         override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                            Log.d("StatusBarLyric", "onPlayWhenReadyChanged")
                             super.onPlayWhenReadyChanged(playWhenReady, reason)
                             if (playWhenReady) {
                                 startLyricSync()
@@ -125,6 +127,7 @@ class PlaybackService : MediaSessionService() {
                         }
 
                         override fun onPlaybackStateChanged(playbackState: Int) {
+                            Log.d("StatusBarLyric", "onPlaybackStateChanged")
                             super.onPlaybackStateChanged(playbackState)
                             startLyricSync()
                         }
@@ -158,6 +161,7 @@ class PlaybackService : MediaSessionService() {
                 try {
                     val lyricText = response.lrc.lyric
                     lyricMap = LyricParser.parse(lyricText)
+                    LyricBridge.viewModel?.onLyricUpdate(lyricMap, 0)
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
                     }
@@ -177,7 +181,7 @@ class PlaybackService : MediaSessionService() {
 
     private fun startLyricSync() {
         lyricJob?.cancel()
-        LyricBridge.viewModel?.lyricMap?.value = lyricMap
+        LyricBridge.viewModel?.onLyricUpdate(lyricMap, 0)
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
@@ -186,7 +190,7 @@ class PlaybackService : MediaSessionService() {
                 val (currentLyric, duration, index) = getCurrentLyric(currentPosition)
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
                 withContext(Dispatchers.Main) {
-                    LyricBridge.viewModel?.lyricIndex?.value = index
+                    LyricBridge.viewModel?.onLyricUpdate(lyricMap, index)
                 }
                 delay(duration)
             }
@@ -218,7 +222,7 @@ class PlaybackService : MediaSessionService() {
         val duration = if (lastTime != null && nextTime != null) {
             nextTime - lastTime
         } else {
-            2000L
+            0L
         }
 
         return Triple(lastLyric, duration, index)
