@@ -129,7 +129,10 @@ fun checkAppUpdate() {
                         response.body?.string()?.let { responseBody ->
                             val jsonObject = JSONObject(responseBody)
                             val latestVersion = jsonObject.getString("tag_name")
-                            Log.d("UpdateCheck", "Same ver: ${latestVersion == BuildConfig.RELEASE_VER}")
+                            Log.d(
+                                "UpdateCheck",
+                                "Same ver: ${latestVersion == BuildConfig.RELEASE_VER}"
+                            )
 
                             if (latestVersion != BuildConfig.RELEASE_VER) {
                                 // 发现新版本，通知用户

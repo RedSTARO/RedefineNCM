@@ -1,27 +1,28 @@
 package com.redstar.redefinencm.util
 
+import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import androidx.work.CoroutineWorker
-import androidx.work.WorkerParameters
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import android.app.DownloadManager
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.data.SongUrlV1Data
 import com.redstar.redefinencm.data.api.safeApiCall
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class DownloadWorker(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    private val downloadManager = appContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    private val downloadManager =
+        appContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     private val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
 
     override suspend fun doWork(): Result {
@@ -53,14 +54,17 @@ class DownloadWorker(
         val uri = url.toUri()
         val fileName = fileName + "." + uri.lastPathSegment?.substringAfterLast(".")
 
-        if (DownloadUtil.fileAlreadyExists(fileName)){
+        if (DownloadUtil.fileAlreadyExists(fileName)) {
             Log.d("DownloadWorker", "File already exists: $fileName")
             return
         }
 
         val request = DownloadManager.Request(uri).apply {
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/RedefineNCM/" + fileName)
+            setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                "/RedefineNCM/" + fileName
+            )
         }
 
         downloadManager.enqueue(request)
@@ -77,15 +81,17 @@ class DownloadWorker(
     }
 }
 
-object DownloadUtil{
+object DownloadUtil {
     fun fileAlreadyExists(fileName: String): Boolean {
-        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        val dir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
         val file = java.io.File(dir, fileName)
         return file.exists()
     }
 
     fun fileAlreadyExistsByBaseName(baseName: String): Boolean {
-        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        val dir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
         if (!dir.exists() || !dir.isDirectory) return false
 
         return dir.listFiles()?.any { file ->
@@ -94,7 +100,8 @@ object DownloadUtil{
     }
 
     fun getExistingFileUriByBaseName(baseName: String): Uri? {
-        val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
+        val dir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM")
         if (!dir.exists() || !dir.isDirectory) return null
 
         val matchedFile = dir.listFiles()?.firstOrNull { file ->

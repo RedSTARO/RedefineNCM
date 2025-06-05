@@ -3,7 +3,6 @@ package com.redstar.redefinencm.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.redstar.redefinencm.data.api.data.CommentMusic
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.data.db.entity.LyricEntity

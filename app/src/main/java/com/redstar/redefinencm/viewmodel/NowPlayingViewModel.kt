@@ -30,9 +30,19 @@ class NowPlayingViewModel : ViewModel() {
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
-    val comments = MutableStateFlow<CommentMusicEntity>(CommentMusicEntity(0, false, 0, emptyList(), false, emptyList()))
+    val comments = MutableStateFlow<CommentMusicEntity>(
+        CommentMusicEntity(
+            0,
+            false,
+            0,
+            emptyList(),
+            false,
+            emptyList()
+        )
+    )
     val lyricIndex = MutableStateFlow(0)
-    val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf(Pair(0, "Loading Lyric")))
+    val lyricMap =
+        MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf(Pair(0, "Loading Lyric")))
     val playList = MutableStateFlow<List<MediaItem>>(emptyList())
     val currentMediaIndexInList = MutableStateFlow<String?>(null)
     val isPlaying = MutableStateFlow(false)
@@ -45,7 +55,7 @@ class NowPlayingViewModel : ViewModel() {
         initPlayingStatusSync()
     }
 
-    private fun initPlayingStatusSync(){
+    private fun initPlayingStatusSync() {
         viewModelScope.launch {
             launch {
                 LyricBus.lyricMapFlow.collect { value ->
@@ -101,15 +111,16 @@ class NowPlayingViewModel : ViewModel() {
         }
     }
 
-    fun getComments(){
+    fun getComments() {
         viewModelScope.launch {
-            repo.getCommentMusic(mediaController.value?.currentMediaItem?.mediaId?.toLong()?: 0L).collect { detail ->
-                comments.value = detail
-            }
+            repo.getCommentMusic(mediaController.value?.currentMediaItem?.mediaId?.toLong() ?: 0L)
+                .collect { detail ->
+                    comments.value = detail
+                }
         }
     }
 
-    fun onFavClick(){
+    fun onFavClick() {
         val mediaId = mediaController.value?.currentMediaItem?.mediaId
         CoroutineScope(Dispatchers.IO).launch {
             safeApiCall {
@@ -123,33 +134,36 @@ class NowPlayingViewModel : ViewModel() {
         mediaController.value?.seekToPrevious()
     }
 
-    fun onPauseClick(){
-        if (mediaController.value?.isPlaying?: false) mediaController.value?.pause() else mediaController.value?.play()
+    fun onPauseClick() {
+        if (mediaController.value?.isPlaying
+                ?: false
+        ) mediaController.value?.pause() else mediaController.value?.play()
     }
 
-    fun onNextClick(){
+    fun onNextClick() {
         mediaController.value?.seekToNext()
     }
 
-    fun onSeekClick(targetId: Int){
+    fun onSeekClick(targetId: Int) {
         mediaController.value?.seekTo(targetId, 0)
     }
 
-    fun onPositionSeekClick(newPosition: Long){
+    fun onPositionSeekClick(newPosition: Long) {
         mediaController.value?.seekTo(newPosition)
     }
 
-    fun onPlaylistClick(){
-        val mediaItemCount = mediaController.value?.mediaItemCount?: 0
+    fun onPlaylistClick() {
+        val mediaItemCount = mediaController.value?.mediaItemCount ?: 0
         for (i in 0 until mediaItemCount) {
             val mediaItem = mediaController.value?.getMediaItemAt(i)
             playList.value += mediaItem!!
         }
         val targetId = mediaController.value?.currentMediaItem?.mediaId
-        currentMediaIndexInList.value = playList.value.indexOfFirst { it.mediaId == targetId }.toString()
+        currentMediaIndexInList.value =
+            playList.value.indexOfFirst { it.mediaId == targetId }.toString()
     }
 
-    fun onShuffleClick(status: Boolean){
+    fun onShuffleClick(status: Boolean) {
         mediaController.value?.setShuffleModeEnabled(status)
     }
 }

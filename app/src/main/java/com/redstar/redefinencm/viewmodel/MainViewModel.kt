@@ -18,18 +18,18 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 import com.redstar.redefinencm.data.api.safeApiCall
+import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
-import com.redstar.redefinencm.data.Repository
-import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadWorker
@@ -40,7 +40,6 @@ import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlin.collections.map
 
 class MainViewModel(
 ) : ViewModel() {

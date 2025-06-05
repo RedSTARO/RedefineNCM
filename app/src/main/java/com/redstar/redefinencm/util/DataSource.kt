@@ -1,7 +1,6 @@
 package com.redstar.redefinencm.util
 
 import android.net.Uri
-import androidx.annotation.OptIn
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
@@ -27,7 +26,8 @@ class RedirectingDataSource(
 ) : DataSource {
 
     private var currentUri: Uri? = null
-    private val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
+    private val repo =
+        Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
 
     override fun addTransferListener(transferListener: TransferListener) {
 
@@ -36,7 +36,7 @@ class RedirectingDataSource(
     override fun open(dataSpec: DataSpec): Long {
 
         if (dataSpec.uri.scheme == "redefinencm" && dataSpec.uri.host == "playbackPlaceHolder") {
-            val id = dataSpec.uri.getQueryParameter("id")?.toLong()?: 0L
+            val id = dataSpec.uri.getQueryParameter("id")?.toLong() ?: 0L
             currentUri = repo.getSongUri(id)
         }
         Log.d("RedirectingDataSource", "Redirecting URI: ${dataSpec.uri} to $currentUri")

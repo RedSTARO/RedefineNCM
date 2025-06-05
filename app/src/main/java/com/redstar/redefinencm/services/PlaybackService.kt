@@ -28,7 +28,6 @@ import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import com.redstar.redefinencm.util.RedirectingDataSourceFactory
-import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -43,7 +42,8 @@ class PlaybackService : MediaSessionService() {
     private lateinit var player: ExoPlayer
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private var lyricMap: LinkedHashMap<Long?, String?> = linkedMapOf() // 存储解析后的歌词
-    private val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
+    private val repo =
+        Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
 
@@ -64,8 +64,11 @@ class PlaybackService : MediaSessionService() {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        val dataSourceFactory = RedirectingDataSourceFactory(DefaultDataSource.Factory(
-            RedefineNCMApplication.getApplicationContext()))
+        val dataSourceFactory = RedirectingDataSourceFactory(
+            DefaultDataSource.Factory(
+                RedefineNCMApplication.getApplicationContext()
+            )
+        )
 
         val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
 
@@ -270,7 +273,6 @@ class PlaybackService : MediaSessionService() {
         positionJob?.cancel()
         positionJob = null
     }
-
 
 
 }

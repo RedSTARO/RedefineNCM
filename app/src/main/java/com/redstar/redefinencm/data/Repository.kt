@@ -214,13 +214,13 @@ class Repository(
         } else {
             Log.d("Repository", "Fetching uri with base name $songId")
             return runBlocking {
-               safeApiCall {
-                   retrofit.songUrlV1(
-                       listOf(songId),
-                       DataStoreManager.getStringItem("onlinePlayQuality", "standard")
-                   ).data.first().url.toUri()
-               }
-           }
+                safeApiCall {
+                    retrofit.songUrlV1(
+                        listOf(songId),
+                        DataStoreManager.getStringItem("onlinePlayQuality", "standard")
+                    ).data.first().url.toUri()
+                }
+            }
         }
     }
 }

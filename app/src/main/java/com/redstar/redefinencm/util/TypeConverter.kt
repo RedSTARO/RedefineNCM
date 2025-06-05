@@ -3,9 +3,7 @@ package com.redstar.redefinencm.util
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.redstar.redefinencm.data.api.data.CommentMusic
 import com.redstar.redefinencm.data.api.data.CommentMusicComments
-import com.redstar.redefinencm.data.api.data.Lyric
 import com.redstar.redefinencm.data.api.data.LyricLrc
 import com.redstar.redefinencm.data.api.data.PlaylistDetailPlaylist
 import com.redstar.redefinencm.data.api.data.RecommendResourceRecommend
@@ -13,7 +11,6 @@ import com.redstar.redefinencm.data.api.data.RecommendSongsData
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserDetailProfile
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
-import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 
 class TypeConverter {
 

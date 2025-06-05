@@ -6,8 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.redstar.redefinencm.data.api.NCMApi
-import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.launch
 

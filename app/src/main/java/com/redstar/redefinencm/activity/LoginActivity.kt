@@ -134,7 +134,11 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
                 viewModel.cookieLoginErrorMessage = ""
                 coroutineScope.launch {
                     try {
-                        checkLoggedInAndJump(RetrofitInstance.retrofit.create(NCMApi::class.java), viewModel.cookie, context)
+                        checkLoggedInAndJump(
+                            RetrofitInstance.retrofit.create(NCMApi::class.java),
+                            viewModel.cookie,
+                            context
+                        )
                     } catch (e: Exception) {
                         viewModel.cookieLoginErrorMessage = "登录失败：${e.message}"
                     } finally {
