@@ -507,9 +507,17 @@ fun NowPlayingPreview() {
         .setTitle("SongName")
         .setArtist("SongArtist")
         .build()
+    val lyricMap = mutableMapOf<Long?, String?>()
+    lyricMap[0] = "LyricLine"
+    lyricMap[1] = "LyricLine1"
+    lyricMap[2] = "LyricLine2"
     Column {
         SongDetails(metadata, onShowLyricClick = {})
-//                            Lyric(viewModel)
+        Lyric(
+            lyricMap = lyricMap as LinkedHashMap<Long?, String?>,
+            lyricIndex = 0
+        )
+        ProgressBar(35, 100L, {})
         PlaybackControlButtons(
             onFavClick = {},
             onPervClick = {},
@@ -569,18 +577,4 @@ fun CommentsPreview() {
     )
 
     Comments(CommentMusicEntity, {})
-}
-
-@Preview
-@Composable
-fun LyricPreview() {
-
-    val lyricMap = mutableMapOf<Long?, String?>()
-    lyricMap[0] = "LyricLine"
-    lyricMap[1] = "LyricLine1"
-    lyricMap[2] = "LyricLine2"
-    Lyric(
-        lyricMap = lyricMap as LinkedHashMap<Long?, String?>,
-        lyricIndex = 0
-    )
 }
