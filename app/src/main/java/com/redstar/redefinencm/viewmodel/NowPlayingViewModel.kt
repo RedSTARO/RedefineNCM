@@ -25,13 +25,11 @@ import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 class NowPlayingViewModel : ViewModel() {
-    private val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     private val context = RedefineNCMApplication.getApplicationContext()
     val repo = Repository(DatabaseProvider.getDao(context))
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
-//    val currentLyric = MutableStateFlow("")
     val comments = MutableStateFlow<CommentMusicEntity>(CommentMusicEntity(0, false, 0, emptyList(), false, emptyList()))
     val lyricIndex = MutableStateFlow(0)
     val lyricMap = MutableStateFlow<LinkedHashMap<Long?, String?>>(linkedMapOf(Pair(0, "Loading Lyric")))
@@ -40,15 +38,22 @@ class NowPlayingViewModel : ViewModel() {
 
     init {
         initMediaController()
+        initLyricSync()
+    }
+
+    private fun initLyricSync(){
         viewModelScope.launch {
-            LyricBus.lyricMapFlow.collect { map ->
-                lyricMap.value = map
+            launch {
+                LyricBus.lyricMapFlow.collect { map ->
+                    lyricMap.value = map
+                }
             }
-            LyricBus.lyricIndexFlow.collect { index ->
-                lyricIndex.value = index
+            launch {
+                LyricBus.lyricIndexFlow.collect { index ->
+                    lyricIndex.value = index
+                }
             }
         }
-
     }
 
     private fun initMediaController() {
@@ -123,10 +128,5 @@ class NowPlayingViewModel : ViewModel() {
 
     fun onShuffleClick(status: Boolean){
         mediaController.value?.setShuffleModeEnabled(status)
-    }
-
-    fun onLyricUpdate(lyricMap_: LinkedHashMap<Long?, String?>, index_: Int){
-        lyricMap.value = lyricMap_
-        lyricIndex.value = index_
     }
 }

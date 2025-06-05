@@ -190,10 +190,8 @@ class PlaybackService : MediaSessionService() {
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 val (currentLyric, duration, index) = getCurrentLyric(currentPosition)
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
-                withContext(Dispatchers.Main) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        LyricBus.lyricIndexFlow.emit(index)
-                    }
+                CoroutineScope(Dispatchers.IO).launch {
+                    LyricBus.lyricIndexFlow.emit(index)
                 }
                 delay(duration)
             }
