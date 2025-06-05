@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -45,9 +46,11 @@ class PlaybackService : MediaSessionService() {
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
 
-    object LyricBridge {
-        var viewModel: NowPlayingViewModel? = null
+    object LyricBus {
+        val lyricMapFlow = MutableSharedFlow<LinkedHashMap<Long?, String?>>(replay = 1)
+        val lyricIndexFlow = MutableSharedFlow<Int>(replay = 1)
     }
+
 
     private var lyricCallback: LyricCallback? = null
     fun setLyricCallback(callback: LyricCallback) {
@@ -110,7 +113,6 @@ class PlaybackService : MediaSessionService() {
                     // 监听播放状态变化
                     player.addListener(object : Player.Listener {
                         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                            Log.d("StatusBarLyric", "onMediaItemTransition")
                             super.onMediaItemTransition(mediaItem, reason)
                             mediaItem?.mediaId?.let { mediaId ->
                                 fetchLyrics(mediaId)
@@ -119,7 +121,6 @@ class PlaybackService : MediaSessionService() {
                         }
 
                         override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                            Log.d("StatusBarLyric", "onPlayWhenReadyChanged")
                             super.onPlayWhenReadyChanged(playWhenReady, reason)
                             if (playWhenReady) {
                                 startLyricSync()
@@ -127,7 +128,6 @@ class PlaybackService : MediaSessionService() {
                         }
 
                         override fun onPlaybackStateChanged(playbackState: Int) {
-                            Log.d("StatusBarLyric", "onPlaybackStateChanged")
                             super.onPlaybackStateChanged(playbackState)
                             startLyricSync()
                         }
@@ -161,7 +161,9 @@ class PlaybackService : MediaSessionService() {
                 try {
                     val lyricText = response.lrc.lyric
                     lyricMap = LyricParser.parse(lyricText)
-                    LyricBridge.viewModel?.onLyricUpdate(lyricMap, 0)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        LyricBus.lyricMapFlow.emit(lyricMap)
+                    }
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
                     }
@@ -181,7 +183,6 @@ class PlaybackService : MediaSessionService() {
 
     private fun startLyricSync() {
         lyricJob?.cancel()
-        LyricBridge.viewModel?.onLyricUpdate(lyricMap, 0)
         lyricJob = coroutineScope.launch {
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
@@ -190,7 +191,9 @@ class PlaybackService : MediaSessionService() {
                 val (currentLyric, duration, index) = getCurrentLyric(currentPosition)
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
                 withContext(Dispatchers.Main) {
-                    LyricBridge.viewModel?.onLyricUpdate(lyricMap, index)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        LyricBus.lyricIndexFlow.emit(index)
+                    }
                 }
                 delay(duration)
             }

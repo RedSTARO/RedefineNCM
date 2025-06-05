@@ -94,9 +94,6 @@ class NowPlayingActivity : ComponentActivity() {
 
         setContent {
             val viewModel: NowPlayingViewModel = viewModel()
-            LaunchedEffect(Unit) {
-                PlaybackService.LyricBridge.viewModel = viewModel
-            }
             RedefineNCMTheme {
                 Scaffold(
                     topBar = {

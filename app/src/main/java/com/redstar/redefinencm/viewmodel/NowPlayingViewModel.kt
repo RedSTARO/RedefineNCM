@@ -17,6 +17,7 @@ import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.services.PlaybackService
+import com.redstar.redefinencm.services.PlaybackService.LyricBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +40,15 @@ class NowPlayingViewModel : ViewModel() {
 
     init {
         initMediaController()
+        viewModelScope.launch {
+            LyricBus.lyricMapFlow.collect { map ->
+                lyricMap.value = map
+            }
+            LyricBus.lyricIndexFlow.collect { index ->
+                lyricIndex.value = index
+            }
+        }
+
     }
 
     private fun initMediaController() {
