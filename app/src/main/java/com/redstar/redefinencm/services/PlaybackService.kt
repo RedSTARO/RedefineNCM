@@ -180,19 +180,28 @@ class PlaybackService : MediaSessionService() {
     private fun fetchLyrics(mediaId: String) {
         coroutineScope.launch {
             repo.getLyric(mediaId.toLong()).collect {
-                val response = it
-                try {
-                    val lyricText = response.lrc.lyric
-                    lyricMap = LyricParser.parse(lyricText)
+                if (it.lrc?.lyric?.isNotEmpty() == true) {
+                    val response = it
+                    try {
+                        val lyricText = response.lrc.lyric
+                        lyricMap = LyricParser.parse(lyricText.toString())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            LyricBus.lyricMapFlow.emit(lyricMap)
+                        }
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
+                        }
+                    } catch (e: Exception) {
+                        if (BuildConfig.DEBUG) {
+                            Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
+                        }
+                    }
+                }else{
                     CoroutineScope(Dispatchers.IO).launch {
-                        LyricBus.lyricMapFlow.emit(lyricMap)
+                        LyricBus.lyricMapFlow.emit(linkedMapOf(0L to "Lyric wanted"))
                     }
                     if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
-                    }
-                } catch (e: Exception) {
-                    if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
+                        Log.d(TAG, "No lyrics found for mediaId: $mediaId")
                     }
                 }
             }

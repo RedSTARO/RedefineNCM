@@ -11,7 +11,7 @@ data class LyricEntity(
     val sfy: Boolean,
     val qfy: Boolean,
     val code: Int,
-    val lrc: LyricLrc,
-    val klyric: LyricLrc,
-    val tlyric: LyricLrc,
+    val lrc: LyricLrc?,
+    val klyric: LyricLrc?,
+    val tlyric: LyricLrc?,
 )
