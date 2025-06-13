@@ -79,6 +79,48 @@ class PlaybackService : MediaSessionService() {
         mediaSession = MediaSession.Builder(this, player).build()
         val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
 
+        // 监听播放状态变化
+        player.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                super.onMediaItemTransition(mediaItem, reason)
+                mediaItem?.mediaId?.let { mediaId ->
+                    fetchLyrics(mediaId)
+                    startLyricSync()
+                }
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                super.onPlayWhenReadyChanged(playWhenReady, reason)
+                if (playWhenReady) {
+                    startLyricSync()
+                }
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                startLyricSync()
+                val songLength = player.duration
+                if (songLength != C.TIME_UNSET) {
+                    coroutineScope.launch {
+                        LyricBus.songLength.emit(songLength)
+                    }
+                }
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                CoroutineScope(Dispatchers.IO).launch {
+                    LyricBus.isPlaying.emit(isPlaying)
+                }
+                if (isPlaying) {
+                    startPositionSync(player)
+                } else {
+                    stopPositionSync()
+                }
+            }
+
+        })
+
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
             val statusBarLyricEnabled = (
@@ -93,9 +135,6 @@ class PlaybackService : MediaSessionService() {
                     registerLyricListener(applicationContext, API.API_VERSION, receiver)
                     setLyricCallback(object : LyricCallback {
                         override fun onLyricUpdated(lyric: String, duration: Int) {
-                            if (BuildConfig.DEBUG) {
-                                Log.d("StatusBarLyric", "歌词更新： $lyric")
-                            }
                             lga.sendLyric(
                                 lyric,
                                 extra = cn.lyric.getter.api.data.ExtraData().apply {
@@ -116,48 +155,6 @@ class PlaybackService : MediaSessionService() {
                     if (BuildConfig.DEBUG) {
                         Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
                     }
-
-                    // 监听播放状态变化
-                    player.addListener(object : Player.Listener {
-                        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                            super.onMediaItemTransition(mediaItem, reason)
-                            mediaItem?.mediaId?.let { mediaId ->
-                                fetchLyrics(mediaId)
-                                startLyricSync()
-                            }
-                        }
-
-                        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                            super.onPlayWhenReadyChanged(playWhenReady, reason)
-                            if (playWhenReady) {
-                                startLyricSync()
-                            }
-                        }
-
-                        override fun onPlaybackStateChanged(playbackState: Int) {
-                            super.onPlaybackStateChanged(playbackState)
-                            startLyricSync()
-                            val songLength = player.duration
-                            if (songLength != C.TIME_UNSET) {
-                                coroutineScope.launch {
-                                    LyricBus.songLength.emit(songLength)
-                                }
-                            }
-                        }
-
-                        override fun onIsPlayingChanged(isPlaying: Boolean) {
-                            super.onIsPlayingChanged(isPlaying)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                LyricBus.isPlaying.emit(isPlaying)
-                            }
-                            if (isPlaying) {
-                                startPositionSync(player)
-                            } else {
-                                stopPositionSync()
-                            }
-                        }
-
-                    })
                 }
             }
         }
@@ -218,6 +215,9 @@ class PlaybackService : MediaSessionService() {
                 lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
                 CoroutineScope(Dispatchers.IO).launch {
                     LyricBus.lyricIndexFlow.emit(index)
+                    if (BuildConfig.DEBUG) {
+                        Log.d("LyricSync", "歌词更新： $currentLyric")
+                    }
                 }
                 delay(duration)
             }
