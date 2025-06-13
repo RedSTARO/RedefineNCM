@@ -112,6 +112,8 @@ class NowPlayingViewModel : ViewModel() {
     }
 
     fun getComments() {
+        Log.d("test", (mediaController.value?.mediaMetadata).toString())
+        Log.d("test", (mediaController.value).toString())
         viewModelScope.launch {
             repo.getCommentMusic(mediaController.value?.currentMediaItem?.mediaId?.toLong() ?: 0L)
                 .collect { detail ->

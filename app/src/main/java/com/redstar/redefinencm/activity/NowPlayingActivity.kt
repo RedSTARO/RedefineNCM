@@ -131,11 +131,6 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     val position by viewModel.currentPosition.collectAsState()
     val songLength by viewModel.songLength.collectAsState()
 
-
-    LaunchedEffect(Unit) {
-        viewModel.getComments()
-    }
-
     Column {
         SongDetails(metadata, onShowLyricClick = { })
         Lyric(
@@ -159,7 +154,10 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
                 currentRandomStatus = !currentRandomStatus
                 viewModel.onShuffleClick(currentRandomStatus)
             },
-            onCommentsClick = { showComments = !showComments },
+            onCommentsClick = {
+                viewModel.getComments()
+                showComments = !showComments
+                              },
             currentFavStatus = false,
             modifier = Modifier,
         )
