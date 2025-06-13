@@ -66,7 +66,7 @@ class LoginActivity : ComponentActivity() {
 
                     LaunchedEffect(Dispatchers.IO) {
                         gotServer = runBlocking {
-                            (DataStoreManager.getStringItem("server", ""))
+                            (DataStoreManager.getStringItem("server", "http://ncm.tryagain.fun/"))
                         }.isNotEmpty()
                     }
 
@@ -207,15 +207,17 @@ fun QrLogin(viewModel: LoginViewModel) {
             Image(bitmap = it, contentDescription = "QR Code", modifier = Modifier.size(300.dp))
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = viewModel.qrLoginScanStatus, fontSize = 18.sp, color = Color.Black)
+        Text(text = viewModel.qrLoginScanStatus, fontSize = 18.sp)
     }
 
     // 轮询检查扫码状态
-    LaunchedEffect(viewModel.cookie.isNotEmpty()) {
+    LaunchedEffect(viewModel.qrLoginUnikey) {
         coroutineScope.launch {
-            while (viewModel.cookie.isNotEmpty()) {
+            Log.d("QrLogin", viewModel.cookie.isEmpty().toString())
+            while (viewModel.cookie.isEmpty()) {
                 try {
                     val response = retrofit.loginQrCheck(viewModel.qrLoginUnikey)
+                    Log.d("QrLogin", "Checking status: ${response.message}")
                     when (response.code) {
                         800 -> {
                             viewModel.qrLoginScanStatus = "QR Code Expired. Generating new one..."

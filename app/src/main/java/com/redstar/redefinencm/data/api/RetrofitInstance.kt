@@ -97,7 +97,7 @@ fun getCookie(): String {
 
 fun getBaseUrl(): String {
     return runBlocking {
-        DataStoreManager.getStringItem("server", "")
+        DataStoreManager.getStringItem("server", "http://ncm.tryagain.fun/")
     }
 }
 
