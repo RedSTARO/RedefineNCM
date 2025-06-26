@@ -6,6 +6,7 @@ import androidx.room.TypeConverters
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.data.db.entity.LyricEntity
+import com.redstar.redefinencm.data.db.entity.PlayerStatusEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -17,8 +18,8 @@ import com.redstar.redefinencm.util.TypeConverter
 @Database(
     entities = [UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class,
         PlaylistTrackAllEntity::class, RecommendResourceEntity::class, RecommendSongsEntity::class,
-        CommentMusicEntity::class, LyricEntity::class],
-    version = 7,
+        CommentMusicEntity::class, LyricEntity::class, PlayerStatusEntity::class],
+    version = 8,
     exportSchema = false,
 )
 @TypeConverters(TypeConverter::class)

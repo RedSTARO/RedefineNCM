@@ -11,6 +11,7 @@ import com.redstar.redefinencm.data.api.data.RecommendSongsData
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserDetailProfile
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
+import com.redstar.redefinencm.data.db.entity.MediaItemData
 
 class TypeConverter {
 
@@ -96,5 +97,16 @@ class TypeConverter {
     fun toCommentMusicComments(value: String): List<CommentMusicComments> {
         val listType = object : TypeToken<List<CommentMusicComments>>() {}.type
         return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun fromMediaItemList(list: List<MediaItemData>): String {
+        return Gson().toJson(list)
+    }
+
+    @TypeConverter
+    fun toMediaItemList(json: String): List<MediaItemData> {
+        val type = object : TypeToken<List<MediaItemData>>() {}.type
+        return Gson().fromJson(json, type)
     }
 }

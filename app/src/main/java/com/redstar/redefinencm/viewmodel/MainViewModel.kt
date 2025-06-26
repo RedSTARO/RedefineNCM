@@ -25,6 +25,8 @@ import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.DatabaseProvider
+import com.redstar.redefinencm.data.db.entity.MediaItemData
+import com.redstar.redefinencm.data.db.entity.PlayerStatusEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -40,12 +42,14 @@ import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.toString
 
 class MainViewModel(
 ) : ViewModel() {
-    private val context = RedefineNCMApplication.getApplicationContext()
+    private val context = RedefineNCMApplication.Companion.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
-    val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
+    val repo =
+        Repository(DatabaseProvider.getDao(RedefineNCMApplication.Companion.getApplicationContext()))
 
     var uid by mutableStateOf(0L)
 
@@ -256,9 +260,59 @@ class MainViewModel(
                 .setInputData(inputData)
                 .build()
 
-            WorkManager.getInstance(context).enqueue(workRequest)
+            WorkManager.Companion.getInstance(context).enqueue(workRequest)
 
         }
     }
 
+    fun savePlayerStatus() {
+        val controller = mediaController.value ?: return
+
+        val mediaItems = (0 until controller.mediaItemCount).map {
+            val item = controller.getMediaItemAt(it)
+            MediaItemData(
+                uri = item.mediaMetadata.extras?.getString("uri") ?: item.mediaId,
+                title = item.mediaMetadata.title?.toString(),
+                subtitle = item.mediaMetadata.subtitle?.toString()
+            )
+        }
+
+        val status = PlayerStatusEntity(
+            playlist = mediaItems,
+            index = controller.currentMediaItemIndex,
+            position = controller.currentPosition,
+            isPlaying = controller.isPlaying
+        )
+        Log.d("savedStatusSAVE", status.toString())
+
+        viewModelScope.launch {
+            repo.savePlayerStatus(status)
+        }
+    }
+
+
+    fun restorePlayerStatus(){
+        val status = runBlocking{ repo.getPlayerStatus() }
+        val mediaItems = status?.playlist?.map {
+            MediaItem.Builder()
+                .setMediaId(it.uri)
+                .setUri(it.uri)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(it.title)
+                        .setSubtitle(it.subtitle)
+                        .build()
+                )
+                .build()
+        }
+
+        mediaController.value?.setMediaItems(mediaItems?: emptyList<MediaItem>(),
+            status?.index ?: 0,
+            status?.position ?: 0
+        )
+        mediaController.value?.prepare()
+        if (status?.isPlaying ?: false) {
+            mediaController.value?.play()
+        }
+    }
 }

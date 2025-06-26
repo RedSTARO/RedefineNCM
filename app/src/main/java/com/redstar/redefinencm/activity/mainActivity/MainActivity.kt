@@ -2,6 +2,7 @@ package com.redstar.redefinencm.activity.mainActivity
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,14 +44,16 @@ import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
+    val viewModel: MainViewModel = MainViewModel()
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        viewModel.restorePlayerStatus()
+
         setContent {
-            val viewModel: MainViewModel = viewModel()
             val windowSizeClass = calculateWindowSizeClass(this)
             val widthClass = windowSizeClass.widthSizeClass
             RedefineNCMTheme {
@@ -131,6 +134,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        Log.d("savedStatus", "onStop")
+        viewModel.savePlayerStatus()
+        super.onStop()
     }
 }
 

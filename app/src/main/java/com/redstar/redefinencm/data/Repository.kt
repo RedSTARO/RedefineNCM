@@ -9,6 +9,7 @@ import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.data.db.entity.LyricEntity
+import com.redstar.redefinencm.data.db.entity.PlayerStatusEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistDetailEntity
 import com.redstar.redefinencm.data.db.entity.PlaylistTrackAllEntity
 import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
@@ -222,5 +223,13 @@ class Repository(
                 }
             }
         }
+    }
+
+    suspend fun getPlayerStatus(): PlayerStatusEntity? {
+        return Dao.getPlayerStatus()
+    }
+
+    suspend fun savePlayerStatus(status: PlayerStatusEntity){
+        Dao.savePlayerStatus(status)
     }
 }
