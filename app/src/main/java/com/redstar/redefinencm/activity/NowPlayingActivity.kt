@@ -130,6 +130,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     val isPlaying by viewModel.isPlaying.collectAsState()
     val position by viewModel.currentPosition.collectAsState()
     val songLength by viewModel.songLength.collectAsState()
+    val playList by viewModel.playList.collectAsState()
 
     Column {
         SongDetails(metadata, onShowLyricClick = { })
@@ -166,6 +167,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     if (showPlaylist) {
         viewModel.onPlaylistClick()
         CurrentPlayList(
+            playlist = playList,
             onDismiss = { showPlaylist = false },
             currentIndex = currentIndex?.toInt() ?: 0,
             onSeekClick = { viewModel.onSeekClick(it) },
@@ -432,9 +434,8 @@ fun PlaybackControlButtons(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentPlayList(currentIndex: Int, onSeekClick: (Int) -> Unit, onDismiss: () -> Unit) {
-    var playlist by remember { mutableStateOf<List<MediaItem>?>(null) }
-    var currentMediaId by remember { mutableStateOf<String?>(null) }
+fun CurrentPlayList(playlist: List<MediaItem?>, currentIndex: Int, onSeekClick: (Int) -> Unit, onDismiss: () -> Unit) {
+    val currentMediaId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
@@ -443,36 +444,38 @@ fun CurrentPlayList(currentIndex: Int, onSeekClick: (Int) -> Unit, onDismiss: ()
         }
     }
 
-    if (!playlist.isNullOrEmpty()) {
+    if (playlist.isNotEmpty()) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
             LazyColumn(state = listState) {
                 itemsIndexed(playlist ?: emptyList()) { index, item ->
                     Row {
                         Spacer(Modifier.padding(5.dp))
-                        Card(
-                            modifier = Modifier
-                                .clickable {
-                                    onSeekClick(index)
-                                }
-                                .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (currentMediaId == item.mediaId) {
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                } else {
-                                    Color.Transparent
-                                },
-                            ),
-                        ) {
-                            Text(
-                                text = "$index: ${item.mediaMetadata.title}",
+                        if (item != null) {
+                            Card(
                                 modifier = Modifier
-                                    .align(Alignment.CenterHorizontally),
-                            )
-                            Text(
-                                text = item.mediaMetadata.artist.toString(),
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally),
-                            )
+                                    .clickable {
+                                        onSeekClick(index)
+                                    }
+                                    .fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (currentMediaId == item.mediaId) {
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                ),
+                            ) {
+                                Text(
+                                    text = "$index: ${item.mediaMetadata.title}",
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally),
+                                )
+                                Text(
+                                    text = item.mediaMetadata.artist.toString(),
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally),
+                                )
+                            }
                         }
                     }
                     Spacer(Modifier.padding(5.dp))
