@@ -480,7 +480,7 @@ fun CurrentPlayList(playlist: List<MediaItem?>, currentIndex: Int, onSeekClick: 
                     }
                     Spacer(Modifier.padding(5.dp))
                     if (BuildConfig.DEBUG) {
-                        Log.d("Playlist", "Item $index: ${item.mediaMetadata.title}")
+                        Log.d("Playlist", "Item $index: ${item?.mediaMetadata?.title}")
                     }
                 }
             }
