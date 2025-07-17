@@ -447,7 +447,7 @@ fun CurrentPlayList(playlist: List<MediaItem?>, currentIndex: Int, onSeekClick: 
     if (playlist.isNotEmpty()) {
         ModalBottomSheet(onDismissRequest = { onDismiss() }) {
             LazyColumn(state = listState) {
-                itemsIndexed(playlist ?: emptyList()) { index, item ->
+                itemsIndexed(playlist) { index, item ->
                     Row {
                         Spacer(Modifier.padding(5.dp))
                         if (item != null) {

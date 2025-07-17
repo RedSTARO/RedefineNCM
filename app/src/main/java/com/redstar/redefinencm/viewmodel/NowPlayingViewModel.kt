@@ -155,6 +155,7 @@ class NowPlayingViewModel : ViewModel() {
     }
 
     fun onPlaylistClick() {
+        playList.value = emptyList()
         val mediaItemCount = mediaController.value?.mediaItemCount ?: 0
         for (i in 0 until mediaItemCount) {
             val mediaItem = mediaController.value?.getMediaItemAt(i)
