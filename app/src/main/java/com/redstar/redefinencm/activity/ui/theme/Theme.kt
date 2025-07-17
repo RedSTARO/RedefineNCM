@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.theme
+package com.redstar.redefinencm.activity.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
-import com.redstar.redefinencm.theme.RedefineNCMTheme
+import com.redstar.redefinencm.activity.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.Call
