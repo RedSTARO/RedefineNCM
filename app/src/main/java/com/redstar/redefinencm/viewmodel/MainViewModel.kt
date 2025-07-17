@@ -307,7 +307,7 @@ class MainViewModel(
                 .build()
         }
 
-        mediaController.value!!.setMediaItems(mediaItems?: emptyList<MediaItem>(),
+        mediaController.value?.setMediaItems(mediaItems?: emptyList<MediaItem>(),
             status?.index ?: 0,
             status?.position ?: 0
         )
