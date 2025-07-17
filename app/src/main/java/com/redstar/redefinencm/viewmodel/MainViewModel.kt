@@ -267,12 +267,12 @@ class MainViewModel(
     }
 
     fun savePlayerStatus() {
-        val controller = mediaController.value ?: return
+        val controller = mediaController.value?: return
 
         val mediaItems = (0 until controller.mediaItemCount).map {
             val item = controller.getMediaItemAt(it)
             MediaItemData(
-                uri = item.mediaMetadata.extras?.getString("uri") ?: item.mediaId,
+                uri = "redefinencm://playbackPlaceHolder?id=${item.mediaId}",
                 title = item.mediaMetadata.title?.toString(),
                 subtitle = item.mediaMetadata.subtitle?.toString()
             )
@@ -295,7 +295,8 @@ class MainViewModel(
     fun restorePlayerStatus() {
         val status = runBlocking { repo.getPlayerStatus() }
 
-        if (status != null) {
+        if (status?.playlist?.isNotEmpty() == true) {
+            Log.d("savedStatus", "Restoring")
             val mediaItems = status.playlist.map {
                 MediaItem.Builder()
                     .setMediaId(it.uri)
@@ -310,16 +311,14 @@ class MainViewModel(
             }
 
             mediaController.value?.setMediaItems(
-                mediaItems ?: emptyList<MediaItem>(),
-                status?.index ?: 0,
-                status?.position ?: 0
+                mediaItems,
+                status.index,
+                status.position
             )
             mediaController.value?.prepare()
-            Log.d("savedStatusRESTORE2", mediaItems?.first()?.mediaMetadata?.title.toString())
-            Log.d("savedStatusRESTORE3", mediaController.value?.currentMediaItem.toString())
-            if (status?.isPlaying ?: false) {
-                mediaController.value?.play()
-            }
+//            if (status?.isPlaying ?: false) {
+//                mediaController.value?.play()
+//            }
         }
     }
 }
