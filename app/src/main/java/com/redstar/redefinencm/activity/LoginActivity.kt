@@ -91,7 +91,7 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
         verticalArrangement = Arrangement.Center,
     ) {
         CookieLogin(viewModel)
-//        QrLogin(viewModel)
+        QrLogin(viewModel)
     }
 }
 
