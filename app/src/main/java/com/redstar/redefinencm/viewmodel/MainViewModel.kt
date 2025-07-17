@@ -292,30 +292,34 @@ class MainViewModel(
     }
 
 
-    fun restorePlayerStatus(){
-        val status = runBlocking{ repo.getPlayerStatus() }
-        val mediaItems = status?.playlist?.map {
-            MediaItem.Builder()
-                .setMediaId(it.uri)
-                .setUri(it.uri)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(it.title)
-                        .setSubtitle(it.subtitle)
-                        .build()
-                )
-                .build()
-        }
+    fun restorePlayerStatus() {
+        val status = runBlocking { repo.getPlayerStatus() }
 
-        mediaController.value?.setMediaItems(mediaItems?: emptyList<MediaItem>(),
-            status?.index ?: 0,
-            status?.position ?: 0
-        )
-        mediaController.value?.prepare()
-        Log.d("savedStatusRESTORE2", mediaItems?.first()?.mediaMetadata?.title.toString())
-        Log.d("savedStatusRESTORE3", mediaController.value?.currentMediaItem.toString())
-        if (status?.isPlaying ?: false) {
-            mediaController.value?.play()
+        if (status != null) {
+            val mediaItems = status.playlist.map {
+                MediaItem.Builder()
+                    .setMediaId(it.uri)
+                    .setUri(it.uri)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setTitle(it.title)
+                            .setSubtitle(it.subtitle)
+                            .build()
+                    )
+                    .build()
+            }
+
+            mediaController.value?.setMediaItems(
+                mediaItems ?: emptyList<MediaItem>(),
+                status?.index ?: 0,
+                status?.position ?: 0
+            )
+            mediaController.value?.prepare()
+            Log.d("savedStatusRESTORE2", mediaItems?.first()?.mediaMetadata?.title.toString())
+            Log.d("savedStatusRESTORE3", mediaController.value?.currentMediaItem.toString())
+            if (status?.isPlaying ?: false) {
+                mediaController.value?.play()
+            }
         }
     }
 }
