@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.ui.theme
+package com.redstar.redefinencm.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
