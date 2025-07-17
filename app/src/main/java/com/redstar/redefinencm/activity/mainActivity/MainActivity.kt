@@ -51,8 +51,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        viewModel.restorePlayerStatus()
-
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val widthClass = windowSizeClass.widthSizeClass

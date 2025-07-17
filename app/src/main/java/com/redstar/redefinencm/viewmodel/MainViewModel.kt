@@ -125,6 +125,7 @@ class MainViewModel(
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to init MediaController: ${e.message}")
             }
+            restorePlayerStatus()
         }
     }
 
@@ -306,11 +307,13 @@ class MainViewModel(
                 .build()
         }
 
-        mediaController.value?.setMediaItems(mediaItems?: emptyList<MediaItem>(),
+        mediaController.value!!.setMediaItems(mediaItems?: emptyList<MediaItem>(),
             status?.index ?: 0,
             status?.position ?: 0
         )
         mediaController.value?.prepare()
+        Log.d("savedStatusRESTORE2", mediaItems?.first()?.mediaMetadata?.title.toString())
+        Log.d("savedStatusRESTORE3", mediaController.value?.currentMediaItem.toString())
         if (status?.isPlaying ?: false) {
             mediaController.value?.play()
         }
