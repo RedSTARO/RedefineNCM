@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 
 data class MediaItemData(
-    val uri: String,
+    val id: String,
     val title: String? = null,
     val subtitle: String? = null
 )

@@ -272,7 +272,7 @@ class MainViewModel(
         val mediaItems = (0 until controller.mediaItemCount).map {
             val item = controller.getMediaItemAt(it)
             MediaItemData(
-                uri = "redefinencm://playbackPlaceHolder?id=${item.mediaId}",
+                id = item.mediaId,
                 title = item.mediaMetadata.title?.toString(),
                 subtitle = item.mediaMetadata.subtitle?.toString()
             )
@@ -299,8 +299,8 @@ class MainViewModel(
             Log.d("savedStatus", "Restoring")
             val mediaItems = status.playlist.map {
                 MediaItem.Builder()
-                    .setMediaId(it.uri)
-                    .setUri(it.uri)
+                    .setMediaId(it.id)
+                    .setUri("redefinencm://playbackPlaceHolder?id=${it.id}")
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(it.title)
