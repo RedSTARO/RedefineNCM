@@ -73,22 +73,23 @@ class SettingActivity : ComponentActivity() {
 
 @Composable
 fun SettingPage() {
+    val soundQuality = mapOf(
+        "standard" to "标准",
+        "higher" to "较高",
+        "exhigh" to "极高",
+        "lossless" to "无损",
+        "hires" to "Hi-Res",
+        "jyeffect" to "高清环绕声",
+        "sky" to "沉浸环绕声",
+        "dolby" to "杜比全景声",
+        "jymaster" to "超清母带",
+    )
+
     Surface {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            val soundQuality = mapOf(
-                "standard" to "标准",
-                "higher" to "较高",
-                "exhigh" to "极高",
-                "lossless" to "无损",
-                "hires" to "Hi-Res",
-                "jyeffect" to "高清环绕声",
-                "sky" to "沉浸环绕声",
-                "dolby" to "杜比全景声",
-                "jymaster" to "超清母带",
-            )
             ServerItem()
             Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
@@ -98,6 +99,8 @@ fun SettingPage() {
             SwitchItem("statusBarLyric", "Status Bar Lyric")
             SwitchItem("replacePlaylist", "Replace playlist when click single songs")
             SwitchItem("checkUpdate", "Check update when app start")
+            ButtonItem("Export app setting") { exportAppSetting() }
+            ButtonItem("Import app setting") { importAppSetting() }
         }
     }
 }
@@ -280,6 +283,13 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
     }
 }
 
+@Composable
+fun ButtonItem(hintText: String, onClickAction:() -> Unit){
+    Button(onClick = onClickAction) {
+        Text(text = hintText)
+    }
+}
+
 suspend fun checkServerAvailable(server: String): Boolean {
     // Create a new Retrofit instance with the provided server URL
     val retrofit = Retrofit.Builder()
@@ -316,6 +326,14 @@ suspend fun checkServerVersion(server: String): String {
         Log.d("ServerItemStat", e.message.toString())
         e.message.toString()
     }
+}
+
+fun exportAppSetting(){
+    // TODO
+}
+
+fun importAppSetting(){
+    // TODO
 }
 
 @Composable
