@@ -153,7 +153,7 @@ fun <T> SelectItem(
     settingItemKey: String,
     hintText: String,
     enumClass: KClass<T>
-) where T : Enum<T>, T : SoundQualityDisplayable {
+) where T : Enum<T> {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -162,38 +162,33 @@ fun <T> SelectItem(
     LaunchedEffect(settingItemKey) {
         itemSelected = DataStoreManager.getStringItem(settingItemKey, "")
     }
+    val currentEnum = entries.find { it.name == itemSelected }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
-            .clickable { expanded = true }, // Make whole Card clickable
+            .clickable { expanded = true },
         shape = RoundedCornerShape(4.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
-    ) { // This looks like a OutlinedTextField even a card
+    ) {
         Spacer(Modifier.padding(2.5.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(Modifier.padding(5.dp))
-            if (itemSelected == hintText) {
-                Text(
-                    text = itemSelected,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.weight(1f),
-                )
-            } else {
-                Text(
-                    text = entries.find { it.key == itemSelected }?.description ?: hintText,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
-                )
-            }
+            Text(
+                text = currentEnum?.toString() ?: hintText,
+                color = if (currentEnum != null)
+                    MaterialTheme.colorScheme.onSurface
+                else
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                modifier = Modifier.weight(1f),
+            )
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "More options")
             }
@@ -204,14 +199,14 @@ fun <T> SelectItem(
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            entries.forEach { quality ->
+            entries.forEach { item ->
                 DropdownMenuItem(
-                    text = { Text(quality.description) },
+                    text = { Text(item.toString()) },
                     onClick = {
-                        itemSelected = quality.key
+                        itemSelected = item.name.lowercase()
                         expanded = false
                         coroutineScope.launch(Dispatchers.IO) {
-                            DataStoreManager.setStringItem(settingItemKey, quality.key)
+                            DataStoreManager.setStringItem(settingItemKey, item.name)
                         }
                     }
                 )
@@ -219,6 +214,7 @@ fun <T> SelectItem(
         }
     }
 }
+
 
 @Composable
 fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {

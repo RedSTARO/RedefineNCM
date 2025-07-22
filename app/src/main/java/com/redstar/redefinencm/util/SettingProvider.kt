@@ -18,20 +18,21 @@ object SettingProvider {
 
 }
 
-enum class SoundQuality(
-    override val key: String,
-    override val description: String
-) : SoundQualityDisplayable {
-    STANDARD("standard", "标准"),
-    HIGHER("higher", "较高"),
-    EXHIGH("exhigh", "极高"),
-    LOSSLESS("lossless", "无损"),
-    HIRES("hires", "Hi-Res"),
-    JYEFFECT("jyeffect", "高清环绕声"),
-    SKY("sky", "沉浸环绕声"),
-    DOLBY("dolby", "杜比全景声"),
-    JYMASTER("jymaster", "超清母带");
+enum class SoundQuality(private val displayName: String) {
+    STANDARD("标准"),
+    HIGHER("较高"),
+    EXHIGH("极高"),
+    LOSSLESS("无损"),
+    HIRES("Hi-Res"),
+    JYEFFECT("高清环绕声"),
+    SKY("沉浸环绕声"),
+    DOLBY("杜比全景声"),
+    JYMASTER("超清母带");
+
+    override fun toString(): String = displayName
 }
+
+
 
 
 interface SoundQualityDisplayable {
