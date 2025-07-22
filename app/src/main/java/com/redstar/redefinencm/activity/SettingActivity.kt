@@ -46,12 +46,16 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.SettingProvider
+import com.redstar.redefinencm.util.SoundQuality
+import com.redstar.redefinencm.util.SoundQualityDisplayable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.reflect.KClass
 
 class SettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,18 +77,6 @@ class SettingActivity : ComponentActivity() {
 
 @Composable
 fun SettingPage() {
-    val soundQuality = mapOf(
-        "standard" to "标准",
-        "higher" to "较高",
-        "exhigh" to "极高",
-        "lossless" to "无损",
-        "hires" to "Hi-Res",
-        "jyeffect" to "高清环绕声",
-        "sky" to "沉浸环绕声",
-        "dolby" to "杜比全景声",
-        "jymaster" to "超清母带",
-    )
-
     Surface {
         Column(
             modifier = Modifier
@@ -94,13 +86,13 @@ fun SettingPage() {
             Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
             TextItem("cookie", "Account Cookie")
-            SelectItem("onlinePlayQuality", "Music Quality Online", soundQuality)
-            SelectItem("downloadQuality", "Music Quality Download", soundQuality)
+            SelectItem("onlinePlayQuality", "Music Quality Online", SoundQuality::class)
+            SelectItem("downloadQuality", "Music Quality Download", SoundQuality::class)
             SwitchItem("statusBarLyric", "Status Bar Lyric")
             SwitchItem("replacePlaylist", "Replace playlist when click single songs")
             SwitchItem("checkUpdate", "Check update when app start")
-            ButtonItem("Export app setting") { exportAppSetting() }
-            ButtonItem("Import app setting") { importAppSetting() }
+            ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
+            ButtonItem("Import app setting") { SettingProvider.importAppSetting() }
         }
     }
 }
@@ -157,10 +149,15 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
 }
 
 @Composable
-fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<String, String>) {
+fun <T> SelectItem(
+    settingItemKey: String,
+    hintText: String,
+    enumClass: KClass<T>
+) where T : Enum<T>, T : SoundQualityDisplayable {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val entries = enumClass.java.enumConstants
 
     LaunchedEffect(settingItemKey) {
         itemSelected = DataStoreManager.getStringItem(settingItemKey, "")
@@ -192,7 +189,7 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
                 )
             } else {
                 Text(
-                    text = valueAndItemMap[itemSelected] ?: hintText,
+                    text = entries.find { it.key == itemSelected }?.description ?: hintText,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f),
                 )
@@ -207,16 +204,16 @@ fun SelectItem(settingItemKey: String, hintText: String, valueAndItemMap: Map<St
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth(),
         ) {
-            valueAndItemMap.forEach { (value, item) ->
+            entries.forEach { quality ->
                 DropdownMenuItem(
-                    text = { Text(item) },
+                    text = { Text(quality.description) },
                     onClick = {
-                        itemSelected = value
+                        itemSelected = quality.key
                         expanded = false
                         coroutineScope.launch(Dispatchers.IO) {
-                            DataStoreManager.setStringItem(settingItemKey, value)
+                            DataStoreManager.setStringItem(settingItemKey, quality.key)
                         }
-                    },
+                    }
                 )
             }
         }
@@ -326,14 +323,6 @@ suspend fun checkServerVersion(server: String): String {
         Log.d("ServerItemStat", e.message.toString())
         e.message.toString()
     }
-}
-
-fun exportAppSetting(){
-    // TODO
-}
-
-fun importAppSetting(){
-    // TODO
 }
 
 @Composable
