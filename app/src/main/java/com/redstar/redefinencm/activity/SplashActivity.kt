@@ -131,7 +131,7 @@ fun checkAppUpdate() {
                             val latestVersion = jsonObject.getString("tag_name")
                             Log.d(
                                 "UpdateCheck",
-                                "Same ver: ${latestVersion == BuildConfig.RELEASE_VER}"
+                                "Same ver: ${latestVersion == BuildConfig.RELEASE_VER}",
                             )
 
                             if (latestVersion != BuildConfig.RELEASE_VER) {

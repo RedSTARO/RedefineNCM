@@ -16,9 +16,11 @@ import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import com.redstar.redefinencm.util.TypeConverter
 
 @Database(
-    entities = [UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class,
+    entities = [
+        UserDetailEntity::class, UserPlaylistEntity::class, PlaylistDetailEntity::class,
         PlaylistTrackAllEntity::class, RecommendResourceEntity::class, RecommendSongsEntity::class,
-        CommentMusicEntity::class, LyricEntity::class, PlayerStatusEntity::class],
+        CommentMusicEntity::class, LyricEntity::class, PlayerStatusEntity::class,
+    ],
     version = 8,
     exportSchema = false,
 )

@@ -21,4 +21,4 @@ data class PlaylistDetailPlaylistCreator(
     val userId: Long,
     val nickname: String,
 
-    )
+)

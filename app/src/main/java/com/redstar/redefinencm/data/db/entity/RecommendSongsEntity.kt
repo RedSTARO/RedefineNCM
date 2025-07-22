@@ -10,5 +10,3 @@ data class RecommendSongsEntity(
     val code: Int,
     val data: RecommendSongsData,
 )
-
-

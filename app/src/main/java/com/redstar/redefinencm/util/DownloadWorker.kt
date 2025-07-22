@@ -18,7 +18,7 @@ import kotlinx.coroutines.coroutineScope
 
 class DownloadWorker(
     appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParams) {
 
     private val downloadManager =
@@ -63,7 +63,7 @@ class DownloadWorker(
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
-                "/RedefineNCM/" + fileName
+                "/RedefineNCM/" + fileName,
             )
         }
 
@@ -74,7 +74,7 @@ class DownloadWorker(
         val response = safeApiCall {
             retrofit.songUrlV1(
                 ids,
-                DataStoreManager.getStringItem("downloadQuality", "standard")
+                DataStoreManager.getStringItem("downloadQuality", "standard"),
             )
         }
         return response?.data?.map { it } ?: emptyList()
@@ -110,5 +110,4 @@ object DownloadUtil {
 
         return matchedFile?.let { Uri.fromFile(it) }
     }
-
 }

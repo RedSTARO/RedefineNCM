@@ -2,7 +2,6 @@ package com.redstar.redefinencm.activity.mainActivity
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -45,6 +44,7 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     val viewModel: MainViewModel = MainViewModel()
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,13 +147,12 @@ data class NavigationItem(
     val route: String,
 )
 
-
 @Composable
 fun ResponsiveNavigation(
     navController: NavHostController,
     items: List<NavigationItem>,
     currentRoute: String?,
-    widthClass: WindowWidthSizeClass
+    widthClass: WindowWidthSizeClass,
 ) {
     if (widthClass == WindowWidthSizeClass.Compact) {
         // 底部导航栏
@@ -191,4 +190,3 @@ fun ResponsiveNavigation(
         }
     }
 }
-

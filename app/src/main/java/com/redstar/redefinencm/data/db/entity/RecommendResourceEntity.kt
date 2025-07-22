@@ -12,4 +12,3 @@ data class RecommendResourceEntity(
     val haveRcmdSongs: Boolean,
     val recommend: List<RecommendResourceRecommend>,
 )
-

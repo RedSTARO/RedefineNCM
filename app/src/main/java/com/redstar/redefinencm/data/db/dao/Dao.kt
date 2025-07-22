@@ -70,5 +70,4 @@ interface Dao {
 
     @Query("SELECT * FROM playerStatus WHERE id = 1")
     suspend fun getPlayerStatus(): PlayerStatusEntity?
-
 }

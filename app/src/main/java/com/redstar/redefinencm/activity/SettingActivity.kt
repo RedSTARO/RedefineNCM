@@ -48,7 +48,6 @@ import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.util.SoundQuality
-import com.redstar.redefinencm.util.SoundQualityDisplayable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -152,7 +151,7 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
 fun <T> SelectItem(
     settingItemKey: String,
     hintText: String,
-    enumClass: KClass<T>
+    enumClass: KClass<T>,
 ) where T : Enum<T> {
     var itemSelected by remember { mutableStateOf(hintText) }
     var expanded by remember { mutableStateOf(false) }
@@ -183,10 +182,11 @@ fun <T> SelectItem(
             Spacer(Modifier.padding(5.dp))
             Text(
                 text = currentEnum?.toString() ?: hintText,
-                color = if (currentEnum != null)
+                color = if (currentEnum != null) {
                     MaterialTheme.colorScheme.onSurface
-                else
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                },
                 modifier = Modifier.weight(1f),
             )
             IconButton(onClick = { expanded = !expanded }) {
@@ -208,13 +208,12 @@ fun <T> SelectItem(
                         coroutineScope.launch(Dispatchers.IO) {
                             DataStoreManager.setStringItem(settingItemKey, item.name)
                         }
-                    }
+                    },
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
@@ -277,7 +276,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
 }
 
 @Composable
-fun ButtonItem(hintText: String, onClickAction:() -> Unit){
+fun ButtonItem(hintText: String, onClickAction: () -> Unit) {
     Button(onClick = onClickAction) {
         Text(text = hintText)
     }

@@ -8,14 +8,13 @@ object SettingProvider {
     var replacePlaylist = false
     var checkUpdate = false
 
-    fun exportAppSetting(){
+    fun exportAppSetting() {
         // TODO
     }
 
-    fun importAppSetting(){
+    fun importAppSetting() {
         // TODO
     }
-
 }
 
 enum class SoundQuality(private val displayName: String) {
@@ -27,17 +26,13 @@ enum class SoundQuality(private val displayName: String) {
     JYEFFECT("高清环绕声"),
     SKY("沉浸环绕声"),
     DOLBY("杜比全景声"),
-    JYMASTER("超清母带");
+    JYMASTER("超清母带"),
+    ;
 
     override fun toString(): String = displayName
 }
-
-
-
 
 interface SoundQualityDisplayable {
     val key: String
     val description: String
 }
-
-

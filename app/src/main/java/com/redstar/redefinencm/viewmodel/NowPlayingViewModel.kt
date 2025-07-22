@@ -37,8 +37,8 @@ class NowPlayingViewModel : ViewModel() {
             0,
             emptyList(),
             false,
-            emptyList()
-        )
+            emptyList(),
+        ),
     )
     val lyricIndex = MutableStateFlow(0)
     val lyricMap =
@@ -48,7 +48,6 @@ class NowPlayingViewModel : ViewModel() {
     val isPlaying = MutableStateFlow(false)
     val currentPosition = MutableStateFlow(0L)
     val songLength = MutableStateFlow(0L)
-
 
     init {
         initMediaController()
@@ -138,8 +137,12 @@ class NowPlayingViewModel : ViewModel() {
 
     fun onPauseClick() {
         if (mediaController.value?.isPlaying
-                ?: false
-        ) mediaController.value?.pause() else mediaController.value?.play()
+            ?: false
+        ) {
+            mediaController.value?.pause()
+        } else {
+            mediaController.value?.play()
+        }
     }
 
     fun onNextClick() {

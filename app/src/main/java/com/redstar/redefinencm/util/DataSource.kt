@@ -12,7 +12,7 @@ import com.redstar.redefinencm.data.db.DatabaseProvider
 
 @UnstableApi
 class RedirectingDataSourceFactory(
-    private val defaultFactory: DataSource.Factory
+    private val defaultFactory: DataSource.Factory,
 ) : DataSource.Factory {
 
     override fun createDataSource(): DataSource {
@@ -22,7 +22,7 @@ class RedirectingDataSourceFactory(
 
 @UnstableApi
 class RedirectingDataSource(
-    private val actualDataSource: DataSource
+    private val actualDataSource: DataSource,
 ) : DataSource {
 
     private var currentUri: Uri? = null
@@ -30,11 +30,9 @@ class RedirectingDataSource(
         Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
 
     override fun addTransferListener(transferListener: TransferListener) {
-
     }
 
     override fun open(dataSpec: DataSpec): Long {
-
         if (dataSpec.uri.scheme == "redefinencm" && dataSpec.uri.host == "playbackPlaceHolder") {
             val id = dataSpec.uri.getQueryParameter("id")?.toLong() ?: 0L
             currentUri = repo.getSongUri(id)
@@ -55,4 +53,3 @@ class RedirectingDataSource(
         actualDataSource.close()
     }
 }
-

@@ -3,11 +3,10 @@ package com.redstar.redefinencm.data.db.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
 data class MediaItemData(
     val id: String,
     val title: String? = null,
-    val subtitle: String? = null
+    val subtitle: String? = null,
 )
 
 @Entity(tableName = "playerStatus")
@@ -16,5 +15,5 @@ data class PlayerStatusEntity(
     val playlist: List<MediaItemData>,
     val index: Int,
     val position: Long,
-    val isPlaying: Boolean
+    val isPlaying: Boolean,
 )

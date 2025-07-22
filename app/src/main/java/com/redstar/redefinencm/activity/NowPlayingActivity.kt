@@ -136,12 +136,12 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
         SongDetails(metadata, onShowLyricClick = { })
         Lyric(
             lyricMap = lyricMap,
-            lyricIndex = lyricIndex
+            lyricIndex = lyricIndex,
         )
         ProgressBar(
             currentPosition = position,
             songLength = songLength,
-            onSeekChanged = { viewModel.onPositionSeekClick(it) }
+            onSeekChanged = { viewModel.onPositionSeekClick(it) },
         )
         PlaybackControlButtons(
             isPlaying = isPlaying,
@@ -158,7 +158,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
             onCommentsClick = {
                 viewModel.getComments()
                 showComments = !showComments
-                              },
+            },
             currentFavStatus = false,
             modifier = Modifier,
         )
@@ -188,7 +188,7 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f),
-        contentAlignment = Alignment.BottomStart
+        contentAlignment = Alignment.BottomStart,
     ) {
         // 专辑封面
         AsyncImage(
@@ -219,11 +219,11 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.6f)
-                        )
-                    )
+                            Color.Black.copy(alpha = 0.6f),
+                        ),
+                    ),
                 )
-                .padding(12.dp)
+                .padding(12.dp),
         ) {
             Text(
                 text = metadata?.title?.toString() ?: "未知标题",
@@ -231,21 +231,20 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
                     fontSize = 18.sp,
                 ),
                 maxLines = 1,
-                modifier = Modifier.basicMarquee()
+                modifier = Modifier.basicMarquee(),
             )
             Text(
                 text = metadata?.artist?.toString() ?: "未知艺术家",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = Color.White.copy(alpha = 0.8f),
                 ),
                 maxLines = 1,
-                modifier = Modifier.basicMarquee()
+                modifier = Modifier.basicMarquee(),
             )
         }
     }
 }
-
 
 @Composable
 fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
@@ -264,7 +263,7 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         itemsIndexed(lyrics) { index, line ->
             val isCurrent = index == lyricIndex
@@ -276,12 +275,11 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .alpha(if (isCurrent) 1f else 0.6f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -296,16 +294,17 @@ fun ProgressBar(
         0f
     }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(24.dp)) {
-
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(24.dp),
+    ) {
         // 背后是漂亮的波浪进度条
         LinearWavyProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
+                .align(Alignment.Center),
         )
 
         // 透明 Slider 覆盖在上面处理拖动
@@ -317,16 +316,14 @@ fun ProgressBar(
             colors = SliderDefaults.colors(
                 thumbColor = Color.Transparent,
                 activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent
+                inactiveTrackColor = Color.Transparent,
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center)
+                .align(Alignment.Center),
         )
     }
 }
-
-
 
 @Composable
 fun PlaybackControlButtons(
@@ -340,9 +337,8 @@ fun PlaybackControlButtons(
     onCommentsClick: () -> Unit,
     currentFavStatus: Boolean,
     isPlaying: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     var currentFavStatus by remember { mutableStateOf(currentFavStatus) }
     // Control buttons
     Row(
@@ -356,7 +352,7 @@ fun PlaybackControlButtons(
                 currentFavStatus = !currentFavStatus // TODO: Really do remove fav
             },
             icon = if (currentFavStatus) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-            contentDescription = "Like this music"
+            contentDescription = "Like this music",
         )
 
         // Perv
@@ -373,7 +369,7 @@ fun PlaybackControlButtons(
             },
             icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
             contentDescription = "播放/暂停",
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(64.dp),
         )
 
         // Next
@@ -388,9 +384,8 @@ fun PlaybackControlButtons(
                 onShowPlaylistClick()
             },
             icon = Icons.AutoMirrored.Filled.QueueMusic,
-            contentDescription = "Current playlist"
+            contentDescription = "Current playlist",
         )
-
     }
 
     Column {
@@ -399,13 +394,12 @@ fun PlaybackControlButtons(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-
             IconButton_(
                 onClick = {
                     onShuffleClick()
                 },
                 icon = if (!currentRandomStatus) Icons.Filled.Shuffle else Icons.Filled.ShuffleOn,
-                contentDescription = "Shuffle: $currentRandomStatus"
+                contentDescription = "Shuffle: $currentRandomStatus",
             )
 
 //            FuncButton(
@@ -424,10 +418,8 @@ fun PlaybackControlButtons(
                     onCommentsClick()
                 },
                 contentDescription = "Comments",
-                icon = Icons.AutoMirrored.Filled.Comment
+                icon = Icons.AutoMirrored.Filled.Comment,
             )
-
-
         }
     }
 }
@@ -509,12 +501,12 @@ fun IconButton_(
 ) {
     IconButton(
         onClick = onClick,
-        modifier = modifier.size(50.dp)
+        modifier = modifier.size(50.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            modifier = Modifier.size(35.dp) // This must be less than above
+            modifier = Modifier.size(35.dp), // This must be less than above
         )
     }
 }
@@ -543,7 +535,7 @@ fun NowPlayingPreview() {
         SongDetails(metadata, onShowLyricClick = {})
         Lyric(
             lyricMap = lyricMap as LinkedHashMap<Long?, String?>,
-            lyricIndex = 0
+            lyricIndex = 0,
         )
         ProgressBar(35, 100L, {})
         PlaybackControlButtons(
@@ -557,7 +549,7 @@ fun NowPlayingPreview() {
             onCommentsClick = {},
             isPlaying = false,
             modifier = Modifier,
-            currentFavStatus = false
+            currentFavStatus = false,
         )
     }
 }
@@ -575,15 +567,15 @@ fun CommentsPreview() {
                     avatarUrl = "",
                     nickname = "NickName",
                     backgroundUrl = "",
-                    userId = 0
+                    userId = 0,
                 ),
                 commentId = 0,
                 content = "CommentContent",
                 richContent = "",
                 time = 0,
                 timeStr = "TimeOfComment",
-                likedCount = 99
-            )
+                likedCount = 99,
+            ),
         ),
         moreHot = false,
         hotComments = listOf(
@@ -592,16 +584,16 @@ fun CommentsPreview() {
                     avatarUrl = "",
                     nickname = "NickName",
                     backgroundUrl = "",
-                    userId = 0
+                    userId = 0,
                 ),
                 commentId = 0,
                 content = "CommentContent",
                 richContent = "",
                 time = 0,
                 timeStr = "TimeOfComment",
-                likedCount = 99
-            )
-        )
+                likedCount = 99,
+            ),
+        ),
     )
 
     Comments(CommentMusicEntity, {})

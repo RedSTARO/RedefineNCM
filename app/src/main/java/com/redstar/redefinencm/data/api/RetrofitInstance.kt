@@ -57,11 +57,10 @@ object RetrofitInstance {
                     "RetrofitInstance",
                     "Received response for ${
                         response.request.url.toString().substringBefore("=")
-                    } in ${(t2 - t1) / 1e6} ms"
+                    } in ${(t2 - t1) / 1e6} ms",
                 )
             }
             response
-
         }
         .build()
 

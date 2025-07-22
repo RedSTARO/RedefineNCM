@@ -44,8 +44,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlin.toString
 
-class MainViewModel(
-) : ViewModel() {
+class MainViewModel() : ViewModel() {
     private val context = RedefineNCMApplication.Companion.getApplicationContext()
     val retrofit: NCMApi = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val repo =
@@ -170,7 +169,6 @@ class MainViewModel(
         viewModelScope.launch {
             repo.getRecommendResource().collect { detail ->
                 recommendResource.value = detail
-
             }
         }
         viewModelScope.launch {
@@ -210,7 +208,6 @@ class MainViewModel(
         }
     }
 
-
     fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
@@ -230,7 +227,7 @@ class MainViewModel(
                             .setTitle(eachSong.name)
                             .setArtist(eachSong.ar.first().name)
                             .setArtworkUri(eachSong.al.picUrl.toUri())
-                            .build()
+                            .build(),
                     )
                     .setMediaId(eachSong.id.toString())
                     .build()
@@ -248,7 +245,6 @@ class MainViewModel(
         }
     }
 
-
     fun onDownloadPlaylistClick(songlistID: Long) {
         viewModelScope.launch {
             val response = safeApiCall { retrofit.playlistTrackAll(songlistID) }
@@ -262,19 +258,18 @@ class MainViewModel(
                 .build()
 
             WorkManager.Companion.getInstance(context).enqueue(workRequest)
-
         }
     }
 
     fun savePlayerStatus() {
-        val controller = mediaController.value?: return
+        val controller = mediaController.value ?: return
 
         val mediaItems = (0 until controller.mediaItemCount).map {
             val item = controller.getMediaItemAt(it)
             MediaItemData(
                 id = item.mediaId,
                 title = item.mediaMetadata.title?.toString(),
-                subtitle = item.mediaMetadata.subtitle?.toString()
+                subtitle = item.mediaMetadata.subtitle?.toString(),
             )
         }
 
@@ -282,7 +277,7 @@ class MainViewModel(
             playlist = mediaItems,
             index = controller.currentMediaItemIndex,
             position = controller.currentPosition,
-            isPlaying = controller.isPlaying
+            isPlaying = controller.isPlaying,
         )
         Log.d("savedStatusSAVE", status.toString())
 
@@ -290,7 +285,6 @@ class MainViewModel(
             repo.savePlayerStatus(status)
         }
     }
-
 
     fun restorePlayerStatus() {
         val status = runBlocking { repo.getPlayerStatus() }
@@ -305,7 +299,7 @@ class MainViewModel(
                         MediaMetadata.Builder()
                             .setTitle(it.title)
                             .setSubtitle(it.subtitle)
-                            .build()
+                            .build(),
                     )
                     .build()
             }
@@ -313,7 +307,7 @@ class MainViewModel(
             mediaController.value?.setMediaItems(
                 mediaItems,
                 status.index,
-                status.position
+                status.position,
             )
             mediaController.value?.prepare()
 //            if (status?.isPlaying ?: false) {

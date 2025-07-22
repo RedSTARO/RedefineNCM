@@ -113,7 +113,7 @@ fun ShowPlaylistDetailPage(
                     text = playlistDetail?.playlist?.name ?: "加载中...",
                     style = MaterialTheme.typography.titleLarge, // 设置为大标题
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.basicMarquee()
+                    modifier = Modifier.basicMarquee(),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp)) // 间距
@@ -136,7 +136,6 @@ fun ShowPlaylistDetailPage(
                 Modifier.fillMaxWidth(),
                 Alignment.Center,
             ) {
-
                 Row {
                     Button(onClick = {
                         viewModel.onPlaySingleSongInPlaylistClick(songlistID, 0)
@@ -147,7 +146,6 @@ fun ShowPlaylistDetailPage(
                     Button(onClick = { viewModel.onDownloadPlaylistClick(songlistID) }) {
                         Text(text = "下载全部")
                     }
-
                 }
             }
             Spacer(Modifier.padding(16.dp))
@@ -224,7 +222,7 @@ fun ShowPlaylistDetailPage(
                         if (DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString())) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
-                                contentDescription = "Downloaded"
+                                contentDescription = "Downloaded",
                             )
                         }
                     }

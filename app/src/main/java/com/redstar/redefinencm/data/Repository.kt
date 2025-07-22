@@ -127,7 +127,7 @@ class Repository(
                     set(Calendar.MILLISECOND, 0)
                 }.timeInMillis,
                 code = networkDetail.code,
-                data = networkDetail.data
+                data = networkDetail.data,
             )
             Dao.insertRecommendSongs(entity)
             emit(entity)
@@ -153,7 +153,7 @@ class Repository(
                 code = networkDetail.code,
                 featureFirst = networkDetail.featureFirst,
                 haveRcmdSongs = networkDetail.haveRcmdSongs,
-                recommend = networkDetail.recommend
+                recommend = networkDetail.recommend,
             )
             Dao.insertRecommendResource(entity)
             emit(entity)
@@ -180,7 +180,6 @@ class Repository(
             Dao.insertCommentMusic(entity)
             emit(entity)
         }
-
     }
 
     fun getLyric(id: Long): Flow<LyricEntity> = flow {
@@ -200,12 +199,11 @@ class Repository(
                 code = networkDetail.code,
                 lrc = networkDetail.lrc,
                 klyric = networkDetail.klyric,
-                tlyric = networkDetail.tlyric
+                tlyric = networkDetail.tlyric,
             )
             Dao.insertLyric(entity)
             emit(entity)
         }
-
     }
 
     fun getSongUri(songId: Long): Uri? {
@@ -218,7 +216,7 @@ class Repository(
                 safeApiCall {
                     retrofit.songUrlV1(
                         listOf(songId),
-                        DataStoreManager.getStringItem("onlinePlayQuality", "standard")
+                        DataStoreManager.getStringItem("onlinePlayQuality", "standard"),
                     ).data.first().url.toUri()
                 }
             }
@@ -229,7 +227,7 @@ class Repository(
         return Dao.getPlayerStatus()
     }
 
-    suspend fun savePlayerStatus(status: PlayerStatusEntity){
+    suspend fun savePlayerStatus(status: PlayerStatusEntity) {
         Dao.savePlayerStatus(status)
     }
 }

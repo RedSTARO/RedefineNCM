@@ -14,7 +14,7 @@ data class UserPlaylistEach(
     val id: Long,
     val userId: Long,
 
-    )
+)
 
 data class UserPlaylistEachCreator(
     val avatarUrl: String,

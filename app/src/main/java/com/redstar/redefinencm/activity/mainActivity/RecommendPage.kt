@@ -47,9 +47,9 @@ fun RecommendPage(
                 RecommendSquareCard(
                     eachRecommend.picUrl,
                     eachRecommend.name,
-                    { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") })
-
-            }
+                    { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+                )
+            },
         )
 
         SectionWithLazyRow(
@@ -57,9 +57,11 @@ fun RecommendPage(
             items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
             itemContent = { eachSong ->
                 RecommendSquareCard(
-                    eachSong.al.picUrl, eachSong.name,
-                    { viewModel.onPlaySingleSongClick(eachSong) })
-            }
+                    eachSong.al.picUrl,
+                    eachSong.name,
+                    { viewModel.onPlaySingleSongClick(eachSong) },
+                )
+            },
         )
     }
 }
@@ -70,14 +72,13 @@ fun SearchBox() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
             Text(text = "Search TODO", fontSize = 16.sp)
         }
     }
 }
-
 
 @Composable
 fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
@@ -86,14 +87,14 @@ fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
         modifier = Modifier
             .padding(8.dp)
             .size(150.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Box(Modifier.fillMaxSize()) {
             AsyncImage(
                 model = picUrl,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
 
             if (text != "私人雷达") {
@@ -104,9 +105,9 @@ fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
-                                startY = 200f
-                            )
-                        )
+                                startY = 200f,
+                            ),
+                        ),
                 )
 
                 Text(
@@ -119,7 +120,7 @@ fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
                         .align(Alignment.BottomStart)
                         .padding(8.dp)
                         .fillMaxWidth()
-                        .basicMarquee() // Scroll display
+                        .basicMarquee(), // Scroll display
                 )
             } else {
                 Text(
@@ -129,33 +130,32 @@ fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(8.dp)
+                        .padding(8.dp),
                 )
             }
         }
     }
 }
 
-
 @Composable
 fun <T> SectionWithLazyRow(
     title: String,
     items: List<T>,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable (T) -> Unit,
 ) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp),
         )
         if (items.isEmpty()) {
             Text(
                 text = "No data available.",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         } else {
             LazyRow {
