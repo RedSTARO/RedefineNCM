@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -9,6 +10,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,11 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.viewmodel.LoginViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -57,6 +62,27 @@ import java.io.ByteArrayInputStream
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
+        // 注册 Launcher
+        importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    SettingProvider.importAppSettingFromUri(
+                        RedefineNCMApplication.getApplicationContext(), uri, {
+                            runBlocking {
+                                checkLoggedInAndJump(
+                                    RetrofitInstance.retrofit.create(NCMApi::class.java),
+                                    SettingProvider.cookie,
+                                    this@LoginActivity,
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             val viewModel: LoginViewModel = viewModel()
@@ -71,7 +97,7 @@ class LoginActivity : ComponentActivity() {
                     }
 
                     if (gotServer) {
-                        LoginPage(innerPadding = innerPadding, viewModel = viewModel)
+                        LoginPage(innerPadding = innerPadding, viewModel = viewModel, activity = this@LoginActivity, importSettingLauncher = importSettingLauncher)
                     } else {
                         ServerItem({ gotServer = true }) // This from SettingActivity
                     }
@@ -82,7 +108,7 @@ class LoginActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
+fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel, activity: Activity, importSettingLauncher: ActivityResultLauncher<Intent>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,6 +117,9 @@ fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel) {
         verticalArrangement = Arrangement.Center,
     ) {
         CookieLogin(viewModel)
+        ButtonItem("Import app setting") {
+            SettingProvider.startImportSetting(activity, importSettingLauncher)
+        }
         QrLogin(viewModel)
     }
 }

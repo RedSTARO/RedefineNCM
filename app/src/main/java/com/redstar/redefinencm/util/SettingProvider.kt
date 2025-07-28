@@ -129,7 +129,7 @@ object SettingProvider {
     /**
      * 通过 Uri 导入设置
      */
-    fun importAppSettingFromUri(context: Context, uri: Uri) {
+    fun importAppSettingFromUri(context: Context, uri: Uri, callback: () -> Unit = {}) {
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val content = inputStream?.bufferedReader()?.use { it.readText() } ?: return
@@ -153,6 +153,7 @@ object SettingProvider {
             }
 
             Log.d("SettingProvider", "Settings imported from Uri")
+            callback()
         } catch (e: Exception) {
             Log.e("SettingProvider", "Failed to import settings", e)
         }
