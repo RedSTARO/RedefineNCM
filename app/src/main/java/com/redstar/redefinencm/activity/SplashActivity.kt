@@ -22,9 +22,7 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.SettingProvider
-import kotlinx.coroutines.runBlocking
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient

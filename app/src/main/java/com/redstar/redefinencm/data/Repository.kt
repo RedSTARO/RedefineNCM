@@ -2,7 +2,6 @@ package com.redstar.redefinencm.data
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.ui.text.toLowerCase
 import androidx.core.net.toUri
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
@@ -17,7 +16,6 @@ import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.flow.Flow

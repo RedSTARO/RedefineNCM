@@ -137,7 +137,7 @@ class NowPlayingViewModel : ViewModel() {
 
     fun onPauseClick() {
         if (mediaController.value?.isPlaying
-            ?: false
+                ?: false
         ) {
             mediaController.value?.pause()
         } else {

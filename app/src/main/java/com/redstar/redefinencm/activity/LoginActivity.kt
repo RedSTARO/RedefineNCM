@@ -65,23 +65,24 @@ class LoginActivity : ComponentActivity() {
 
         lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
         // 注册 Launcher
-        importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    SettingProvider.importAppSettingFromUri(
-                        RedefineNCMApplication.getApplicationContext(), uri, {
-                            runBlocking {
-                                checkLoggedInAndJump(
-                                    RetrofitInstance.retrofit.create(NCMApi::class.java),
-                                    SettingProvider.cookie,
-                                    this@LoginActivity,
-                                )
+        importSettingLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    result.data?.data?.let { uri ->
+                        SettingProvider.importAppSettingFromUri(
+                            RedefineNCMApplication.getApplicationContext(), uri, {
+                                runBlocking {
+                                    checkLoggedInAndJump(
+                                        RetrofitInstance.retrofit.create(NCMApi::class.java),
+                                        SettingProvider.cookie,
+                                        this@LoginActivity,
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
-        }
 
         enableEdgeToEdge()
         setContent {
@@ -97,7 +98,12 @@ class LoginActivity : ComponentActivity() {
                     }
 
                     if (gotServer) {
-                        LoginPage(innerPadding = innerPadding, viewModel = viewModel, activity = this@LoginActivity, importSettingLauncher = importSettingLauncher)
+                        LoginPage(
+                            innerPadding = innerPadding,
+                            viewModel = viewModel,
+                            activity = this@LoginActivity,
+                            importSettingLauncher = importSettingLauncher
+                        )
                     } else {
                         ServerItem({ gotServer = true }) // This from SettingActivity
                     }
@@ -108,7 +114,12 @@ class LoginActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginPage(innerPadding: PaddingValues, viewModel: LoginViewModel, activity: Activity, importSettingLauncher: ActivityResultLauncher<Intent>) {
+fun LoginPage(
+    innerPadding: PaddingValues,
+    viewModel: LoginViewModel,
+    activity: Activity,
+    importSettingLauncher: ActivityResultLauncher<Intent>
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()

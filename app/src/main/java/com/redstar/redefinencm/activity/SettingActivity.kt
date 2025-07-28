@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.NCMApi
@@ -73,13 +72,14 @@ class SettingActivity : ComponentActivity() {
                 ) { innerPadding ->
                     lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
                     // 注册 Launcher
-                    importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                        if (result.resultCode == Activity.RESULT_OK) {
-                            result.data?.data?.let { uri ->
-                                SettingProvider.importAppSettingFromUri(this, uri)
+                    importSettingLauncher =
+                        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                            if (result.resultCode == Activity.RESULT_OK) {
+                                result.data?.data?.let { uri ->
+                                    SettingProvider.importAppSettingFromUri(this, uri)
+                                }
                             }
                         }
-                    }
                     SettingPage(this, importSettingLauncher)
                 }
             }

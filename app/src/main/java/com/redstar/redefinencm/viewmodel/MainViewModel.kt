@@ -42,7 +42,6 @@ import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlin.toString
 
 class MainViewModel() : ViewModel() {
     private val context = RedefineNCMApplication.Companion.getApplicationContext()

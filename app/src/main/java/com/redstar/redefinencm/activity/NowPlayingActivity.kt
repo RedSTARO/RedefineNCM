@@ -426,7 +426,12 @@ fun PlaybackControlButtons(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentPlayList(playlist: List<MediaItem?>, currentIndex: Int, onSeekClick: (Int) -> Unit, onDismiss: () -> Unit) {
+fun CurrentPlayList(
+    playlist: List<MediaItem?>,
+    currentIndex: Int,
+    onSeekClick: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
     val currentMediaId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
 

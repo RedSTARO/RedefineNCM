@@ -122,8 +122,8 @@ class PlaybackService : MediaSessionService() {
         // Status bar lyric
         CoroutineScope(Dispatchers.IO).launch {
             val statusBarLyricEnabled = (
-                DataStoreManager.getBooleanItem("statusBarLyric", false)
-                )
+                    DataStoreManager.getBooleanItem("statusBarLyric", false)
+                    )
 
             withContext(Dispatchers.Main) {
                 if (statusBarLyricEnabled) {
@@ -194,8 +194,7 @@ class PlaybackService : MediaSessionService() {
                             Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
                         }
                     }
-                } 
-                else {
+                } else {
                     CoroutineScope(Dispatchers.IO).launch {
                         LyricBus.lyricMapFlow.emit(linkedMapOf(0L to "Lyric wanted"))
                     }

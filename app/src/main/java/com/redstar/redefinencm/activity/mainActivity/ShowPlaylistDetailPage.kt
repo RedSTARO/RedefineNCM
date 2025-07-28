@@ -39,7 +39,6 @@ import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.safeApiCall
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.util.SettingProvider

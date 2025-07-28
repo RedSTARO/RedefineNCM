@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,14 +56,16 @@ class MainActivity : ComponentActivity() {
 
         lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
         // 注册 Launcher
-        importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.let { uri ->
-                    SettingProvider.importAppSettingFromUri(
-                        RedefineNCMApplication.getApplicationContext(), uri)
+        importSettingLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    result.data?.data?.let { uri ->
+                        SettingProvider.importAppSettingFromUri(
+                            RedefineNCMApplication.getApplicationContext(), uri
+                        )
+                    }
                 }
             }
-        }
 
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)

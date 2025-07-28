@@ -74,8 +74,10 @@ object SettingProvider {
     fun initSetting() {
         runBlocking {
             cookie = DataStoreManager.getStringItem("cookie", "")
-            onlinePlayQuality = DataStoreManager.getStringItem("onlinePlayQuality", SoundQuality.STANDARD.name)
-            downloadQuality = DataStoreManager.getStringItem("downloadQuality", SoundQuality.STANDARD.name)
+            onlinePlayQuality =
+                DataStoreManager.getStringItem("onlinePlayQuality", SoundQuality.STANDARD.name)
+            downloadQuality =
+                DataStoreManager.getStringItem("downloadQuality", SoundQuality.STANDARD.name)
             statusBarLyric = DataStoreManager.getBooleanItem("statusBarLyric", false)
             replacePlaylist = DataStoreManager.getBooleanItem("replacePlaylist", false)
             checkUpdate = DataStoreManager.getBooleanItem("checkUpdate", false)
