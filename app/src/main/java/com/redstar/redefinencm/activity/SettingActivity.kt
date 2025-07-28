@@ -84,64 +84,71 @@ fun SettingPage() {
             ServerItem()
             Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
-            TextItem("cookie", "Account Cookie")
-            SelectItem("onlinePlayQuality", "Music Quality Online", SoundQuality::class)
-            SelectItem("downloadQuality", "Music Quality Download", SoundQuality::class)
-            SwitchItem("statusBarLyric", "Status Bar Lyric")
-            SwitchItem("replacePlaylist", "Replace playlist when click single songs")
-            SwitchItem("checkUpdate", "Check update when app start")
+            TextItem(SettingProvider.cookie, "Account Cookie") { SettingProvider.updateCookie(it) }
+            SelectItem(
+                SettingProvider.onlinePlayQuality,
+                "Music Quality Online",
+                SoundQuality::class
+            ) { SettingProvider.updateOnlinePlayQuality(it) }
+            SelectItem(
+                SettingProvider.downloadQuality,
+                "Music Quality Download",
+                SoundQuality::class
+            ) { SettingProvider.updateDownloadQuality(it) }
+            SwitchItem(
+                SettingProvider.statusBarLyric,
+                "Status Bar Lyric"
+            ) { SettingProvider.updateStatusBarLyric(it) }
+            SwitchItem(
+                SettingProvider.replacePlaylist,
+                "Replace playlist when click single songs"
+            ) { SettingProvider.updateReplacePlaylist(it) }
+            SwitchItem(
+                SettingProvider.checkUpdate,
+                "Check update when app start"
+            ) { SettingProvider.updateCheckUpdate(it) }
             ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
             ButtonItem("Import app setting") { SettingProvider.importAppSetting() }
         }
     }
 }
 
+
 @Composable
-fun TextItem(settingItemKey: String, hintText: String) {
-    // 使用 remember 来保持状态
-    var settingValue by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
+fun TextItem(
+    settingItem: String,
+    hintText: String,
+    settingItemUpdater: (String) -> Unit,
+) {
+    var settingValue by remember { mutableStateOf(settingItem) }
 
-    // 读取 dataStore 中的 settingItem 信息，只在首次加载时执行
-    LaunchedEffect(settingItemKey) {
-        settingValue = DataStoreManager.getStringItem(settingItemKey, "")
-    }
-
-    // 处理 TextField 输入框更新
     OutlinedTextField(
         label = { Text(hintText) },
-        value = settingValue, // 使用 settingValue 作为输入框的值
+        value = settingValue,
         onValueChange = { newValue ->
-            settingValue = newValue // 更新本地状态
-            scope.launch {
-                DataStoreManager.setStringItem(settingItemKey, newValue)
-            }
+            settingValue = newValue
+            settingItemUpdater(newValue)
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
-            .height(64.dp), // 保证文本框固定高度
-        singleLine = true, // 确保文本框单行显示
+            .height(64.dp),
+        singleLine = true
     )
 }
 
-@Composable
-fun SwitchItem(settingItemKey: String, hintText: String) {
-    var checked by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(settingItemKey) {
-        checked = DataStoreManager.getBooleanItem(settingItemKey, false)
-    }
+@Composable
+fun SwitchItem(settingItem: Boolean, hintText: String, settingItemUpdater: (Boolean) -> Unit) {
+    var checked by remember { mutableStateOf(settingItem) }
+
     Row {
         Text(text = hintText)
         Switch(
             checked = checked,
             onCheckedChange = {
-                coroutineScope.launch(Dispatchers.IO) {
-                    checked = it
-                    DataStoreManager.setBooleanItem(settingItemKey, checked)
-                }
+                checked = it
+                settingItemUpdater(checked)
             },
         )
     }
@@ -149,18 +156,15 @@ fun SwitchItem(settingItemKey: String, hintText: String) {
 
 @Composable
 fun <T> SelectItem(
-    settingItemKey: String,
+    settingItem: String,
     hintText: String,
     enumClass: KClass<T>,
+    settingItemUpdater: (T) -> Unit, // 泛型 T 的参数
 ) where T : Enum<T> {
-    var itemSelected by remember { mutableStateOf(hintText) }
+    var itemSelected by remember { mutableStateOf(settingItem) }
     var expanded by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val entries = enumClass.java.enumConstants
 
-    LaunchedEffect(settingItemKey) {
-        itemSelected = DataStoreManager.getStringItem(settingItemKey, "")
-    }
+    val entries = enumClass.java.enumConstants
     val currentEnum = entries.find { it.name == itemSelected }
 
     Card(
@@ -203,17 +207,16 @@ fun <T> SelectItem(
                 DropdownMenuItem(
                     text = { Text(item.toString()) },
                     onClick = {
-                        itemSelected = item.name.lowercase()
+                        itemSelected = item.name
                         expanded = false
-                        coroutineScope.launch(Dispatchers.IO) {
-                            DataStoreManager.setStringItem(settingItemKey, item.name)
-                        }
+                        settingItemUpdater(item)
                     },
                 )
             }
         }
     }
 }
+
 
 @Composable
 fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {

@@ -7,12 +7,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
     var server by mutableStateOf("")
         private set
-    var cookie by mutableStateOf("")
+    var cookie by mutableStateOf(SettingProvider.cookie)
         private set
 
     var cookieLoginLoading by mutableStateOf(false)
@@ -24,7 +25,6 @@ class LoginViewModel : ViewModel() {
 
     init {
         loadServer()
-        loadCookie()
     }
 
     private fun loadServer() {
@@ -35,18 +35,8 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    private fun loadCookie() {
-        viewModelScope.launch {
-            val value =
-                DataStoreManager.getStringItem("cookie", "")
-            cookie = value
-        }
-    }
-
     fun updateCookie(newCookie: String) {
         cookie = newCookie
-        viewModelScope.launch {
-            DataStoreManager.setStringItem("cookie", newCookie)
-        }
+        SettingProvider.updateCookie(newCookie)
     }
 }

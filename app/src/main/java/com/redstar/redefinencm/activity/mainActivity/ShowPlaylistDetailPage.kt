@@ -42,6 +42,7 @@ import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.ImageParser
+import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,11 +58,10 @@ fun ShowPlaylistDetailPage(
 
     val playlistDetail by viewModel.playlistDetail.collectAsState()
     val playlistSongs by viewModel.playlistSongs.collectAsState()
-    var replacePlaylist by remember { mutableStateOf(false) }
+    var replacePlaylist by remember { mutableStateOf(SettingProvider.replacePlaylist) }
 
     LaunchedEffect(songlistID) {
         viewModel.fetchPlaylistDetail(songlistID)
-        replacePlaylist = DataStoreManager.getBooleanItem("replacePlaylist", false)
     }
 
     Column(Modifier.fillMaxSize()) {

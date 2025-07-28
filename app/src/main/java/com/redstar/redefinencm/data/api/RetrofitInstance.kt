@@ -5,6 +5,7 @@ import android.widget.Toast
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -76,9 +77,7 @@ fun getRealIP(): String {
 }
 
 fun getCookie(): String {
-    val rawCookie = runBlocking {
-        DataStoreManager.getStringItem("cookie", "")
-    }
+    val rawCookie = SettingProvider.cookie
     if (rawCookie.isEmpty()) return ""
 
     // Split the cookie string by semicolons and extract name=value pairs

@@ -7,6 +7,9 @@ import org.json.JSONObject
 import java.io.File
 import android.content.Intent
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object SettingProvider {
     lateinit var cookie: String
@@ -20,6 +23,48 @@ object SettingProvider {
 
     init {
         initSetting()
+    }
+
+    fun updateCookie(newCookie: String) {
+        cookie = newCookie
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setStringItem("cookie", cookie)
+        }
+    }
+
+    fun updateOnlinePlayQuality(newQuality: SoundQuality) {
+        onlinePlayQuality = newQuality.name
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setStringItem("onlinePlayQuality", onlinePlayQuality)
+        }
+    }
+
+    fun updateDownloadQuality(newQuality: SoundQuality) {
+        downloadQuality = newQuality.name
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setStringItem("downloadQuality", downloadQuality)
+        }
+    }
+
+    fun updateStatusBarLyric(newStatus: Boolean) {
+        statusBarLyric = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("statusBarLyric", statusBarLyric)
+        }
+    }
+
+    fun updateReplacePlaylist(newStatus: Boolean) {
+        replacePlaylist = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("replacePlaylist", replacePlaylist)
+        }
+    }
+
+    fun updateCheckUpdate(newStatus: Boolean) {
+        checkUpdate = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("checkUpdate", checkUpdate)
+        }
     }
 
     fun initSetting() {

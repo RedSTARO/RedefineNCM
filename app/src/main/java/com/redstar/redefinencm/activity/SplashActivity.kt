@@ -23,6 +23,7 @@ import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.mainActivity.MainActivity
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
+import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.runBlocking
 import okhttp3.Call
 import okhttp3.Callback
@@ -41,17 +42,14 @@ class SplashActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     var cookie by remember { mutableStateOf("") }
                     LaunchedEffect(Unit) {
-                        if (DataStoreManager.getBooleanItem("checkUpdate", false)) {
+                        if (SettingProvider.checkUpdate) {
                             checkAppUpdate()
                         }
-                    }
-                    cookie = runBlocking {
-                        DataStoreManager.getStringItem("cookie", "")
                     }
                     this.startActivity(
                         Intent(
                             this,
-                            if (cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java,
+                            if (SettingProvider.cookie.isBlank()) LoginActivity::class.java else MainActivity::class.java,
                         ),
                     )
                     this.finish()

@@ -2,6 +2,7 @@ package com.redstar.redefinencm.data
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.text.toLowerCase
 import androidx.core.net.toUri
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
@@ -18,6 +19,7 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadUtil
+import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -216,7 +218,7 @@ class Repository(
                 safeApiCall {
                     retrofit.songUrlV1(
                         listOf(songId),
-                        DataStoreManager.getStringItem("onlinePlayQuality", "standard"),
+                        SettingProvider.onlinePlayQuality.lowercase()
                     ).data.first().url.toUri()
                 }
             }
