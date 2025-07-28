@@ -1,15 +1,19 @@
 package com.redstar.redefinencm.util
 
-import android.util.Log
-import com.redstar.redefinencm.RedefineNCMApplication
-import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
-import java.io.File
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.FileProvider
+import com.redstar.redefinencm.RedefineNCMApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
+import java.io.File
 
 object SettingProvider {
     lateinit var cookie: String
@@ -78,8 +82,6 @@ object SettingProvider {
         }
     }
 
-
-
     fun exportAppSetting() {
         val context = RedefineNCMApplication.getApplicationContext()
 
@@ -108,34 +110,54 @@ object SettingProvider {
         }
 
         val chooserIntent = Intent.createChooser(shareIntent, "导出设置文件")
-        chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 加在 chooser 上
+        chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         context.startActivity(chooserIntent)
     }
 
-
-    fun importAppSetting() {
-        val context = RedefineNCMApplication.getApplicationContext()
-        val file = File(context.filesDir, FILE_NAME)
-        if (!file.exists()) {
-            Log.w("SettingProvider", "Settings file does not exist.")
-            return
+    /**
+     * 启动系统文件选择器，选择 JSON 设置文件
+     */
+    fun startImportSetting(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "application/json"
+            addCategory(Intent.CATEGORY_OPENABLE)
         }
+        launcher.launch(Intent.createChooser(intent, "选择设置文件"))
+    }
 
-        val content = file.readText()
-        val json = JSONObject(content)
+    /**
+     * 通过 Uri 导入设置
+     */
+    fun importAppSettingFromUri(context: Context, uri: Uri) {
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val content = inputStream?.bufferedReader()?.use { it.readText() } ?: return
+            val json = JSONObject(content)
 
-        cookie = json.getString("cookie")
-        onlinePlayQuality = json.getString("onlinePlayQuality")
-        downloadQuality = json.getString("downloadQuality")
-        statusBarLyric = json.getBoolean("statusBarLyric")
-        replacePlaylist = json.getBoolean("replacePlaylist")
-        checkUpdate = json.getBoolean("checkUpdate")
+            cookie = json.getString("cookie")
+            onlinePlayQuality = json.getString("onlinePlayQuality")
+            downloadQuality = json.getString("downloadQuality")
+            statusBarLyric = json.getBoolean("statusBarLyric")
+            replacePlaylist = json.getBoolean("replacePlaylist")
+            checkUpdate = json.getBoolean("checkUpdate")
 
-        Log.d("SettingProvider", "Settings imported from ${file.absolutePath}")
+            // 同步存储
+            CoroutineScope(Dispatchers.IO).launch {
+                DataStoreManager.setStringItem("cookie", cookie)
+                DataStoreManager.setStringItem("onlinePlayQuality", onlinePlayQuality)
+                DataStoreManager.setStringItem("downloadQuality", downloadQuality)
+                DataStoreManager.setBooleanItem("statusBarLyric", statusBarLyric)
+                DataStoreManager.setBooleanItem("replacePlaylist", replacePlaylist)
+                DataStoreManager.setBooleanItem("checkUpdate", checkUpdate)
+            }
+
+            Log.d("SettingProvider", "Settings imported from Uri")
+        } catch (e: Exception) {
+            Log.e("SettingProvider", "Failed to import settings", e)
+        }
     }
 }
-
 
 enum class SoundQuality(private val displayName: String) {
     STANDARD("标准"),
@@ -146,8 +168,7 @@ enum class SoundQuality(private val displayName: String) {
     JYEFFECT("高清环绕声"),
     SKY("沉浸环绕声"),
     DOLBY("杜比全景声"),
-    JYMASTER("超清母带"),
-    ;
+    JYMASTER("超清母带");
 
     override fun toString(): String = displayName
 }

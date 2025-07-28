@@ -1,10 +1,14 @@
 package com.redstar.redefinencm.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -67,7 +71,16 @@ class SettingActivity : ComponentActivity() {
                         // You can add a floating action button if needed
                     },
                 ) { innerPadding ->
-                    SettingPage()
+                    lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
+                    // 注册 Launcher
+                    importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                        if (result.resultCode == Activity.RESULT_OK) {
+                            result.data?.data?.let { uri ->
+                                SettingProvider.importAppSettingFromUri(this, uri)
+                            }
+                        }
+                    }
+                    SettingPage(this, importSettingLauncher)
                 }
             }
         }
@@ -75,7 +88,7 @@ class SettingActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingPage() {
+fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLauncher<Intent>) {
     Surface {
         Column(
             modifier = Modifier
@@ -108,7 +121,9 @@ fun SettingPage() {
                 "Check update when app start"
             ) { SettingProvider.updateCheckUpdate(it) }
             ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
-            ButtonItem("Import app setting") { SettingProvider.importAppSetting() }
+            ButtonItem("Import app setting") {
+                SettingProvider.startImportSetting(activity, importSettingLauncher)
+            }
         }
     }
 }
@@ -323,8 +338,8 @@ suspend fun checkServerVersion(server: String): String {
     }
 }
 
-@Composable
-@Preview
-fun SettingPagePreview() {
-    SettingPage()
-}
+//@Composable
+//@Preview
+//fun SettingPagePreview() {
+//    SettingPage()
+//}

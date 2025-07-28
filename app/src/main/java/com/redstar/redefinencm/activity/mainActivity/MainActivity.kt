@@ -1,10 +1,14 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,8 +42,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.redstar.redefinencm.BuildConfig
+import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.activity.SettingPage
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
+import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
@@ -48,6 +54,18 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
+        // 注册 Launcher
+        importSettingLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    SettingProvider.importAppSettingFromUri(
+                        RedefineNCMApplication.getApplicationContext(), uri)
+                }
+            }
+        }
+
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -124,7 +142,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 composable("settings") {
-                                    SettingPage()
+                                    SettingPage(this@MainActivity, importSettingLauncher)
                                 }
                             }
                         }
