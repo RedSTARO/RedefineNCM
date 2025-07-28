@@ -11,16 +11,16 @@ plugins {
 
 android {
     namespace = "com.redstar.redefinencm"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.redstar.redefinencm"
         minSdk = 29
-        targetSdk = 35
+        targetSdk = 36
         versionCode = generateVersionCode()
         versionName = "v0.0.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionNameSuffix = "_Beta_${getGitSha().substring(0..5)}"
+        versionNameSuffix = "_Release_${getGitSha().substring(0..5)}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
         buildConfigField("String", "RELEASE_VER", "\"${versionName}\"")
     }
