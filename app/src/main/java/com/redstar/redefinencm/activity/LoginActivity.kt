@@ -62,10 +62,8 @@ import java.io.ByteArrayInputStream
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
         // 注册 Launcher
-        importSettingLauncher =
+        val importSettingLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     result.data?.data?.let { uri ->

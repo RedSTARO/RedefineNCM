@@ -182,7 +182,7 @@ class PlaybackService : MediaSessionService() {
                     val response = it
                     try {
                         val lyricText = response.lrc.lyric
-                        lyricMap = LyricParser.parse(lyricText.toString())
+                        lyricMap = LyricParser.parse(lyricText)
                         CoroutineScope(Dispatchers.IO).launch {
                             LyricBus.lyricMapFlow.emit(lyricMap)
                         }

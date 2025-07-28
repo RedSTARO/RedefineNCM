@@ -70,9 +70,8 @@ class SettingActivity : ComponentActivity() {
                         // You can add a floating action button if needed
                     },
                 ) { innerPadding ->
-                    lateinit var importSettingLauncher: ActivityResultLauncher<Intent>
                     // 注册 Launcher
-                    importSettingLauncher =
+                    val importSettingLauncher: ActivityResultLauncher<Intent> =
                         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                             if (result.resultCode == Activity.RESULT_OK) {
                                 result.data?.data?.let { uri ->
