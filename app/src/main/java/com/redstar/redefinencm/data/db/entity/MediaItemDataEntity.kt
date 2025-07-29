@@ -7,6 +7,8 @@ data class MediaItemData(
     val id: String,
     val title: String? = null,
     val subtitle: String? = null,
+    val ar: String? = null,
+    val artworkUri: String? = null,
 )
 
 @Entity(tableName = "playerStatus")

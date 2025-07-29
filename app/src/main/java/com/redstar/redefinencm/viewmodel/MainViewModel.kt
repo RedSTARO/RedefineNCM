@@ -269,6 +269,8 @@ class MainViewModel() : ViewModel() {
                 id = item.mediaId,
                 title = item.mediaMetadata.title?.toString(),
                 subtitle = item.mediaMetadata.subtitle?.toString(),
+                ar = item.mediaMetadata.artist.toString(),
+                artworkUri = item.mediaMetadata.artworkUri.toString()
             )
         }
 
@@ -298,6 +300,8 @@ class MainViewModel() : ViewModel() {
                         MediaMetadata.Builder()
                             .setTitle(it.title)
                             .setSubtitle(it.subtitle)
+                            .setArtist(it.ar)
+                            .setArtworkUri(it.artworkUri?.toUri())
                             .build(),
                     )
                     .build()
