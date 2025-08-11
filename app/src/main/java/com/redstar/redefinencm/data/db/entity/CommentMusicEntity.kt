@@ -12,4 +12,5 @@ data class CommentMusicEntity(
     val topComments: List<CommentMusicComments>,
     val moreHot: Boolean,
     val hotComments: List<CommentMusicComments>,
+    val comments: List<CommentMusicComments>,
 )

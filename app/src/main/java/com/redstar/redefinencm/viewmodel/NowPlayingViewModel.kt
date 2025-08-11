@@ -38,6 +38,7 @@ class NowPlayingViewModel : ViewModel() {
             emptyList(),
             false,
             emptyList(),
+            comments = emptyList()
         ),
     )
     val lyricIndex = MutableStateFlow(0)

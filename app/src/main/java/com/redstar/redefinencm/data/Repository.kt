@@ -176,6 +176,7 @@ class Repository(
                 topComments = networkDetail.topComments,
                 moreHot = networkDetail.moreHot,
                 hotComments = networkDetail.hotComments,
+                comments = networkDetail.comments,
             )
             Dao.insertCommentMusic(entity)
             emit(entity)

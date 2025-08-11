@@ -6,6 +6,7 @@ data class CommentMusic(
     val topComments: List<CommentMusicComments>,
     val moreHot: Boolean,
     val hotComments: List<CommentMusicComments>,
+    val comments: List<CommentMusicComments>,
 )
 
 data class CommentMusicComments(

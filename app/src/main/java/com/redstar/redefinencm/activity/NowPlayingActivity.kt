@@ -36,6 +36,9 @@ import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.ShuffleOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -485,17 +488,42 @@ fun CurrentPlayList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Comments(comments: CommentMusicEntity, onDismiss: () -> Unit) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    var showHotComments by remember { mutableStateOf(false) }
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        ButtonGroup(
+            overflowIndicator = { /* 可替换为图标，如 Icon(Icons.Default.MoreVert) */ Text("...") },
+            modifier = Modifier.fillMaxWidth(),
+            expandedRatio = ButtonGroupDefaults.ExpandedRatio,
+            horizontalArrangement = ButtonGroupDefaults.HorizontalArrangement
+        ) {
+            toggleableItem(
+                weight = 1f,
+                checked = showHotComments,
+                onCheckedChange = { showHotComments = true },
+                label = "Show Hot"
+            )
+            toggleableItem(
+                weight = 1f,
+                checked = !showHotComments,
+                onCheckedChange = { showHotComments = false },
+                label = "Show Top"
+            )
+        }
+
         LazyColumn {
-            itemsIndexed(comments.hotComments) { index, item ->
+            itemsIndexed(
+                if (showHotComments) comments.hotComments else comments.comments
+            ) { index, item ->
                 Text(text = "$index, ${item.user.nickname}: ${item.content}")
             }
         }
     }
 }
+
 
 @Composable
 fun IconButton_(
@@ -599,6 +627,22 @@ fun CommentsPreview() {
                 likedCount = 99,
             ),
         ),
+        comments = listOf(
+            CommentMusicComments(
+                user = UserDetailProfile(
+                    avatarUrl = "",
+                    nickname = "NickName",
+                    backgroundUrl = "",
+                    userId = 0,
+                ),
+                commentId = 0,
+                content = "CommentContent",
+                richContent = "",
+                time = 0,
+                timeStr = "TimeOfComment",
+                likedCount = 99,
+            ),
+    )
     )
 
     Comments(CommentMusicEntity, {})
