@@ -62,6 +62,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.HiddenTestActivity"
+            android:exported="true"
+            android:theme="@style/Theme.RedefineNCM">
+        </activity>
 
         <service
             android:name=".services.PlaybackService"
