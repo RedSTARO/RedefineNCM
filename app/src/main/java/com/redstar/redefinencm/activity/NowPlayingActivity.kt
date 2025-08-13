@@ -159,7 +159,9 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
                 viewModel.onShuffleClick(currentRandomStatus)
             },
             onCommentsClick = {
-                viewModel.getComments()
+                if (showComments == false) {
+                    viewModel.getComments()
+                }
                 showComments = !showComments
             },
             currentFavStatus = false,
