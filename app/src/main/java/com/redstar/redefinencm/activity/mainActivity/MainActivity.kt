@@ -1,4 +1,4 @@
-package com.redstar.redefinencm.activity.mainActivity
+ package com.redstar.redefinencm.activity.mainActivity
 
 import android.app.Activity
 import android.content.Intent
@@ -153,10 +153,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStop() {
-        Log.d("savedStatus", "onStop")
+    override fun onPause() {
         viewModel.savePlayerStatus()
-        super.onStop()
+        super.onPause()
     }
 }
 

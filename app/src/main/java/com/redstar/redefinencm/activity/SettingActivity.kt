@@ -109,7 +109,8 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
             ) { SettingProvider.updateDownloadQuality(it) }
             SwitchItem(
                 SettingProvider.statusBarLyric,
-                "Status Bar Lyric"
+                "Status Bar Lyric",
+                false
             ) { SettingProvider.updateStatusBarLyric(it) }
             SwitchItem(
                 SettingProvider.replacePlaylist,
@@ -153,7 +154,7 @@ fun TextItem(
 
 
 @Composable
-fun SwitchItem(settingItem: Boolean, hintText: String, settingItemUpdater: (Boolean) -> Unit) {
+fun SwitchItem(settingItem: Boolean, hintText: String, enabled: Boolean = true, settingItemUpdater: (Boolean) -> Unit) {
     var checked by remember { mutableStateOf(settingItem) }
 
     Row {
@@ -164,6 +165,7 @@ fun SwitchItem(settingItem: Boolean, hintText: String, settingItemUpdater: (Bool
                 checked = it
                 settingItemUpdater(checked)
             },
+            enabled = enabled
         )
     }
 }
