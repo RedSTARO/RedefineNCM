@@ -16,8 +16,8 @@ import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
-import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.SettingProvider
+import com.redstar.redefinencm.services.DownloadService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -208,18 +208,18 @@ class Repository(
     }
 
     fun getSongUri(songId: Long): Uri? {
-        if (DownloadUtil.fileAlreadyExistsByBaseName(songId.toString())) {
+        DownloadService.getDownloadedUri(songId)?.let {
             Log.d("Repository", "Found existing file with base name $songId")
-            return DownloadUtil.getExistingFileUriByBaseName(songId.toString())
-        } else {
-            Log.d("Repository", "Fetching uri with base name $songId")
-            return runBlocking {
-                safeApiCall {
-                    retrofit.songUrlV1(
-                        listOf(songId),
-                        SettingProvider.onlinePlayQuality.lowercase()
-                    ).data.first().url.toUri()
-                }
+            return it
+        }
+
+        Log.d("Repository", "Fetching uri with base name $songId")
+        return runBlocking {
+            safeApiCall {
+                retrofit.songUrlV1(
+                    listOf(songId),
+                    SettingProvider.onlinePlayQuality.lowercase()
+                ).data.first().url.toUri()
             }
         }
     }
