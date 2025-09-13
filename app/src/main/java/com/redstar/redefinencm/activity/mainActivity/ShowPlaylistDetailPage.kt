@@ -39,7 +39,7 @@ import androidx.core.graphics.drawable.toBitmap
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.safeApiCall
-import com.redstar.redefinencm.util.DownloadStorage
+import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.viewmodel.MainViewModel
@@ -218,7 +218,7 @@ fun ShowPlaylistDetailPage(
                             )
                         }
 
-                        if (DownloadStorage.fileAlreadyExistsByBaseName(song.id.toString())) {
+                        if (DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString())) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
                                 contentDescription = "Downloaded",
