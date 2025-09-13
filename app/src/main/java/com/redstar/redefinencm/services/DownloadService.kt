@@ -4,7 +4,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.os.IBinder
 import android.util.Log
 import androidx.core.net.toUri
@@ -20,7 +19,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
 import java.io.FileOutputStream
 
 class DownloadService : Service() {
@@ -64,11 +62,7 @@ class DownloadService : Service() {
         val request = Request.Builder().url(url).build()
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return
-            val dir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS + "/RedefineNCM"
-            )
-            dir.mkdirs()
-            val outFile = File(dir, fileName)
+            val outFile = DownloadStorage.createFile(fileName)
             val sink = FileOutputStream(outFile)
             response.body?.byteStream()?.use { input ->
                 sink.use { output -> input.copyTo(output) }

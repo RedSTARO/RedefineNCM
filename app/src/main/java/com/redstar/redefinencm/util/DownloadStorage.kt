@@ -34,4 +34,10 @@ object DownloadStorage {
         if (!dir.exists() || !dir.isDirectory) return emptyList()
         return dir.listFiles()?.toList() ?: emptyList()
     }
+
+    fun createFile(fileName: String): File {
+        val dir = downloadDir()
+        dir.mkdirs()
+        return File(dir, fileName)
+    }
 }
