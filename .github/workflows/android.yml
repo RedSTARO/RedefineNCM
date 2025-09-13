@@ -37,6 +37,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Set sanitized ref name
+        run: |
+          SAFE_REF_NAME=${GITHUB_REF_NAME//\//_}
+          echo "SAFE_REF_NAME=$SAFE_REF_NAME" >> $GITHUB_ENV
+
       - name: Build APK
         run: ./gradlew :app:assembleRelease
 
@@ -54,23 +59,23 @@ jobs:
 
       - name: Rename mapping.txt
         run: |
-          cp app/build/outputs/mapping/release/mapping.txt app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}_mapping.txt
+          cp app/build/outputs/mapping/release/mapping.txt app/build/outputs/apk/release/RedefineNCM_${{ env.SAFE_REF_NAME }}_mapping.txt
 
       - name: Upload mapping.txt Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RedefineNCM_${{ github.ref_name }}_mapping
-          path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}_mapping.txt
+          name: RedefineNCM_${{ env.SAFE_REF_NAME }}_mapping
+          path: app/build/outputs/apk/release/RedefineNCM_${{ env.SAFE_REF_NAME }}_mapping.txt
 
 
       - name: Rename Signed APK
-        run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+        run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_${{ env.SAFE_REF_NAME }}.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RedefineNCM_${{ github.ref_name }}
-          path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+          name: RedefineNCM_${{ env.SAFE_REF_NAME }}
+          path: app/build/outputs/apk/release/RedefineNCM_${{ env.SAFE_REF_NAME }}.apk
 
       - name: Get commit info
         id: gitinfo
@@ -83,7 +88,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk"
+          APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ env.SAFE_REF_NAME }}.apk"
           MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
           COMPRESSED_MAPPING_FILE="app/build/outputs/mapping/release/mapping.zip"
 
@@ -93,7 +98,7 @@ jobs:
           COMMIT_MSG="${{ steps.gitinfo.outputs.commit_msg }}"
           COMMIT_SHA="${{ steps.gitinfo.outputs.commit_sha }}"
           COMMIT_COUNT="${{ steps.commitcount.outputs.count }}"
-          VERSION_NAME="${{ github.ref_name }}"
+          VERSION_NAME="${{ env.SAFE_REF_NAME }}"
 
           # Escape newlines for JSON
           CAPTION="✅ RedefineNCM: ${VERSION_NAME}
