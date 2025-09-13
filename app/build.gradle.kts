@@ -106,7 +106,6 @@ dependencies {
     implementation(libs.androidx.media3.session)
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.androidx.palette)
-    implementation(libs.lyric.getter.api)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

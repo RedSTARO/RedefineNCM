@@ -108,11 +108,6 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
                 SoundQuality::class
             ) { SettingProvider.updateDownloadQuality(it) }
             SwitchItem(
-                SettingProvider.statusBarLyric,
-                "Status Bar Lyric",
-                false
-            ) { SettingProvider.updateStatusBarLyric(it) }
-            SwitchItem(
                 SettingProvider.replacePlaylist,
                 "Replace playlist when click single songs"
             ) { SettingProvider.updateReplacePlaylist(it) }

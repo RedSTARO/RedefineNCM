@@ -19,7 +19,6 @@ object SettingProvider {
     lateinit var cookie: String
     lateinit var onlinePlayQuality: String
     lateinit var downloadQuality: String
-    var statusBarLyric = false
     var replacePlaylist = false
     var checkUpdate = false
 
@@ -50,12 +49,7 @@ object SettingProvider {
         }
     }
 
-    fun updateStatusBarLyric(newStatus: Boolean) {
-        statusBarLyric = newStatus
-        CoroutineScope(Dispatchers.IO).launch {
-            DataStoreManager.setBooleanItem("statusBarLyric", statusBarLyric)
-        }
-    }
+    
 
     fun updateReplacePlaylist(newStatus: Boolean) {
         replacePlaylist = newStatus
@@ -78,7 +72,6 @@ object SettingProvider {
                 DataStoreManager.getStringItem("onlinePlayQuality", SoundQuality.STANDARD.name)
             downloadQuality =
                 DataStoreManager.getStringItem("downloadQuality", SoundQuality.STANDARD.name)
-            statusBarLyric = DataStoreManager.getBooleanItem("statusBarLyric", false)
             replacePlaylist = DataStoreManager.getBooleanItem("replacePlaylist", false)
             checkUpdate = DataStoreManager.getBooleanItem("checkUpdate", false)
         }
@@ -91,7 +84,6 @@ object SettingProvider {
             put("cookie", cookie)
             put("onlinePlayQuality", onlinePlayQuality)
             put("downloadQuality", downloadQuality)
-            put("statusBarLyric", statusBarLyric)
             put("replacePlaylist", replacePlaylist)
             put("checkUpdate", checkUpdate)
         }
@@ -140,7 +132,6 @@ object SettingProvider {
             cookie = json.getString("cookie")
             onlinePlayQuality = json.getString("onlinePlayQuality")
             downloadQuality = json.getString("downloadQuality")
-            statusBarLyric = json.getBoolean("statusBarLyric")
             replacePlaylist = json.getBoolean("replacePlaylist")
             checkUpdate = json.getBoolean("checkUpdate")
 
@@ -149,7 +140,6 @@ object SettingProvider {
                 DataStoreManager.setStringItem("cookie", cookie)
                 DataStoreManager.setStringItem("onlinePlayQuality", onlinePlayQuality)
                 DataStoreManager.setStringItem("downloadQuality", downloadQuality)
-                DataStoreManager.setBooleanItem("statusBarLyric", statusBarLyric)
                 DataStoreManager.setBooleanItem("replacePlaylist", replacePlaylist)
                 DataStoreManager.setBooleanItem("checkUpdate", checkUpdate)
             }

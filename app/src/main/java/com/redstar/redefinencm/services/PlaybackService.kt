@@ -3,7 +3,6 @@ package com.redstar.redefinencm.services
 import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.core.content.ContextCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -13,13 +12,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import cn.lyric.getter.api.API
-import cn.lyric.getter.api.listener.LyricListener
-import cn.lyric.getter.api.listener.LyricReceiver
-import cn.lyric.getter.api.tools.Tools
-import cn.lyric.getter.api.tools.Tools.registerLyricListener
 import com.redstar.redefinencm.BuildConfig
-import com.redstar.redefinencm.R
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
@@ -118,44 +111,6 @@ class PlaybackService : MediaSessionService() {
                 }
             }
         })
-
-        // Status bar lyric
-        CoroutineScope(Dispatchers.IO).launch {
-            val statusBarLyricEnabled = (
-                    DataStoreManager.getBooleanItem("statusBarLyric", false)
-                    )
-
-            withContext(Dispatchers.Main) {
-                if (statusBarLyricEnabled) {
-                    val receiver = LyricReceiver(object : LyricListener() {})
-                    val lga by lazy { API() }
-
-                    registerLyricListener(applicationContext, API.API_VERSION, receiver)
-                    setLyricCallback(object : LyricCallback {
-                        override fun onLyricUpdated(lyric: String, duration: Int) {
-                            lga.sendLyric(
-                                lyric,
-                                extra = cn.lyric.getter.api.data.ExtraData().apply {
-                                    packageName = "com.redstar.redefinencm"
-                                    customIcon = true
-                                    base64Icon = Tools.drawableToBase64(
-                                        ContextCompat.getDrawable(
-                                            applicationContext,
-                                            R.drawable.ic_launcher_foreground,
-                                        )!!,
-                                    )
-                                    useOwnMusicController = false
-//                                    delay = duration
-                                },
-                            )
-                        }
-                    })
-                    if (BuildConfig.DEBUG) {
-                        Log.d("StatusBarLyric", "激活状态： ${lga.hasEnable}")
-                    }
-                }
-            }
-        }
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
