@@ -13,9 +13,6 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.data.Repository
@@ -34,7 +31,7 @@ import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
-import com.redstar.redefinencm.util.DownloadWorker
+import com.redstar.redefinencm.services.DownloadService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -246,17 +243,9 @@ class MainViewModel() : ViewModel() {
 
     fun onDownloadPlaylistClick(songlistID: Long) {
         viewModelScope.launch {
-            val response = safeApiCall { retrofit.playlistTrackAll(songlistID) }
-
-            val ids = response?.songs?.map { it.id }
-
-            val inputData = workDataOf("listOfSongId" to (ids?.toLongArray() ?: emptyArray<Long>()))
-
-            val workRequest = OneTimeWorkRequestBuilder<DownloadWorker>()
-                .setInputData(inputData)
-                .build()
-
-            WorkManager.Companion.getInstance(context).enqueue(workRequest)
+            val response = safeApiCall { retrofit.playlistTrackAll(songlistID) } ?: return@launch
+            val ids = response.songs.map { it.id }
+            DownloadService.start(context, ids)
         }
     }
 

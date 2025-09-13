@@ -55,6 +55,14 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.DownloadActivity"
+            android:exported="true"
+            android:theme="@style/Theme.RedefineNCM">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activity.NowPlayingActivity"
             android:exported="true"
             android:theme="@style/Theme.RedefineNCM">
@@ -77,6 +85,9 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+        <service
+            android:name=".services.DownloadService"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
