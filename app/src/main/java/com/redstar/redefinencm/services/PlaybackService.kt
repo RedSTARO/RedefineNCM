@@ -1,6 +1,5 @@
 package com.redstar.redefinencm.services
 
-import android.content.Context
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.C
@@ -18,7 +17,6 @@ import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.db.DatabaseProvider
-import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import com.redstar.redefinencm.util.RedirectingDataSourceFactory
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +37,7 @@ class PlaybackService : MediaSessionService() {
         Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
     val retrofit = RetrofitInstance.retrofit.create(NCMApi::class.java)
     val TAG = "PlaybackService"
+    private var focusLyricNotifier: FocusLyricNotifier? = null
 
     object LyricBus {
         val lyricMapFlow = MutableSharedFlow<LinkedHashMap<Long?, String?>>(replay = 1)
@@ -69,7 +68,13 @@ class PlaybackService : MediaSessionService() {
             .build()
 
         mediaSession = MediaSession.Builder(this, player).build()
-        val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
+        focusLyricNotifier = FocusLyricNotifier(this)
+        player.currentMediaItem?.let { mediaItem ->
+            focusLyricNotifier?.updateMetadata(
+                mediaItem.mediaMetadata.title?.toString(),
+                mediaItem.mediaMetadata.artist?.toString(),
+            )
+        }
 
         // 监听播放状态变化
         player.addListener(object : Player.Listener {
@@ -78,6 +83,10 @@ class PlaybackService : MediaSessionService() {
                 mediaItem?.mediaId?.let { mediaId ->
                     fetchLyrics(mediaId)
                     startLyricSync()
+                    focusLyricNotifier?.updateMetadata(
+                        mediaItem.mediaMetadata.title?.toString(),
+                        mediaItem.mediaMetadata.artist?.toString(),
+                    )
                 }
             }
 
@@ -104,6 +113,7 @@ class PlaybackService : MediaSessionService() {
                 CoroutineScope(Dispatchers.IO).launch {
                     LyricBus.isPlaying.emit(isPlaying)
                 }
+                focusLyricNotifier?.onPlaybackStateChanged(isPlaying)
                 if (isPlaying) {
                     startPositionSync(player)
                 } else {
@@ -124,6 +134,7 @@ class PlaybackService : MediaSessionService() {
             release()
             mediaSession = null
         }
+        focusLyricNotifier?.cancelTicker()
         super.onDestroy()
     }
 
@@ -174,7 +185,9 @@ class PlaybackService : MediaSessionService() {
                 if (!isPlaying) break
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 val (currentLyric, duration, index) = getCurrentLyric(currentPosition)
-                lyricCallback?.onLyricUpdated(currentLyric.toString(), duration.toInt())
+                val sanitizedLyric = currentLyric.orEmpty()
+                lyricCallback?.onLyricUpdated(sanitizedLyric, duration.toInt())
+                focusLyricNotifier?.onLyricUpdated(sanitizedLyric, duration.toInt())
                 CoroutineScope(Dispatchers.IO).launch {
                     LyricBus.lyricIndexFlow.emit(index)
                     if (BuildConfig.DEBUG) {

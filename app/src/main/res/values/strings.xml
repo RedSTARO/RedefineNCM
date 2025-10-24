@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">RedefineNCM</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="notification_channel_focus_lyric">Lyric Status Sync</string>
+    <string name="notification_channel_focus_lyric_description">Shows synced lyrics on HyperOS focus and status bar.</string>
 </resources>
