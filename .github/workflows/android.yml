@@ -59,7 +59,7 @@ jobs:
       - name: Upload mapping.txt Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RedefineNCM_${{ github.ref_name }}_mapping
+          name: RedefineNCM_mapping
           path: app/build/outputs/apk/release/RedefineNCM_mapping.txt
 
 
