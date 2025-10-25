@@ -64,13 +64,13 @@ jobs:
 
 
       - name: Rename Signed APK
-        run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+        run: mv ${{ steps.sign_app.outputs.signedReleaseFile }} app/build/outputs/apk/release/RedefineNCM_signed.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RedefineNCM_${{ github.ref_name }}
-          path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+          path: app/build/outputs/apk/release/RedefineNCM_signed.apk
 
       - name: Get commit info
         id: gitinfo
@@ -83,7 +83,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          APK_FILE="app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk"
+          APK_FILE="app/build/outputs/apk/release/RedefineNCM_signed.apk"
           MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
           COMPRESSED_MAPPING_FILE="app/build/outputs/mapping/release/mapping.zip"
 
