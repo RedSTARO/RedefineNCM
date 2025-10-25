@@ -123,7 +123,12 @@ class MainViewModel() : ViewModel() {
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failed to init MediaController: ${e.message}")
             }
-            restorePlayerStatus()
+            try {
+                restorePlayerStatus()
+            } catch ( e: Exception ){
+                Log.e("MainViewModel", "Failed to restore play status: ${e.message}")
+            }
+
         }
     }
 
