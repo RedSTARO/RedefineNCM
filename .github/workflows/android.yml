@@ -54,13 +54,13 @@ jobs:
 
       - name: Rename mapping.txt
         run: |
-          cp app/build/outputs/mapping/release/mapping.txt app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}_mapping.txt
+          cp app/build/outputs/mapping/release/mapping.txt app/build/outputs/apk/release/RedefineNCM_mapping.txt
 
       - name: Upload mapping.txt Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RedefineNCM_${{ github.ref_name }}_mapping
-          path: app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}_mapping.txt
+          path: app/build/outputs/apk/release/RedefineNCM_mapping.txt
 
 
       - name: Rename Signed APK
