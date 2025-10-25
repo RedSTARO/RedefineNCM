@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.hyperfocus.api.FocusApi
@@ -21,6 +22,7 @@ object MiuiHyperFocusLyricController {
 
     private const val CHANNEL_ID = "miui_focus_lyric"
     private const val NOTIFICATION_ID = 0x4C595243 // "LYRC"
+    private const val MIUI_EFFECT_SRC_KEY = "miui.effect.src"
 
     private val isHyperOs3Device: Boolean by lazy { detectHyperOs3() }
 
@@ -57,7 +59,7 @@ object MiuiHyperFocusLyricController {
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
 
         val baseInfo = FocusApi.baseinfo(
             title = displayTitle,
@@ -77,15 +79,20 @@ object MiuiHyperFocusLyricController {
             ticker = tickerText,
             picticker = Icon.createWithResource(context, R.drawable.ic_launcher_foreground),
             island = islandTemplate,
-            enableFloat = false,
-            islandFirstFloat = false,
+            enableFloat = true,
+            islandFirstFloat = true,
             updatable = true,
             showSmallIcon = false,
             hideDeco = true,
             isShowNotification = true,
         )
 
-        notificationBuilder.addExtras(focusExtras)
+        val miuiExtras = Bundle().apply {
+            putString(MIUI_EFFECT_SRC_KEY, "true")
+            putAll(focusExtras)
+        }
+
+        notificationBuilder.addExtras(miuiExtras)
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notificationBuilder.build())
         lastLyric = lyric
     }
@@ -105,7 +112,7 @@ object MiuiHyperFocusLyricController {
         artist: String?,
         nextLyric: String?,
     ): JSONObject {
-        val textInfo = IslandApi.TextInfo(
+        val lyricLine = IslandApi.TextInfo(
             title = lyric,
             frontTitle = artist,
             content = nextLyric?.takeIf { it.isNotBlank() },
@@ -113,16 +120,38 @@ object MiuiHyperFocusLyricController {
             turnAnim = true,
         )
 
+        val nextLine = nextLyric?.takeIf { it.isNotBlank() }?.let {
+            IslandApi.sameWidthDigitInfo(
+                content = it,
+                showHighlightColor = false,
+                turnAnim = true,
+            )
+        }
+
         val bigIslandArea = IslandApi.bigIslandArea(
-            textInfo = textInfo,
+            textInfo = lyricLine,
+            sameWidthDigitInfo = nextLine,
+        )
+
+        val smallIslandArea = IslandApi.SmallIslandArea(
+            picInfo = IslandApi.picInfo(
+                autoplay = true,
+                loop = true,
+                effectColor = "#66FFFFFF",
+                pic = "musicWave",
+                type = 2,
+            ),
         )
 
         return IslandApi.IslandTemplate(
             business = "music",
             bigIslandArea = bigIslandArea,
+            smallIslandArea = smallIslandArea,
             highlightColor = "#80FFFFFF",
+            islandOrder = true,
             islandPriority = 2,
             islandProperty = 2,
+            islandTimeout = 280,
             needCloseAnimation = true,
         )
     }
