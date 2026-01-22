@@ -73,6 +73,7 @@ import com.redstar.redefinencm.data.api.data.UserDetailProfile
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
+import com.skydoves.cloudy.cloudy
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)

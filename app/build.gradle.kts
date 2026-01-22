@@ -120,4 +120,5 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.material3)
     implementation(libs.hyperfocus.api)
+    implementation(libs.cloudy)
 }

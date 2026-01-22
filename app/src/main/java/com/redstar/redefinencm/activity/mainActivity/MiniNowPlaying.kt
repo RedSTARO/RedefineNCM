@@ -43,6 +43,7 @@ import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.NowPlayingActivity
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.MainViewModel
+import com.skydoves.cloudy.cloudy
 
 @Composable
 fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
