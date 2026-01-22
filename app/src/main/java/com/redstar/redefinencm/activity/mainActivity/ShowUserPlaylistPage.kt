@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 import com.redstar.redefinencm.viewmodel.MainViewModel
+import com.skydoves.cloudy.cloudy
 
 @Composable
 fun ShowUserPlaylistPage(
@@ -53,7 +54,8 @@ fun ShowUserPlaylistPage(
                 model = userDetail?.profile?.backgroundUrl,
                 contentDescription = "User Background",
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .cloudy(radius = 30),
                 contentScale = ContentScale.Crop,
             )
 
