@@ -42,15 +42,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget("11")
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -58,7 +58,7 @@ fun getGitSha(): String {
     return try {
         val stdout = "git rev-parse HEAD".executeCommand()
         stdout.trim()
-    } catch (_: Exception) {
+    } catch (e: Exception) {
         "GIT_FAILED"
     }
 }
@@ -120,5 +120,4 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.material3)
     implementation(libs.hyperfocus.api)
-//    implementation(libs.cloudy)
 }
