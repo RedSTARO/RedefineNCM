@@ -48,11 +48,12 @@ fun RecommendPage(
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(visible = !showSearch) {
+            val animatedVisibilityScope = this
             Column(modifier = Modifier.padding(16.dp)) {
                 SearchBox(
                     onClick = { showSearch = true },
                     sharedTransitionScope = sharedTransitionScope,
-                    animatedVisibilityScope = this,
+                    animatedVisibilityScope = animatedVisibilityScope,
                 )
 
                 SectionWithLazyRow(
