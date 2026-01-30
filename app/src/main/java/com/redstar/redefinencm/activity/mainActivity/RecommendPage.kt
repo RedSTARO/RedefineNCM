@@ -1,5 +1,6 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -19,6 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,42 +41,55 @@ fun RecommendPage(
     navController: NavController,
     viewModel: MainViewModel,
     sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val recommendResource = viewModel.recommendResource.collectAsState()
     val recommendSongs = viewModel.recommendSongs.collectAsState()
+    var showSearch by rememberSaveable { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        SearchBox(
-            onClick = { navController.navigate("search") },
-            sharedTransitionScope = sharedTransitionScope,
-            animatedVisibilityScope = animatedVisibilityScope,
-        )
-
-        SectionWithLazyRow(
-            title = "Recommend Resources",
-            items = recommendResource.value?.recommend ?: emptyList(),
-            itemContent = { eachRecommend ->
-
-                RecommendSquareCard(
-                    eachRecommend.picUrl,
-                    eachRecommend.name,
-                    { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+    AnimatedContent(
+        targetState = showSearch,
+        label = "search-transition",
+    ) { isSearchVisible ->
+        if (isSearchVisible) {
+            SearchDemoPage(
+                onBack = { showSearch = false },
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = this,
+            )
+        } else {
+            Column(modifier = Modifier.padding(16.dp)) {
+                SearchBox(
+                    onClick = { showSearch = true },
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = this,
                 )
-            },
-        )
 
-        SectionWithLazyRow(
-            title = "Recommend Songs",
-            items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
-            itemContent = { eachSong ->
-                RecommendSquareCard(
-                    eachSong.al.picUrl,
-                    eachSong.name,
-                    { viewModel.onPlaySingleSongClick(eachSong) },
+                SectionWithLazyRow(
+                    title = "Recommend Resources",
+                    items = recommendResource.value?.recommend ?: emptyList(),
+                    itemContent = { eachRecommend ->
+
+                        RecommendSquareCard(
+                            eachRecommend.picUrl,
+                            eachRecommend.name,
+                            { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+                        )
+                    },
                 )
-            },
-        )
+
+                SectionWithLazyRow(
+                    title = "Recommend Songs",
+                    items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
+                    itemContent = { eachSong ->
+                        RecommendSquareCard(
+                            eachSong.al.picUrl,
+                            eachSong.name,
+                            { viewModel.onPlaySingleSongClick(eachSong) },
+                        )
+                    },
+                )
+            }
+        }
     }
 }
 
