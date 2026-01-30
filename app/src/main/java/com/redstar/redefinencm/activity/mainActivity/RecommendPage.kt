@@ -1,7 +1,7 @@
 package com.redstar.redefinencm.activity.mainActivity
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
@@ -46,17 +46,8 @@ fun RecommendPage(
     val recommendSongs = viewModel.recommendSongs.collectAsState()
     var showSearch by rememberSaveable { mutableStateOf(false) }
 
-    AnimatedContent(
-        targetState = showSearch,
-        label = "search-transition",
-    ) { isSearchVisible ->
-        if (isSearchVisible) {
-            SearchDemoPage(
-                onBack = { showSearch = false },
-                sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = this,
-            )
-        } else {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedVisibility(visible = !showSearch) {
             Column(modifier = Modifier.padding(16.dp)) {
                 SearchBox(
                     onClick = { showSearch = true },
@@ -89,6 +80,14 @@ fun RecommendPage(
                     },
                 )
             }
+        }
+
+        AnimatedVisibility(visible = showSearch) {
+            SearchDemoPage(
+                onBack = { showSearch = false },
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = this,
+            )
         }
     }
 }
