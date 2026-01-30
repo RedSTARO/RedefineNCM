@@ -9,6 +9,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,7 +53,7 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 class MainActivity : ComponentActivity() {
     val viewModel: MainViewModel = MainViewModel()
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -105,45 +108,64 @@ class MainActivity : ComponentActivity() {
                             if (widthClass != WindowWidthSizeClass.Compact) {
                                 ResponsiveNavigation(navController, items, currentRoute, widthClass)
                             }
-                            NavHost(
-                                navController = navController,
-                                startDestination = "recommend",
-                                // Apply padding from the scaffold but not for system bars
-                                modifier = Modifier.padding(innerPadding),
-                            ) {
-                                composable("recommend") {
-                                    RecommendPage(navController, viewModel)
-                                }
-
-                                composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
-                                    val songId = backStackEntry.arguments?.getString("songId")
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d("Main", "SongList ID: $songId")
+                            SharedTransitionLayout {
+                                val sharedTransitionScope = this
+                                NavHost(
+                                    navController = navController,
+                                    startDestination = "recommend",
+                                    // Apply padding from the scaffold but not for system bars
+                                    modifier = Modifier.padding(innerPadding),
+                                ) {
+                                    composable("recommend") {
+                                        AnimatedVisibility(visible = true) {
+                                            RecommendPage(
+                                                navController,
+                                                viewModel,
+                                                sharedTransitionScope,
+                                                this,
+                                            )
+                                        }
                                     }
-                                    ShowPlaylistDetailPage(
-                                        viewModel = viewModel,
-                                        songlistID = songId!!.toLong(),
-                                    )
-                                }
-
-                                composable("my") {
-                                    ShowUserPlaylistPage(
-                                        navController = navController,
-                                        viewModel = viewModel,
-                                    )
-                                }
-                                composable("my/playlistDetailPage/{songId}") { backStackEntry ->
-                                    val songId = backStackEntry.arguments?.getString("songId")
-                                    if (BuildConfig.DEBUG) {
-                                        Log.d("Main", "SongList ID: $songId")
+                                    composable("search") {
+                                        AnimatedVisibility(visible = true) {
+                                            SearchDemoPage(
+                                                navController,
+                                                sharedTransitionScope,
+                                                this,
+                                            )
+                                        }
                                     }
-                                    ShowPlaylistDetailPage(
-                                        viewModel = viewModel,
-                                        songlistID = songId!!.toLong(),
-                                    )
-                                }
-                                composable("settings") {
-                                    SettingPage(this@MainActivity, importSettingLauncher)
+
+                                    composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
+                                        val songId = backStackEntry.arguments?.getString("songId")
+                                        if (BuildConfig.DEBUG) {
+                                            Log.d("Main", "SongList ID: $songId")
+                                        }
+                                        ShowPlaylistDetailPage(
+                                            viewModel = viewModel,
+                                            songlistID = songId!!.toLong(),
+                                        )
+                                    }
+
+                                    composable("my") {
+                                        ShowUserPlaylistPage(
+                                            navController = navController,
+                                            viewModel = viewModel,
+                                        )
+                                    }
+                                    composable("my/playlistDetailPage/{songId}") { backStackEntry ->
+                                        val songId = backStackEntry.arguments?.getString("songId")
+                                        if (BuildConfig.DEBUG) {
+                                            Log.d("Main", "SongList ID: $songId")
+                                        }
+                                        ShowPlaylistDetailPage(
+                                            viewModel = viewModel,
+                                            songlistID = songId!!.toLong(),
+                                        )
+                                    }
+                                    composable("settings") {
+                                        SettingPage(this@MainActivity, importSettingLauncher)
+                                    }
                                 }
                             }
                         }

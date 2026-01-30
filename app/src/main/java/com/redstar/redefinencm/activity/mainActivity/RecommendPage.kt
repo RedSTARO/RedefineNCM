@@ -1,5 +1,10 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.rememberSharedContentState
+import androidx.compose.animation.sharedBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
@@ -32,12 +37,18 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 fun RecommendPage(
     navController: NavController,
     viewModel: MainViewModel,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val recommendResource = viewModel.recommendResource.collectAsState()
     val recommendSongs = viewModel.recommendSongs.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
-        SearchBox()
+        SearchBox(
+            onClick = { navController.navigate("search") },
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
+        )
 
         SectionWithLazyRow(
             title = "Recommend Resources",
@@ -66,16 +77,28 @@ fun RecommendPage(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SearchBox() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Search TODO", fontSize = 16.sp)
+fun SearchBox(
+    onClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) {
+    with(sharedTransitionScope) {
+        Card(
+            onClick = onClick,
+            modifier = Modifier
+                .sharedBounds(
+                    rememberSharedContentState(SharedKeys.search()),
+                    animatedVisibilityScope,
+                )
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Search", fontSize = 16.sp)
+            }
         }
     }
 }
