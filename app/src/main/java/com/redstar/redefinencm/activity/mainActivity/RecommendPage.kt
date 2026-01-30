@@ -84,10 +84,11 @@ fun RecommendPage(
         }
 
         AnimatedVisibility(visible = showSearch) {
+            val animatedVisibilityScope = this
             SearchDemoPage(
                 onBack = { showSearch = false },
                 sharedTransitionScope = sharedTransitionScope,
-                animatedVisibilityScope = this,
+                animatedVisibilityScope = animatedVisibilityScope,
             )
         }
     }
