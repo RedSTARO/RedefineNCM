@@ -21,18 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SearchDemoPage(
-    navController: NavController,
+    onBack: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val queryState = remember { mutableStateOf("") }
     Column(modifier = Modifier.padding(16.dp)) {
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(onClick = onBack) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",

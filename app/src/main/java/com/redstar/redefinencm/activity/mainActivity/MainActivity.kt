@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Row
@@ -117,23 +116,11 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(innerPadding),
                                 ) {
                                     composable("recommend") {
-                                        AnimatedVisibility(visible = true) {
-                                            RecommendPage(
-                                                navController,
-                                                viewModel,
-                                                sharedTransitionScope,
-                                                this,
-                                            )
-                                        }
-                                    }
-                                    composable("search") {
-                                        AnimatedVisibility(visible = true) {
-                                            SearchDemoPage(
-                                                navController,
-                                                sharedTransitionScope,
-                                                this,
-                                            )
-                                        }
+                                        RecommendPage(
+                                            navController,
+                                            viewModel,
+                                            sharedTransitionScope,
+                                        )
                                     }
 
                                     composable("recommend/playlistDetailPage/{songId}") { backStackEntry ->
