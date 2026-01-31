@@ -12,7 +12,7 @@ import com.redstar.redefinencm.R
 /**
  * Helper responsible for driving Android Live Update lyrics.
  */
-object MiuiHyperFocusLyricController {
+object LiveUpdateLyricController {
 
     private const val CHANNEL_ID = "live_update_lyric"
     private const val NOTIFICATION_ID = 0x4C595243 // "LYRC"
@@ -33,11 +33,21 @@ object MiuiHyperFocusLyricController {
         ensureChannel(context)
 
         val displayTitle = title ?: context.getString(R.string.app_name)
-        val detailText = buildString {
+        val trimmedArtist = artist?.trim().orEmpty()
+        val trimmedNext = nextLyric?.trim().orEmpty()
+        val contentText = buildString {
+            if (trimmedArtist.isNotEmpty()) {
+                append(trimmedArtist)
+                append(" · ")
+            }
             append(lyric)
-            val trimmedNext = nextLyric?.trim().orEmpty()
+        }
+        val detailText = buildString {
+            append("当前: ")
+            append(lyric)
             if (trimmedNext.isNotEmpty()) {
                 appendLine()
+                append("下一句: ")
                 append(trimmedNext)
             }
         }
@@ -45,18 +55,19 @@ object MiuiHyperFocusLyricController {
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(displayTitle)
-            .setContentText(lyric)
-            .setSubText(artist)
+            .setContentText(contentText)
+            .setSubText(trimmedArtist.ifEmpty { null })
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+            .setShowWhen(false)
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(detailText)
-                    .setSummaryText(artist),
+                    .setSummaryText(trimmedArtist.ifEmpty { null }),
             )
 
         if (shouldRequestLiveUpdate(context)) {
