@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">RedefineNCM</string>
     <string name="title_activity_splash">SplashActivity</string>
-    <string name="miui_focus_channel_name">HyperOS 实时歌词</string>
-    <string name="miui_focus_channel_description">用于在小米超级岛上展示实时歌词的通知渠道。</string>
+    <string name="lyric_live_update_channel_name">Lyric Live Update</string>
+    <string name="lyric_live_update_channel_description">Show lyrics as Live Update Notifications</string>
 </resources>
