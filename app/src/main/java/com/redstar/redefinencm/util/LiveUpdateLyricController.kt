@@ -1,10 +1,12 @@
 package com.redstar.redefinencm.util
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.redstar.redefinencm.R
@@ -20,6 +22,7 @@ object LiveUpdateLyricController {
     @Volatile
     private var lastLyric: String? = null
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun updateLyric(
         context: Context,
         title: String?,
@@ -43,11 +46,9 @@ object LiveUpdateLyricController {
             append(lyric)
         }
         val detailText = buildString {
-            append("当前: ")
             append(lyric)
             if (trimmedNext.isNotEmpty()) {
                 appendLine()
-                append("下一句: ")
                 append(trimmedNext)
             }
         }
@@ -88,17 +89,16 @@ object LiveUpdateLyricController {
     }
 
     private fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val notificationManager = context.getSystemService(NotificationManager::class.java)
         val existing = notificationManager?.getNotificationChannel(CHANNEL_ID)
         if (existing != null) return
 
         val channel = NotificationChannel(
             CHANNEL_ID,
-            context.getString(R.string.miui_focus_channel_name),
+            context.getString(R.string.lyric_live_update_channel_name),
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = context.getString(R.string.miui_focus_channel_description)
+            description = context.getString(R.string.lyric_live_update_channel_description)
             enableLights(false)
             enableVibration(false)
             setShowBadge(false)
