@@ -6,10 +6,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.redstar.redefinencm.R
+import java.util.logging.Logger
 
 /**
  * Helper responsible for driving Android Live Update lyrics.
@@ -53,10 +55,13 @@ object LiveUpdateLyricController {
             }
         }
 
+        Log.d("setShortCriticalText", lyric.take(7))
+
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(displayTitle)
             .setContentText(contentText)
+            .setShortCriticalText(if (SettingProvider.adaptOriginalAndroidLyric){lyric.take(7)} else {lyric})
             .setSubText(trimmedArtist.ifEmpty { null })
             .setOnlyAlertOnce(true)
             .setSilent(true)

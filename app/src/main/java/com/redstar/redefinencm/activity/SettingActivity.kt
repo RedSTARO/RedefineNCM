@@ -50,6 +50,7 @@ import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.SettingProvider
+import com.redstar.redefinencm.util.SettingProvider.adaptOriginalAndroidLyric
 import com.redstar.redefinencm.util.SoundQuality
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -115,6 +116,10 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
                 SettingProvider.checkUpdate,
                 "Check update when app start"
             ) { SettingProvider.updateCheckUpdate(it) }
+            SwitchItem(
+                SettingProvider.adaptOriginalAndroidLyric,
+                "Adapt original Android Live Update lyric"
+            ) { SettingProvider.updateAdaptOriginalAndroidLyric(it) }
             ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
             ButtonItem("Import app setting") {
                 SettingProvider.startImportSetting(activity, importSettingLauncher)
