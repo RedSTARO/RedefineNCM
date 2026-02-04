@@ -22,6 +22,8 @@ object SettingProvider {
     var replacePlaylist = false
     var checkUpdate = false
 
+    var adaptOriginalAndroidLyric = false
+
     private const val FILE_NAME = "RedefineNCM_app_settings.json"
 
     init {
@@ -62,6 +64,13 @@ object SettingProvider {
         checkUpdate = newStatus
         CoroutineScope(Dispatchers.IO).launch {
             DataStoreManager.setBooleanItem("checkUpdate", checkUpdate)
+        }
+    }
+
+    fun updateAdaptOriginalAndroidLyric(newStatus: Boolean){
+        adaptOriginalAndroidLyric = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("adaptOriginalAndroidLyric", adaptOriginalAndroidLyric)
         }
     }
 
