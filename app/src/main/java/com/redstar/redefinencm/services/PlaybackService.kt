@@ -20,7 +20,7 @@ import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
-import com.redstar.redefinencm.util.MiuiHyperFocusLyricController
+import com.redstar.redefinencm.util.LiveUpdateLyricController
 import com.redstar.redefinencm.util.RedirectingDataSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,7 +125,7 @@ class PlaybackService : MediaSessionService() {
             release()
             mediaSession = null
         }
-        MiuiHyperFocusLyricController.clearFocus(this)
+        LiveUpdateLyricController.clearFocus(this)
         super.onDestroy()
     }
 
@@ -140,7 +140,7 @@ class PlaybackService : MediaSessionService() {
                     try {
                         val lyricText = response.lrc.lyric
                         lyricMap = LyricParser.parse(lyricText)
-                        MiuiHyperFocusLyricController.reset()
+                        LiveUpdateLyricController.reset()
                         CoroutineScope(Dispatchers.IO).launch {
                             LyricBus.lyricMapFlow.emit(lyricMap)
                         }
@@ -148,7 +148,7 @@ class PlaybackService : MediaSessionService() {
                             Log.d(TAG, "Lyrics fetched and parsed for mediaId: $mediaId")
                         }
                     } catch (e: Exception) {
-                        MiuiHyperFocusLyricController.clearFocus(this@PlaybackService)
+                        LiveUpdateLyricController.clearFocus(this@PlaybackService)
                         if (BuildConfig.DEBUG) {
                             Log.e(TAG, "Failed to fetch lyrics: ${e.message}")
                         }
@@ -157,7 +157,7 @@ class PlaybackService : MediaSessionService() {
                     CoroutineScope(Dispatchers.IO).launch {
                         LyricBus.lyricMapFlow.emit(linkedMapOf(0L to "Lyric wanted"))
                     }
-                    MiuiHyperFocusLyricController.clearFocus(this@PlaybackService)
+                    LiveUpdateLyricController.clearFocus(this@PlaybackService)
                     if (BuildConfig.DEBUG) {
                         Log.d(TAG, "No lyrics found for mediaId: $mediaId")
                     }
@@ -184,7 +184,7 @@ class PlaybackService : MediaSessionService() {
                 if (index >= 0) {
                     val lyricsList = lyricMap.values.toList()
                     val nextLyric = lyricsList.getOrNull(index + 1)
-                    MiuiHyperFocusLyricController.updateLyric(
+                    LiveUpdateLyricController.updateLyric(
                         context = this@PlaybackService,
                         title = metadata?.title?.toString(),
                         artist = metadata?.artist?.toString(),

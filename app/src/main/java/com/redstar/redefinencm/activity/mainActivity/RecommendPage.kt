@@ -1,5 +1,9 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
@@ -16,6 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,50 +40,82 @@ import com.redstar.redefinencm.viewmodel.MainViewModel
 fun RecommendPage(
     navController: NavController,
     viewModel: MainViewModel,
+    sharedTransitionScope: SharedTransitionScope,
 ) {
     val recommendResource = viewModel.recommendResource.collectAsState()
     val recommendSongs = viewModel.recommendSongs.collectAsState()
+    var showSearch by rememberSaveable { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        SearchBox()
-
-        SectionWithLazyRow(
-            title = "Recommend Resources",
-            items = recommendResource.value?.recommend ?: emptyList(),
-            itemContent = { eachRecommend ->
-
-                RecommendSquareCard(
-                    eachRecommend.picUrl,
-                    eachRecommend.name,
-                    { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedVisibility(visible = !showSearch) {
+            val animatedVisibilityScope = this
+            Column(modifier = Modifier.padding(16.dp)) {
+                SearchBox(
+                    onClick = { showSearch = true },
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope,
                 )
-            },
-        )
 
-        SectionWithLazyRow(
-            title = "Recommend Songs",
-            items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
-            itemContent = { eachSong ->
-                RecommendSquareCard(
-                    eachSong.al.picUrl,
-                    eachSong.name,
-                    { viewModel.onPlaySingleSongClick(eachSong) },
+                SectionWithLazyRow(
+                    title = "Recommend Resources",
+                    items = recommendResource.value?.recommend ?: emptyList(),
+                    itemContent = { eachRecommend ->
+
+                        RecommendSquareCard(
+                            eachRecommend.picUrl,
+                            eachRecommend.name,
+                            { navController.navigate("recommend/playlistDetailPage/${eachRecommend.id}") },
+                        )
+                    },
                 )
-            },
-        )
+
+                SectionWithLazyRow(
+                    title = "Recommend Songs",
+                    items = recommendSongs.value?.data?.dailySongs ?: emptyList(),
+                    itemContent = { eachSong ->
+                        RecommendSquareCard(
+                            eachSong.al.picUrl,
+                            eachSong.name,
+                            { viewModel.onPlaySingleSongClick(eachSong) },
+                        )
+                    },
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = showSearch) {
+            val animatedVisibilityScope = this
+            SearchDemoPage(
+                onBack = { showSearch = false },
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SearchBox() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Search TODO", fontSize = 16.sp)
+fun SearchBox(
+    onClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+) {
+    with(sharedTransitionScope) {
+        Card(
+            onClick = onClick,
+            modifier = Modifier
+                .sharedBounds(
+                    rememberSharedContentState(SharedKeys.search()),
+                    animatedVisibilityScope,
+                )
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+        ) {
+            Box(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Search", fontSize = 16.sp)
+            }
         }
     }
 }

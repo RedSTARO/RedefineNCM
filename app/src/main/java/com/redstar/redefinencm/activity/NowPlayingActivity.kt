@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,18 +35,10 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.ShuffleOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.ButtonGroupDefaults
-import androidx.compose.material3.ButtonGroupScope
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -64,7 +57,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,10 +70,10 @@ import coil.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.data.CommentMusicComments
 import com.redstar.redefinencm.data.api.data.UserDetailProfile
-import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.viewmodel.NowPlayingViewModel
+import com.skydoves.cloudy.cloudy
 
 class NowPlayingActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -102,12 +94,9 @@ class NowPlayingActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(paddingValues)
                             .background(MaterialTheme.colorScheme.background),
-//                        contentAlignment = Alignment.Center,
-
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-//                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             NowPlaying(viewModel)
                         }
@@ -121,15 +110,13 @@ class NowPlayingActivity : ComponentActivity() {
 @Composable
 fun NowPlaying(viewModel: NowPlayingViewModel) {
     val metadata by viewModel.nowPlayingMetadata.collectAsState()
-    val mediaController by viewModel.mediaController.collectAsState()
-    val comments by viewModel.comments.collectAsState()
+    val commentsEntity by viewModel.comments.collectAsState()
     val currentIndex by viewModel.currentMediaIndexInList.collectAsState()
     val lyricMap by viewModel.lyricMap.collectAsState()
     val lyricIndex by viewModel.lyricIndex.collectAsState()
     var showPlaylist by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
-    val currentRandomStatus by viewModel.shuffleStatus.collectAsState()
-    var showLyric by remember { mutableStateOf(false) }
+    var currentRandomStatus by remember { mutableStateOf(false) }
     val isPlaying by viewModel.isPlaying.collectAsState()
     val position by viewModel.currentPosition.collectAsState()
     val songLength by viewModel.songLength.collectAsState()
@@ -158,7 +145,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
                 viewModel.onShuffleClick(!currentRandomStatus)
             },
             onCommentsClick = {
-                if (showComments == false) {
+                if (!showComments) {
                     viewModel.getComments()
                 }
                 showComments = !showComments
@@ -179,7 +166,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     }
 
     if (showComments) {
-        Comments(comments, onDismiss = { showComments = false })
+        Comments(commentsEntity.hotComments, onDismiss = { showComments = false })
     }
 }
 
@@ -187,14 +174,12 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
 fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
     var themeColor by remember { mutableStateOf(Color.Gray) }
 
-    // 图片 + 文本层叠
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f),
         contentAlignment = Alignment.BottomStart,
     ) {
-        // 专辑封面
         AsyncImage(
             model = metadata?.artworkUri,
             contentDescription = "专辑封面",
@@ -215,7 +200,6 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
             },
         )
 
-        // 悬浮的文字信息（带背景半透明遮罩）
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -255,7 +239,6 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
     val listState = rememberLazyListState()
     val lyrics = lyricMap.values.toList()
 
-    // 自动滚动到当前歌词行
     LaunchedEffect(lyricIndex) {
         if (lyricIndex >= 0 && lyricIndex < lyrics.size) {
             listState.animateScrollToItem(lyricIndex)
@@ -285,7 +268,6 @@ fun Lyric(lyricMap: LinkedHashMap<Long?, String?>, lyricIndex: Int) {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProgressBar(
     currentPosition: Long,
@@ -303,15 +285,13 @@ fun ProgressBar(
             .fillMaxWidth()
             .height(24.dp),
     ) {
-        // 背后是漂亮的波浪进度条
-        LinearWavyProgressIndicator(
+        LinearProgressIndicator(
             progress = { progress.coerceIn(0f, 1f) },
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center),
         )
 
-        // 透明 Slider 覆盖在上面处理拖动
         Slider(
             value = progress.coerceIn(0f, 1f),
             onValueChange = { percent ->
@@ -331,6 +311,7 @@ fun ProgressBar(
 
 @Composable
 fun PlaybackControlButtons(
+    isPlaying: Boolean,
     onFavClick: () -> Unit,
     onPervClick: () -> Unit,
     onPauseClick: () -> Unit,
@@ -340,89 +321,71 @@ fun PlaybackControlButtons(
     onShuffleClick: () -> Unit,
     onCommentsClick: () -> Unit,
     currentFavStatus: Boolean,
-    isPlaying: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    var currentFavStatus by remember { mutableStateOf(currentFavStatus) }
-    // Control buttons
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton_(
-            onClick = {
-                onFavClick()
-                currentFavStatus = !currentFavStatus // TODO: Really do remove fav
-            },
-            icon = if (currentFavStatus) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-            contentDescription = "Like this music",
-        )
-
-        // Perv
-        IconButton_(
-            onClick = { onPervClick() },
-            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "上一首",
-        )
-
-        // Pause
-        IconButton_(
-            onClick = {
-                onPauseClick()
-            },
-            icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-            contentDescription = "播放/暂停",
+        IconButton(onClick = onShuffleClick) {
+            Icon(
+                imageVector = if (currentRandomStatus) Icons.Default.ShuffleOn else Icons.Default.Shuffle,
+                contentDescription = "Shuffle",
+                tint = if (currentRandomStatus) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        IconButton(onClick = onPervClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "Previous",
+                modifier = Modifier.size(36.dp),
+            )
+        }
+        IconButton(
+            onClick = onPauseClick,
             modifier = Modifier.size(64.dp),
-        )
-
-        // Next
-        IconButton_(
-            onClick = { onNextClick() },
-            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "下一首",
-        )
-
-        IconButton_(
-            onClick = {
-                onShowPlaylistClick()
-            },
-            icon = Icons.AutoMirrored.Filled.QueueMusic,
-            contentDescription = "Current playlist",
-        )
+        ) {
+            Icon(
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = "Play/Pause",
+                modifier = Modifier.size(48.dp),
+            )
+        }
+        IconButton(onClick = onNextClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Next",
+                modifier = Modifier.size(36.dp),
+            )
+        }
+        IconButton(onClick = onShowPlaylistClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.QueueMusic,
+                contentDescription = "Playlist",
+            )
+        }
     }
 
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton_(
-                onClick = {
-                    onShuffleClick()
-                },
-                icon = if (!currentRandomStatus) Icons.Filled.Shuffle else Icons.Filled.ShuffleOn,
-                contentDescription = "Shuffle: $currentRandomStatus",
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        IconButton(onClick = onFavClick) {
+            Icon(
+                imageVector = if (currentFavStatus) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = "Favorite",
+                tint = if (currentFavStatus) Color.Red else MaterialTheme.colorScheme.onSurface,
             )
-
-//            FuncButton(
-//                onClick = {
-//                    mediaController?.setRepeatMode(repeatModes[(currentRepeatStatus++)]!!)
-//                    currentRepeatStatus = (currentRepeatStatus) % 3
-//                    if (BuildConfig.DEBUG) {
-//                        Log.d("RepeatMode", "Repeat mode: $currentRepeatStatus")
-//                    }
-//                },
-//                text = "Repeat Mode",
-//            )
-
-            IconButton_(
-                onClick = {
-                    onCommentsClick()
-                },
+        }
+        IconButton(onClick = onCommentsClick) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Comment,
                 contentDescription = "Comments",
-                icon = Icons.AutoMirrored.Filled.Comment,
             )
         }
     }
@@ -431,57 +394,45 @@ fun PlaybackControlButtons(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrentPlayList(
-    playlist: List<MediaItem?>,
+    playlist: List<MediaItem>,
+    onDismiss: () -> Unit,
     currentIndex: Int,
     onSeekClick: (Int) -> Unit,
-    onDismiss: () -> Unit
 ) {
-    val currentMediaId by remember { mutableStateOf<String?>(null) }
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        if (currentIndex >= 0) {
-            listState.animateScrollToItem(currentIndex)
-        }
-    }
-
-    if (playlist.isNotEmpty()) {
-        ModalBottomSheet(onDismissRequest = { onDismiss() }) {
-            LazyColumn(state = listState) {
-                itemsIndexed(playlist) { index, item ->
-                    Row {
-                        Spacer(Modifier.padding(5.dp))
-                        if (item != null) {
-                            Card(
-                                modifier = Modifier
-                                    .clickable {
-                                        onSeekClick(index)
-                                    }
-                                    .fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (currentMediaId == item.mediaId) {
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                    } else {
-                                        Color.Transparent
-                                    },
-                                ),
-                            ) {
-                                Text(
-                                    text = "$index: ${item.mediaMetadata.title}",
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally),
-                                )
-                                Text(
-                                    text = item.mediaMetadata.artist.toString(),
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally),
-                                )
-                            }
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            itemsIndexed(playlist) { index, item ->
+                val isCurrent = index == currentIndex
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onSeekClick(index)
+                            onDismiss()
                         }
-                    }
-                    Spacer(Modifier.padding(5.dp))
-                    if (BuildConfig.DEBUG) {
-                        Log.d("Playlist", "Item $index: ${item?.mediaMetadata?.title}")
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "${index + 1}",
+                        modifier = Modifier.width(32.dp),
+                        color = if (isCurrent) MaterialTheme.colorScheme.primary else Color.Gray,
+                    )
+                    Column {
+                        Text(
+                            text = item.mediaMetadata.title?.toString() ?: "未知标题",
+                            color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                        )
+                        Text(
+                            text = item.mediaMetadata.artist?.toString() ?: "未知艺术家",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                        )
                     }
                 }
             }
@@ -489,162 +440,76 @@ fun CurrentPlayList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Comments(comments: CommentMusicEntity, onDismiss: () -> Unit) {
-    var showHotComments by remember { mutableStateOf(false) }
-
+fun Comments(comments: List<CommentMusicComments>, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        ButtonGroup(
-            overflowIndicator = { /* 可替换为图标，如 Icon(Icons.Default.MoreVert) */ Text("...") },
-            modifier = Modifier.fillMaxWidth(),
-            expandedRatio = ButtonGroupDefaults.ExpandedRatio,
-            horizontalArrangement = ButtonGroupDefaults.HorizontalArrangement
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
         ) {
-            toggleableItem(
-                weight = 1f,
-                checked = showHotComments,
-                onCheckedChange = { showHotComments = true },
-                label = "Show Hot"
-            )
-            toggleableItem(
-                weight = 1f,
-                checked = !showHotComments,
-                onCheckedChange = { showHotComments = false },
-                label = "Show Top"
-            )
-        }
-
-        LazyColumn {
-            itemsIndexed(
-                if (showHotComments) comments.hotComments else comments.comments
-            ) { index, item ->
-                Text(text = "$index, ${item.user.nickname}: ${item.content}")
+            itemsIndexed(comments) { _, comment ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                ) {
+                    AsyncImage(
+                        model = comment.user.avatarUrl,
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color.Gray, RoundedCornerShape(20.dp)),
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = comment.user.nickname,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                        )
+                        Text(
+                            text = comment.content,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                        Text(
+                            text = comment.timeStr,
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-
-@Composable
-fun IconButton_(
-    onClick: () -> Unit,
-    icon: ImageVector,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier.size(50.dp),
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            modifier = Modifier.size(35.dp), // This must be less than above
-        )
-    }
-}
-
-@Composable
-fun FuncButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-        shape = RoundedCornerShape(12.dp),
-    ) { Text(text, color = MaterialTheme.colorScheme.onSecondary) }
-}
-
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun NowPlayingPreview() {
-    val metadata = MediaMetadata.Builder()
-        .setTitle("SongName")
-        .setArtist("SongArtist")
-        .build()
-    val lyricMap = mutableMapOf<Long?, String?>()
-    lyricMap[0] = "LyricLine"
-    lyricMap[1] = "LyricLine1"
-    lyricMap[2] = "LyricLine2"
-    Column {
-        SongDetails(metadata, onShowLyricClick = {})
-        Lyric(
-            lyricMap = lyricMap as LinkedHashMap<Long?, String?>,
-            lyricIndex = 0,
-        )
+    RedefineNCMTheme {
         ProgressBar(35, 100L, {})
-        PlaybackControlButtons(
-            onFavClick = {},
-            onPervClick = {},
-            onPauseClick = {},
-            onNextClick = {},
-            onShowPlaylistClick = {},
-            currentRandomStatus = false,
-            onShuffleClick = {},
-            onCommentsClick = {},
-            isPlaying = false,
-            modifier = Modifier,
-            currentFavStatus = false,
-        )
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CommentsPreview() {
-    val CommentMusicEntity = CommentMusicEntity(
-        id = 0,
-        isMusician = false,
-        userId = 0,
-        topComments = listOf(
-            CommentMusicComments(
-                user = UserDetailProfile(
-                    avatarUrl = "",
-                    nickname = "NickName",
-                    backgroundUrl = "",
-                    userId = 0,
-                ),
-                commentId = 0,
-                content = "CommentContent",
-                richContent = "",
-                time = 0,
-                timeStr = "TimeOfComment",
-                likedCount = 99,
-            ),
+    val commentMusicComments = listOf(
+        CommentMusicComments(
+            user = UserDetailProfile(nickname = "User 1", avatarUrl = "", userId = 0, backgroundUrl = ""),
+            commentId = 1,
+            content = "This is a comment",
+            richContent = "",
+            time = 0,
+            timeStr = "2023-01-01",
+            likedCount = 0,
         ),
-        moreHot = false,
-        hotComments = listOf(
-            CommentMusicComments(
-                user = UserDetailProfile(
-                    avatarUrl = "",
-                    nickname = "NickName",
-                    backgroundUrl = "",
-                    userId = 0,
-                ),
-                commentId = 0,
-                content = "CommentContent",
-                richContent = "",
-                time = 0,
-                timeStr = "TimeOfComment",
-                likedCount = 99,
-            ),
-        ),
-        comments = listOf(
-            CommentMusicComments(
-                user = UserDetailProfile(
-                    avatarUrl = "",
-                    nickname = "NickName",
-                    backgroundUrl = "",
-                    userId = 0,
-                ),
-                commentId = 0,
-                content = "CommentContent",
-                richContent = "",
-                time = 0,
-                timeStr = "TimeOfComment",
-                likedCount = 99,
-            ),
     )
-    )
-
-    Comments(CommentMusicEntity, {})
+    RedefineNCMTheme {
+        Comments(commentMusicComments, {})
+    }
 }
