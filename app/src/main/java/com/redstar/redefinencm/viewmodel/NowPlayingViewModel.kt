@@ -30,6 +30,7 @@ class NowPlayingViewModel : ViewModel() {
     var mediaController = MutableStateFlow<MediaController?>(null)
     var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
     var nowPayingIsPlaying = MutableStateFlow(false)
+    var shuffleStatus = MutableStateFlow(false)
     val comments = MutableStateFlow<CommentMusicEntity>(
         CommentMusicEntity(
             0,
@@ -105,6 +106,7 @@ class NowPlayingViewModel : ViewModel() {
 
                 nowPlayingMetadata.value = controller.mediaMetadata
                 nowPayingIsPlaying.value = controller.isPlaying
+                shuffleStatus.value = controller.shuffleModeEnabled
             } catch (e: Exception) {
                 Log.e("NowPlayingViewModel", "Failed to init MediaController: ${e.message}")
             }
@@ -171,6 +173,7 @@ class NowPlayingViewModel : ViewModel() {
     }
 
     fun onShuffleClick(status: Boolean) {
+        shuffleStatus.value = status
         mediaController.value?.setShuffleModeEnabled(status)
     }
 }
