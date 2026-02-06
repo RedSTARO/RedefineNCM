@@ -21,7 +21,7 @@ import com.redstar.redefinencm.util.TypeConverter
         PlaylistTrackAllEntity::class, RecommendResourceEntity::class, RecommendSongsEntity::class,
         CommentMusicEntity::class, LyricEntity::class, PlayerStatusEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = false,
 )
 @TypeConverters(TypeConverter::class)

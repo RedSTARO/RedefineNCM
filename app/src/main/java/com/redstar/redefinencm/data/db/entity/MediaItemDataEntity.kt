@@ -18,4 +18,5 @@ data class PlayerStatusEntity(
     val index: Int,
     val position: Long,
     val isPlaying: Boolean,
+    val isShuffling: Boolean
 )

@@ -284,6 +284,7 @@ class MainViewModel() : ViewModel() {
             index = controller.currentMediaItemIndex,
             position = controller.currentPosition,
             isPlaying = controller.isPlaying,
+            isShuffling = controller.shuffleModeEnabled
         )
         Log.d("savedStatusSAVE", status.toString())
 
@@ -318,6 +319,7 @@ class MainViewModel() : ViewModel() {
                 status.position,
             )
             mediaController.value?.prepare()
+            mediaController.value?.setShuffleModeEnabled(status.isShuffling)
 //            if (status?.isPlaying ?: false) {
 //                mediaController.value?.play()
 //            }
