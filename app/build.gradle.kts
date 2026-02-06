@@ -19,7 +19,7 @@ android {
         minSdk = 29
         targetSdk = 36
         versionCode = generateVersionCode()
-        versionName = "v0.0.8"
+        versionName = getGitTag()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionNameSuffix = "_Beta_${getGitSha().substring(0..5)}"
         buildConfigField("String", "GIT_SHA", "\"${getGitSha()}\"")
@@ -57,6 +57,15 @@ android {
 fun getGitSha(): String {
     return try {
         val stdout = "git rev-parse HEAD".executeCommand()
+        stdout.trim()
+    } catch (e: Exception) {
+        "GIT_FAILED"
+    }
+}
+
+fun getGitTag(): String {
+    return try {
+        val stdout = "git describe --tags --abbrev=0".executeCommand()
         stdout.trim()
     } catch (e: Exception) {
         "GIT_FAILED"
