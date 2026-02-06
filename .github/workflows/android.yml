@@ -72,6 +72,12 @@ jobs:
           name: RedefineNCM_apk
           path: app/build/outputs/apk/release/RedefineNCM_signed.apk
 
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RedefineNCM_${{ github.ref_name }}
+          path: app/build/outputs/apk/release/RedefineNCM_signed.apk
+
       - name: Get commit info
         id: gitinfo
         run: |
