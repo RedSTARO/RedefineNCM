@@ -116,7 +116,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     val lyricIndex by viewModel.lyricIndex.collectAsState()
     var showPlaylist by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
-    var currentRandomStatus by remember { mutableStateOf(false) }
+    val currentRandomStatus by viewModel.shuffleStatus.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     val position by viewModel.currentPosition.collectAsState()
     val songLength by viewModel.songLength.collectAsState()
