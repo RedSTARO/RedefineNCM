@@ -51,6 +51,9 @@ class NowPlayingViewModel : ViewModel() {
     val currentPosition = MutableStateFlow(0L)
     val songLength = MutableStateFlow(0L)
 
+    val playOrderWindowIndices = MutableStateFlow<List<Int>>(emptyList())
+
+
     init {
         initMediaController()
         initPlayingStatusSync()
@@ -102,6 +105,14 @@ class NowPlayingViewModel : ViewModel() {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         this@NowPlayingViewModel.nowPayingIsPlaying.value = isPlaying
                     }
+
+                    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                        // 当前播放项变化时更新 currentMediaIndexInList
+                        val player = mediaController.value ?: return
+                        val indices = playOrderWindowIndices.value
+                        currentMediaIndexInList.value = indices.indexOf(player.currentMediaItemIndex).toString()
+                    }
+
                 })
 
                 nowPlayingMetadata.value = controller.mediaMetadata
@@ -152,25 +163,53 @@ class NowPlayingViewModel : ViewModel() {
         mediaController.value?.seekToNext()
     }
 
-    fun onSeekClick(targetId: Int) {
-        mediaController.value?.seekTo(targetId, 0)
+    fun onSeekClick(position: Int) {
+        val player = mediaController.value ?: return
+        val windowIndex = playOrderWindowIndices.value.getOrNull(position) ?: return
+        player.seekTo(windowIndex, 0L)
     }
+
 
     fun onPositionSeekClick(newPosition: Long) {
         mediaController.value?.seekTo(newPosition)
     }
 
     fun onPlaylistClick() {
-        playList.value = emptyList()
-        val mediaItemCount = mediaController.value?.mediaItemCount ?: 0
-        for (i in 0 until mediaItemCount) {
-            val mediaItem = mediaController.value?.getMediaItemAt(i)
-            playList.value += mediaItem!!
+        val player = mediaController.value ?: return
+        val timeline = player.currentTimeline
+
+        if (timeline.isEmpty) {
+            playList.value = emptyList()
+            playOrderWindowIndices.value = emptyList()
+            currentMediaIndexInList.value = "-1"
+            return
         }
-        val targetId = mediaController.value?.currentMediaItem?.mediaId
-        currentMediaIndexInList.value =
-            playList.value.indexOfFirst { it.mediaId == targetId }.toString()
+
+        val shuffle = player.shuffleModeEnabled
+
+        val items = mutableListOf<MediaItem>()
+        val indices = mutableListOf<Int>()
+
+        var idx = timeline.getFirstWindowIndex(shuffle)
+        while (idx != androidx.media3.common.C.INDEX_UNSET) {
+            items += player.getMediaItemAt(idx)
+            indices += idx
+
+            idx = timeline.getNextWindowIndex(
+                idx,
+                Player.REPEAT_MODE_OFF,
+                shuffle
+            )
+        }
+
+        playList.value = items
+        playOrderWindowIndices.value = indices
+
+        val curWindowIdx = player.currentMediaItemIndex
+        currentMediaIndexInList.value = indices.indexOf(curWindowIdx).toString()
     }
+
+
 
     fun onShuffleClick(status: Boolean) {
         shuffleStatus.value = status
