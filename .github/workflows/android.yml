@@ -153,6 +153,11 @@ jobs:
           name: RedefineNCM_${{ github.ref_name }}
           path: app/build/outputs/apk/release/
 
+      - name: Rename APK for release asset
+        run: |
+          mv app/build/outputs/apk/release/RedefineNCM_signed.apk \
+             app/build/outputs/apk/release/RedefineNCM_${{ github.ref_name }}.apk
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
