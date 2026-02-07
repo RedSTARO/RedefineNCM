@@ -400,14 +400,26 @@ fun CurrentPlayList(
     currentIndex: Int,
     onSeekClick: (Int) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+
+    // 滚动到当前播放
+    LaunchedEffect(currentIndex, playlist.size) {
+        if (currentIndex >= 0 && currentIndex < playlist.size) {
+            listState.scrollToItem(currentIndex)
+             listState.animateScrollToItem(currentIndex)
+        }
+    }
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
         ) {
             itemsIndexed(playlist) { index, item ->
                 val isCurrent = index == currentIndex
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -423,12 +435,15 @@ fun CurrentPlayList(
                         modifier = Modifier.width(32.dp),
                         color = if (isCurrent) MaterialTheme.colorScheme.primary else Color.Gray,
                     )
+
                     Column {
                         Text(
                             text = item.mediaMetadata.title?.toString() ?: "未知标题",
-                            color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            color = if (isCurrent) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface,
                             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                         )
+
                         Text(
                             text = item.mediaMetadata.artist?.toString() ?: "未知艺术家",
                             style = MaterialTheme.typography.bodySmall,
@@ -440,6 +455,7 @@ fun CurrentPlayList(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
