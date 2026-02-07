@@ -121,6 +121,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
     val position by viewModel.currentPosition.collectAsState()
     val songLength by viewModel.songLength.collectAsState()
     val playList by viewModel.playList.collectAsState()
+    var currentFavStatus by remember { mutableStateOf(false) } // For test only
 
     Column {
         SongDetails(metadata, onShowLyricClick = { })
@@ -150,7 +151,7 @@ fun NowPlaying(viewModel: NowPlayingViewModel) {
                 }
                 showComments = !showComments
             },
-            currentFavStatus = false,
+            currentFavStatus = currentFavStatus,
             modifier = Modifier,
         )
     }

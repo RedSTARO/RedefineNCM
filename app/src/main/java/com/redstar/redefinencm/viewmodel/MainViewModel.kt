@@ -21,6 +21,7 @@ import com.redstar.redefinencm.RedefineNCMApplication
 import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.data.SongDetail
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
 import com.redstar.redefinencm.data.api.safeApiCall
@@ -38,6 +39,8 @@ import com.redstar.redefinencm.util.DownloadWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -213,36 +216,34 @@ class MainViewModel() : ViewModel() {
     }
 
     fun onPlaySingleSongInPlaylistClick(songlistID: Long, songId: Long) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val songDetails = safeApiCall { retrofit.playlistTrackAll(songlistID).songs }
-            if (songDetails == null) return@launch
+        viewModelScope.launch(Dispatchers.IO) {
+            val songs = repo.getPlaylistTrackAll(songlistID)
+                .first()
+                .songs
 
-            val mediaItems = mutableListOf<MediaItem>()
-            var targetSongIndex = 0
+            val targetSongIndex = songs.indexOfFirst { it.id == songId }.coerceAtLeast(0)
 
-            songDetails.forEachIndexed { index, eachSong ->
-                if (eachSong.id == songId) {
-                    targetSongIndex = index
-                }
-                val mediaItem = MediaItem.Builder()
+            val mediaItems = songs.map { eachSong ->
+                MediaItem.Builder()
                     .setUri("redefinencm://playbackPlaceHolder?id=${eachSong.id}")
+                    .setMediaId(eachSong.id.toString())
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(eachSong.name)
-                            .setArtist(eachSong.ar.first().name)
+                            .setArtist(eachSong.ar.firstOrNull()?.name ?: "")
                             .setArtworkUri(eachSong.al.picUrl.toUri())
-                            .build(),
+                            .build()
                     )
-                    .setMediaId(eachSong.id.toString())
                     .build()
-                mediaItems.add(mediaItem)
             }
 
             withContext(Dispatchers.Main) {
-                mediaController.value?.stop()
-                mediaController.value?.setMediaItems(mediaItems, targetSongIndex, 0L)
-                mediaController.value?.prepare()
-                mediaController.value?.play()
+                mediaController.value?.run {
+                    stop()
+                    setMediaItems(mediaItems, targetSongIndex, 0L)
+                    prepare()
+                    play()
+                }
             }
 
             safeApiCall { retrofit.playlistUpdatePlaycount(songlistID) }
