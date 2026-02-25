@@ -91,7 +91,7 @@ class LoginActivity : ComponentActivity() {
 
                     LaunchedEffect(Dispatchers.IO) {
                         gotServer = runBlocking {
-                            (DataStoreManager.getStringItem("server", "http://ncm.tryagain.fun/"))
+                            (DataStoreManager.getStringItem("server", "http://ncm.tryagain.icu/"))
                         }.isNotEmpty()
                     }
 
