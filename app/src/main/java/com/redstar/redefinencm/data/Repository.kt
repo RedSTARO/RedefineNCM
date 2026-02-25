@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
+import com.redstar.redefinencm.data.api.data.SongUrlV1Data
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.data.db.dao.Dao
 import com.redstar.redefinencm.data.db.entity.CommentMusicEntity
@@ -222,6 +223,20 @@ class Repository(
                 }
             }
         }
+    }
+
+    fun getSongUris(songIds: List<Long>):  List<SongUrlV1Data> {
+
+            Log.d("Repository", "Fetching uri with base name $songIds")
+            return runBlocking {
+                safeApiCall {
+                    retrofit.songUrlV1(
+                        songIds,
+                        SettingProvider.onlinePlayQuality.lowercase()
+                    ).data
+                } as List<SongUrlV1Data>
+            }
+
     }
 
     suspend fun getPlayerStatus(): PlayerStatusEntity? {

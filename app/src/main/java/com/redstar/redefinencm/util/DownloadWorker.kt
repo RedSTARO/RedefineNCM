@@ -8,10 +8,13 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.redstar.redefinencm.RedefineNCMApplication
+import com.redstar.redefinencm.data.Repository
 import com.redstar.redefinencm.data.api.NCMApi
 import com.redstar.redefinencm.data.api.RetrofitInstance
 import com.redstar.redefinencm.data.api.data.SongUrlV1Data
 import com.redstar.redefinencm.data.api.safeApiCall
+import com.redstar.redefinencm.data.db.DatabaseProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -31,12 +34,14 @@ class DownloadWorker(
 
         return try {
             val urls = getUrlsForIds(ids)
+            Log.d("DownloadSong", urls.toString())
 
             val batches = urls.chunked(5)
             for (batch in batches) {
                 coroutineScope {
                     batch.map { eachSong ->
                         async {
+                            Log.d("DownloadSong", eachSong.toString())
                             enqueueDownload(eachSong.url, eachSong.id.toString())
                         }
                     }.awaitAll()
@@ -63,22 +68,20 @@ class DownloadWorker(
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
-                "/RedefineNCM/" + fileName,
+                "/RedefineNCM/$fileName",
             )
         }
 
         downloadManager.enqueue(request)
     }
 
-    private suspend fun getUrlsForIds(ids: List<Long>): List<SongUrlV1Data> {
-        val response = safeApiCall {
-            retrofit.songUrlV1(
-                ids,
-                DataStoreManager.getStringItem("downloadQuality", "standard"),
-            )
-        }
-        return response?.data?.map { it } ?: emptyList()
+    private fun getUrlsForIds(ids: List<Long>): List<SongUrlV1Data> {
+        val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
+        val response = repo.getSongUris(ids)
+        Log.d("DownloadSong", response.toString())
+        return response.map { it }
     }
+
 }
 
 object DownloadUtil {

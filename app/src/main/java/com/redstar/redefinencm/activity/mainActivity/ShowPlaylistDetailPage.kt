@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -218,9 +219,17 @@ fun ShowPlaylistDetailPage(
                             )
                         }
 
+                        Log.d("DownloadSong",
+                            DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString()).toString()
+                        )
                         if (DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString())) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
+                                contentDescription = "Downloaded",
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Filled.AttachFile,
                                 contentDescription = "Downloaded",
                             )
                         }
