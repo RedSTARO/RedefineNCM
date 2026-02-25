@@ -204,9 +204,6 @@ class NowPlayingViewModel : ViewModel() {
 
         playList.value = items
         playOrderWindowIndices.value = indices
-
-        val curWindowIdx = player.currentMediaItemIndex
-        currentMediaIndexInList.value = indices.indexOf(curWindowIdx).toString()
     }
 
 
