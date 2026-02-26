@@ -42,7 +42,9 @@ class DownloadWorker(
                     batch.map { eachSong ->
                         async {
                             Log.d("DownloadSong", eachSong.toString())
-                            enqueueDownload(eachSong.url, eachSong.id.toString())
+                            if (!DownloadUtil.fileAlreadyExistsByBaseName(eachSong.id.toString())){
+                                enqueueDownload(eachSong.url, eachSong.id.toString())
+                            }
                         }
                     }.awaitAll()
                 }
