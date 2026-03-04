@@ -57,6 +57,7 @@ class NowPlayingViewModel : ViewModel() {
     init {
         initMediaController()
         initPlayingStatusSync()
+        updateNowPlayingMediaIndex()
     }
 
     private fun initPlayingStatusSync() {
@@ -89,6 +90,13 @@ class NowPlayingViewModel : ViewModel() {
         }
     }
 
+    private fun updateNowPlayingMediaIndex(){
+        // 当前播放项变化时更新 currentMediaIndexInList
+        val player = mediaController.value ?: return
+        val indices = playOrderWindowIndices.value
+        currentMediaIndexInList.value = indices.indexOf(player.currentMediaItemIndex).toString()
+    }
+
     private fun initMediaController() {
         viewModelScope.launch {
             try {
@@ -107,10 +115,7 @@ class NowPlayingViewModel : ViewModel() {
                     }
 
                     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                        // 当前播放项变化时更新 currentMediaIndexInList
-                        val player = mediaController.value ?: return
-                        val indices = playOrderWindowIndices.value
-                        currentMediaIndexInList.value = indices.indexOf(player.currentMediaItemIndex).toString()
+                        updateNowPlayingMediaIndex()
                     }
 
                 })
