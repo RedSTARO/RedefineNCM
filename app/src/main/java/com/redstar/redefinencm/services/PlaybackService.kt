@@ -21,7 +21,6 @@ import com.redstar.redefinencm.data.db.DatabaseProvider
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.LyricParser
 import com.redstar.redefinencm.util.LiveUpdateLyricController
-import com.redstar.redefinencm.util.RedirectingDataSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -57,20 +56,10 @@ class PlaybackService : MediaSessionService() {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        val dataSourceFactory = RedirectingDataSourceFactory(
-            DefaultDataSource.Factory(
-                RedefineNCMApplication.getApplicationContext(),
-            ),
-        )
-
-        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-
         player = ExoPlayer.Builder(RedefineNCMApplication.getApplicationContext())
-            .setMediaSourceFactory(mediaSourceFactory)
             .build()
 
         mediaSession = MediaSession.Builder(this, player).build()
-        val applicationContext = RedefineNCMApplication.getApplicationContext() as Context
 
         // 监听播放状态变化
         player.addListener(object : Player.Listener {
@@ -243,7 +232,7 @@ class PlaybackService : MediaSessionService() {
             while (true) {
                 val currentPosition = withContext(Dispatchers.Main) { player.currentPosition }
                 LyricBus.currentPosition.emit(currentPosition)
-                delay(200)
+                delay(100)
             }
         }
     }
