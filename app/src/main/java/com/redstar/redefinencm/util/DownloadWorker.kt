@@ -79,7 +79,7 @@ class DownloadWorker(
 
     private fun getUrlsForIds(ids: List<Long>): List<SongUrlV1Data> {
         val repo = Repository(DatabaseProvider.getDao(RedefineNCMApplication.getApplicationContext()))
-        val response = repo.getSongUris(ids)
+        val response = repo.getDownloadBatchSongUris(ids)
         Log.d("DownloadSong", response.toString())
         return response.map { it }
     }

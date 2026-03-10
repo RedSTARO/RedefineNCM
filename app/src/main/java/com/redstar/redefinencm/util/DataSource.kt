@@ -35,7 +35,7 @@ class RedirectingDataSource(
     override fun open(dataSpec: DataSpec): Long {
         if (dataSpec.uri.scheme == "redefinencm" && dataSpec.uri.host == "playbackPlaceHolder") {
             val id = dataSpec.uri.getQueryParameter("id")?.toLong() ?: 0L
-            currentUri = repo.getSongUri(id)
+            currentUri = repo.getOnlinePlaySongUri(id)
         }
         Log.d("RedirectingDataSource", "Redirecting URI: ${dataSpec.uri} to $currentUri")
 

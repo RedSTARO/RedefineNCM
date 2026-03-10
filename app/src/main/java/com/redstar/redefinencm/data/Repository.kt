@@ -17,6 +17,7 @@ import com.redstar.redefinencm.data.db.entity.RecommendResourceEntity
 import com.redstar.redefinencm.data.db.entity.RecommendSongsEntity
 import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.data.db.entity.UserPlaylistEntity
+import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.flow.Flow
@@ -208,35 +209,26 @@ class Repository(
         }
     }
 
-    fun getSongUri(songId: Long): Uri? {
+    fun getOnlinePlaySongUri(songId: Long): Uri? {
         if (DownloadUtil.fileAlreadyExistsByBaseName(songId.toString())) {
             Log.d("Repository", "Found existing file with base name $songId")
             return DownloadUtil.getExistingFileUriByBaseName(songId.toString())
         } else {
             Log.d("Repository", "Fetching uri with base name $songId")
-            return runBlocking {
-                safeApiCall {
-                    retrofit.songUrlV1(
-                        listOf(songId),
-                        SettingProvider.onlinePlayQuality.lowercase()
-                    ).data.first().url.toUri()
-                }
-            }
+            return "${runBlocking { DataStoreManager.getStringItem("server", "http://ncm.tryagain.icu/") }}song/url/v1/302?id=${songId}&level=${SettingProvider.onlinePlayQuality}".toUri()
         }
     }
 
-    fun getSongUris(songIds: List<Long>):  List<SongUrlV1Data> {
+    fun getDownloadBatchSongUris(songIds: List<Long>): List<SongUrlV1Data> {
+        Log.d("Repository", "Fetching uri with base name $songIds")
 
-            Log.d("Repository", "Fetching uri with base name $songIds")
-            return runBlocking {
-                safeApiCall {
-                    retrofit.songUrlV1(
-                        songIds,
-                        SettingProvider.onlinePlayQuality.lowercase()
-                    ).data
-                } as List<SongUrlV1Data>
-            }
-
+        return songIds.map { id ->
+            SongUrlV1Data(
+                id = id,
+                url = "${runBlocking { DataStoreManager.getStringItem("server", "http://ncm.tryagain.icu/") }}song/url/v1/302?id=$id&level=${SettingProvider.downloadQuality}",
+                type = "302"
+            )
+        }
     }
 
     suspend fun getPlayerStatus(): PlayerStatusEntity? {
