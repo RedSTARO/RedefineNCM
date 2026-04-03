@@ -208,6 +208,23 @@ class Repository(
         }
     }
 
+    fun getSongUri(songId: Long): Uri? {
+        if (DownloadUtil.fileAlreadyExistsByBaseName(songId.toString())) {
+            Log.d("Repository", "Found existing file with base name $songId")
+            return DownloadUtil.getExistingFileUriByBaseName(songId.toString())
+        } else {
+            Log.d("Repository", "Fetching uri with base name $songId")
+            return runBlocking {
+                safeApiCall {
+                    retrofit.songUrlV1(
+                        listOf(songId),
+                        SettingProvider.onlinePlayQuality.lowercase()
+                    ).data.first().url.toUri()
+                }
+            }
+        }
+    }
+
     fun getSongUris(songIds: List<Long>):  List<SongUrlV1Data> {
 
             Log.d("Repository", "Fetching uri with base name $songIds")
