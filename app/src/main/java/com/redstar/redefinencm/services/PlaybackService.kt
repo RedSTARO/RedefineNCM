@@ -57,16 +57,9 @@ class PlaybackService : MediaSessionService() {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        val dataSourceFactory = RedirectingDataSourceFactory(
-            DefaultDataSource.Factory(
-                RedefineNCMApplication.getApplicationContext(),
-            ),
-        )
 
-        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
 
         player = ExoPlayer.Builder(RedefineNCMApplication.getApplicationContext())
-            .setMediaSourceFactory(mediaSourceFactory)
             .build()
 
         mediaSession = MediaSession.Builder(this, player).build()
@@ -173,7 +166,7 @@ class PlaybackService : MediaSessionService() {
 
     private fun startLyricSync() {
         lyricJob?.cancel()
-        lyricJob = coroutineScope.launch {
+        lyricJob = coroutineScope.launch{
             while (true) {
                 val isPlaying = withContext(Dispatchers.Main) { player.isPlaying }
                 if (!isPlaying) break
