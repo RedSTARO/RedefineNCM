@@ -36,7 +36,6 @@ import com.redstar.redefinencm.data.db.entity.UserDetailEntity
 import com.redstar.redefinencm.services.PlaybackService
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.DownloadWorker
-import com.redstar.redefinencm.util.SettingProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -195,7 +194,7 @@ class MainViewModel() : ViewModel() {
         }
         viewModelScope.launch {
             val mediaItem = MediaItem.Builder()
-                .setUri("http://ncm.tryagain.icu/song/url/v1/302?id=${song.id}&level=${SettingProvider.onlinePlayQuality}")
+                .setUri("redefinencm://playbackPlaceHolder?id=${song.id}")
                 .setMediaMetadata(
                     MediaMetadata.Builder()
                         .setTitle(song.name)
@@ -226,7 +225,7 @@ class MainViewModel() : ViewModel() {
 
             val mediaItems = songs.map { eachSong ->
                 MediaItem.Builder()
-                    .setUri("http://ncm.tryagain.icu/song/url/v1/302?id=${eachSong.id}&level=${SettingProvider.onlinePlayQuality}")
+                    .setUri("redefinencm://playbackPlaceHolder?id=${eachSong.id}")
                     .setMediaId(eachSong.id.toString())
                     .setMediaMetadata(
                         MediaMetadata.Builder()
@@ -303,7 +302,7 @@ class MainViewModel() : ViewModel() {
             val mediaItems = status.playlist.map {
                 MediaItem.Builder()
                     .setMediaId(it.id)
-                    .setUri("http://ncm.tryagain.icu/song/url/v1/302?id=${it.id}&level=${SettingProvider.onlinePlayQuality}")
+                    .setUri("redefinencm://playbackPlaceHolder?id=${it.id}")
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setTitle(it.title)
