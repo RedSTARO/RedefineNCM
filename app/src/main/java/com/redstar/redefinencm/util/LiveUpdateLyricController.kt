@@ -35,7 +35,7 @@ object LiveUpdateLyricController {
 
         ensureChannel(context)
 
-        val displayTitle = title ?: context.getString(R.string.app_name)
+        val displayTitle = currentLyric ?: context.getString(R.string.app_name)
         val trimmedArtist = artist?.trim().orEmpty()
         val trimmedNext = nextLyric?.trim().orEmpty()
         val contentText = buildString {
