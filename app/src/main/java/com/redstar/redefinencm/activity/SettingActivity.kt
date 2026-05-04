@@ -120,6 +120,11 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
                 SettingProvider.adaptOriginalAndroidLyric,
                 "Adapt original Android Live Update lyric"
             ) { SettingProvider.updateAdaptOriginalAndroidLyric(it) }
+            SwitchItem(
+                SettingProvider.showDownloadStatus,
+                "Show download status in playlist",
+            ) { SettingProvider.updateShowDownloadStatus(it) }
+
             ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
             ButtonItem("Import app setting") {
                 SettingProvider.startImportSetting(activity, importSettingLauncher)

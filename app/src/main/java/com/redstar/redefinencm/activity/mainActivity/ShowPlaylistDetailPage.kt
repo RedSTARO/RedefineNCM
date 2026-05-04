@@ -219,12 +219,13 @@ fun ShowPlaylistDetailPage(
                             )
                         }
 
-                        Log.d("DownloadSong",
-                            DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString()).toString()
-                        )
-                        if (DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString())) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
+                        if (SettingProvider.showDownloadStatus) {
+                            Log.d("DownloadSong",
+                                DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString()).toString()
+                            )
+                            if (DownloadUtil.fileAlreadyExistsByBaseName(song.id.toString())) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
                                 contentDescription = "Downloaded",
                             )
                         } else {
@@ -232,7 +233,7 @@ fun ShowPlaylistDetailPage(
                                 imageVector = Icons.Filled.AttachFile,
                                 contentDescription = "Downloaded",
                             )
-                        }
+                        }}
                     }
                 }
             }

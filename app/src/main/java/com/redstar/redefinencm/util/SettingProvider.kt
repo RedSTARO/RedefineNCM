@@ -21,8 +21,8 @@ object SettingProvider {
     lateinit var downloadQuality: String
     var replacePlaylist = false
     var checkUpdate = false
-
     var adaptOriginalAndroidLyric = false
+    var showDownloadStatus = false
 
     private const val FILE_NAME = "RedefineNCM_app_settings.json"
 
@@ -74,6 +74,13 @@ object SettingProvider {
         }
     }
 
+    fun updateShowDownloadStatus(newStatus: Boolean) {
+        showDownloadStatus = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("showDownloadStatus", showDownloadStatus)
+        }
+    }
+
     fun initSetting() {
         runBlocking {
             cookie = DataStoreManager.getStringItem("cookie", "")
@@ -83,6 +90,8 @@ object SettingProvider {
                 DataStoreManager.getStringItem("downloadQuality", SoundQuality.STANDARD.name)
             replacePlaylist = DataStoreManager.getBooleanItem("replacePlaylist", false)
             checkUpdate = DataStoreManager.getBooleanItem("checkUpdate", false)
+            showDownloadStatus = DataStoreManager.getBooleanItem("showDownloadStatus", false)
+            adaptOriginalAndroidLyric = DataStoreManager.getBooleanItem("adaptOriginalAndroidLyric", false)
         }
     }
 
