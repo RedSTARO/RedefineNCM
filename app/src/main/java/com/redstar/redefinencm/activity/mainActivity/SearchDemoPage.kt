@@ -3,7 +3,8 @@ package com.redstar.redefinencm.activity.mainActivity
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,8 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,10 +24,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,10 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.redstar.redefinencm.ui.component.connectedListItemShape
 import com.redstar.redefinencm.util.SettingProvider
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
@@ -83,7 +86,12 @@ fun SearchDemoPage(
         viewModel.search(text)
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp),
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {
                 Icon(
@@ -107,6 +115,7 @@ fun SearchDemoPage(
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { submit(query) }),
+                    shape = CircleShape,
                     modifier = Modifier
                         .sharedBounds(
                             rememberSharedContentState(SharedKeys.search()),
@@ -114,8 +123,10 @@ fun SearchDemoPage(
                         )
                         .fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
+                        unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                     ),
                 )
             }
@@ -132,62 +143,75 @@ fun SearchDemoPage(
             // Keyword predictions before a search is submitted (setting-gated).
             results.isEmpty() && SettingProvider.searchPrediction && suggestions.isNotEmpty() -> {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(suggestions) { keyword ->
-                        Row(
+                    itemsIndexed(suggestions) { index, keyword ->
+                        Surface(
+                            onClick = { submit(keyword) },
+                            shape = connectedListItemShape(index, suggestions.size),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { submit(keyword) }
-                                .padding(vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                                .padding(vertical = 1.5.dp),
                         ) {
-                            Icon(
-                                Icons.Filled.Search,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.size(12.dp))
-                            Text(text = keyword, style = MaterialTheme.typography.bodyLarge)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(
+                                    Icons.Filled.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(Modifier.size(12.dp))
+                                Text(text = keyword, style = MaterialTheme.typography.bodyLarge)
+                            }
                         }
-                        HorizontalDivider()
                     }
                 }
             }
             results.isNotEmpty() -> {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(results) { song ->
-                        Row(
+                    itemsIndexed(results) { index, song ->
+                        Surface(
+                            onClick = {
+                                viewModel.onPlaySingleSongClick(song)
+                                onBack()
+                            },
+                            shape = connectedListItemShape(index, results.size),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    viewModel.onPlaySingleSongClick(song)
-                                    onBack()
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                                .padding(vertical = 1.5.dp),
                         ) {
-                            AsyncImage(
-                                model = song.al.picUrl,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                            )
-                            Spacer(Modifier.size(12.dp))
-                            Column(Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = song.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                AsyncImage(
+                                    model = song.al.picUrl,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .clip(MaterialTheme.shapes.medium),
                                 )
-                                Text(
-                                    text = song.ar.joinToString(" / ") { it.name },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                                Spacer(Modifier.size(14.dp))
+                                Column(Modifier.fillMaxWidth()) {
+                                    Text(
+                                        text = song.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.basicMarquee(),
+                                    )
+                                    Text(
+                                        text = song.ar.joinToString(" / ") { it.name }.ifEmpty { "未知歌手" },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                             }
                         }
                     }

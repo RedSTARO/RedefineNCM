@@ -1,5 +1,7 @@
 package com.redstar.redefinencm.activity.mainActivity
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,10 +33,14 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.redstar.redefinencm.data.api.data.UserPlaylistEach
+import com.redstar.redefinencm.ui.component.ExpressiveSectionTitle
+import com.redstar.redefinencm.ui.component.connectedListItemShape
 import com.redstar.redefinencm.viewmodel.MainViewModel
 import com.skydoves.cloudy.cloudy
 
@@ -44,80 +52,113 @@ fun ShowUserPlaylistPage(
     val userDetail by viewModel.userDetail.collectAsState()
     val playlist by viewModel.userPlaylists.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Box(
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+    ) {
+        item {
+            UserPlaylistHero(
+                backgroundUrl = userDetail?.profile?.backgroundUrl,
+                avatarUrl = userDetail?.profile?.avatarUrl,
+                nickname = userDetail?.profile?.nickname ?: "Unknown User",
+                userId = userDetail?.profile?.userId?.toString() ?: "N/A",
+            )
+        }
+        item {
+            ExpressiveSectionTitle(
+                text = "My Playlists",
+                modifier = Modifier.padding(start = 24.dp, top = 16.dp, bottom = 12.dp),
+            )
+        }
+        itemsIndexed(playlist) { index, userPlaylistEach ->
+            PlaylistCard(
+                userPlaylistEach = userPlaylistEach,
+                specialCard = when {
+                    userPlaylistEach.name.contains("喜欢的音乐") -> "fav"
+                    userPlaylistEach.name.contains("私人雷达") -> "radar"
+                    else -> "no"
+                },
+                index = index,
+                count = playlist.size,
+                navController = navController,
+            )
+        }
+        item { Spacer(Modifier.height(96.dp)) }
+    }
+}
+
+@Composable
+private fun UserPlaylistHero(
+    backgroundUrl: String?,
+    avatarUrl: String?,
+    nickname: String,
+    userId: String,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.surface,
+                    ),
+                ),
+            ),
+    ) {
+        AsyncImage(
+            model = backgroundUrl,
+            contentDescription = "User Background",
             modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
+                .fillMaxSize()
+                .cloudy(radius = 30)
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.45f),
+                                Color.Black.copy(alpha = 0.15f),
+                                Color.Transparent,
+                            ),
+                        ),
+                    )
+                },
+            contentScale = ContentScale.Crop,
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 24.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = userDetail?.profile?.backgroundUrl,
-                contentDescription = "User Background",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .cloudy(radius = 30),
+                model = avatarUrl,
+                contentDescription = "User Avatar",
                 contentScale = ContentScale.Crop,
-            )
-
-            // Black layer to make icon clear
-            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .align(Alignment.TopCenter)
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Black.copy(alpha = 0.5f), // Top
-                                    Color.Black.copy(alpha = 0.0f), // Buttom
-                                ),
-                            ),
-                        )
-                    },
+                    .size(112.dp)
+                    .clip(CircleShape)
+                    .border(4.dp, MaterialTheme.colorScheme.surface, CircleShape),
             )
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                AsyncImage(
-                    model = userDetail?.profile?.avatarUrl,
-                    contentDescription = "User Avatar",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .border(3.dp, Color.White, CircleShape),
-                )
-
-                Text(
-                    text = userDetail?.profile?.nickname ?: "Unknown User",
-                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-
-                Text(
-                    text = "ID: ${userDetail?.profile?.userId ?: "N/A"}",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.8f)),
-                )
-            }
-        }
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(playlist) { userPlaylistEach ->
-                PlaylistCard(
-                    userPlaylistEach,
-                    when {
-                        userPlaylistEach.name.contains("喜欢的音乐") -> "fav"
-                        userPlaylistEach.name.contains("私人雷达") -> "radar"
-                        else -> "no"
-                    },
-                    navController,
-                )
-            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = nickname,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.basicMarquee(),
+            )
+            Text(
+                text = "ID: $userId",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.White.copy(alpha = 0.78f),
+            )
         }
     }
 }
@@ -126,58 +167,89 @@ fun ShowUserPlaylistPage(
 fun PlaylistCard(
     userPlaylistEach: UserPlaylistEach,
     specialCard: String,
+    index: Int,
+    count: Int,
     navController: NavController,
 ) {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ),
+    Surface(
         onClick = {
             navController.navigate("my/playlistDetailPage/${userPlaylistEach.id}")
         },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 1.5.dp),
+        shape = connectedListItemShape(index, count),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
                 model = userPlaylistEach.creator.avatarUrl,
                 contentDescription = "User Avatar",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                    .size(60.dp)
+                    .clip(MaterialTheme.shapes.large),
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column(
-                modifier = Modifier.weight(1f),
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = userPlaylistEach.name,
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.basicMarquee(),
                 )
                 Text(
                     text = userPlaylistEach.creator.nickname,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "${userPlaylistEach.trackCount} songs · ${compactCount(userPlaylistEach.playCount)} plays",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            // TODO: Special cards
-            if (specialCard == "fav") {
-                Text(text = "心动模式todo")
-            } else if (specialCard == "radar") {
-                Text(text = "私人雷达todo")
+
+            if (specialCard != "no") {
+                Spacer(modifier = Modifier.width(12.dp))
+                Surface(
+                    shape = CircleShape,
+                    color = if (specialCard == "fav") MaterialTheme.colorScheme.tertiaryContainer
+                    else MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = if (specialCard == "fav") MaterialTheme.colorScheme.onTertiaryContainer
+                    else MaterialTheme.colorScheme.onSecondaryContainer,
+                ) {
+                    Icon(
+                        imageVector = if (specialCard == "fav") Icons.Filled.Favorite else Icons.Filled.GraphicEq,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(18.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+private fun compactCount(value: Long): String {
+    return when {
+        value >= 100_000_000L -> "${value / 100_000_000L}亿"
+        value >= 10_000L -> "${value / 10_000L}万"
+        else -> value.toString()
     }
 }

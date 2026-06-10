@@ -9,7 +9,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,13 +20,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
@@ -46,14 +45,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.NCMApi
+import com.redstar.redefinencm.ui.component.ExpressiveSectionTitle
 import com.redstar.redefinencm.ui.theme.RedefineNCMTheme
 import com.redstar.redefinencm.util.DataStoreManager
 import com.redstar.redefinencm.util.SettingProvider
-import com.redstar.redefinencm.util.SettingProvider.adaptOriginalAndroidLyric
 import com.redstar.redefinencm.util.SoundQuality
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,67 +93,90 @@ class SettingActivity : ComponentActivity() {
 
 @Composable
 fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLauncher<Intent>) {
-    Surface(color = MaterialTheme.colorScheme.background) {
+    Surface(color = MaterialTheme.colorScheme.surface) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp),
+                .background(MaterialTheme.colorScheme.surface),
         ) {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
-            )
+            SettingsHero()
 
-            SettingSectionTitle("Server")
-            ServerItem()
+            Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                SettingSectionTitle("Server")
+                ServerItem()
 
-            SettingSectionTitle("Account")
-            TextItem(SettingProvider.cookie, "Account Cookie") { SettingProvider.updateCookie(it) }
+                SettingSectionTitle("Account")
+                TextItem(SettingProvider.cookie, "Account Cookie") { SettingProvider.updateCookie(it) }
 
-            SettingSectionTitle("Playback")
-            SelectItem(
-                SettingProvider.onlinePlayQuality,
-                "Music Quality Online",
-                SoundQuality::class
-            ) { SettingProvider.updateOnlinePlayQuality(it) }
-            SelectItem(
-                SettingProvider.downloadQuality,
-                "Music Quality Download",
-                SoundQuality::class
-            ) { SettingProvider.updateDownloadQuality(it) }
-            SwitchItem(
-                SettingProvider.replacePlaylist,
-                "Replace playlist when click single songs"
-            ) { SettingProvider.updateReplacePlaylist(it) }
-            SwitchItem(
-                SettingProvider.adaptOriginalAndroidLyric,
-                "Adapt original Android Live Update lyric"
-            ) { SettingProvider.updateAdaptOriginalAndroidLyric(it) }
-            SwitchItem(
-                SettingProvider.showDownloadStatus,
-                "Show download status in playlist",
-            ) { SettingProvider.updateShowDownloadStatus(it) }
-            SwitchItem(
-                SettingProvider.searchPrediction,
-                "Search prediction (suggestions while typing)",
-            ) { SettingProvider.updateSearchPrediction(it) }
+                SettingSectionTitle("Playback")
+                SelectItem(
+                    SettingProvider.onlinePlayQuality,
+                    "Music Quality Online",
+                    SoundQuality::class
+                ) { SettingProvider.updateOnlinePlayQuality(it) }
+                SelectItem(
+                    SettingProvider.downloadQuality,
+                    "Music Quality Download",
+                    SoundQuality::class
+                ) { SettingProvider.updateDownloadQuality(it) }
+                SwitchItem(
+                    SettingProvider.replacePlaylist,
+                    "Replace playlist when click single songs"
+                ) { SettingProvider.updateReplacePlaylist(it) }
+                SwitchItem(
+                    SettingProvider.adaptOriginalAndroidLyric,
+                    "Adapt original Android Live Update lyric"
+                ) { SettingProvider.updateAdaptOriginalAndroidLyric(it) }
+                SwitchItem(
+                    SettingProvider.showDownloadStatus,
+                    "Show download status in playlist",
+                ) { SettingProvider.updateShowDownloadStatus(it) }
+                SwitchItem(
+                    SettingProvider.searchPrediction,
+                    "Search prediction (suggestions while typing)",
+                ) { SettingProvider.updateSearchPrediction(it) }
 
-            SettingSectionTitle("General")
-            SwitchItem(
-                SettingProvider.checkUpdate,
-                "Check update when app start"
-            ) { SettingProvider.updateCheckUpdate(it) }
+                SettingSectionTitle("General")
+                SwitchItem(
+                    SettingProvider.checkUpdate,
+                    "Check update when app start"
+                ) { SettingProvider.updateCheckUpdate(it) }
 
-            SettingSectionTitle("Backup")
-            ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
-            ButtonItem("Import app setting") {
-                SettingProvider.startImportSetting(activity, importSettingLauncher)
+                SettingSectionTitle("Backup")
+                ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
+                ButtonItem("Import app setting") {
+                    SettingProvider.startImportSetting(activity, importSettingLauncher)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+}
+
+@Composable
+private fun SettingsHero() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(168.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.surface,
+                    ),
+                ),
+            ),
+        contentAlignment = Alignment.BottomStart,
+    ) {
+        Text(
+            text = "Settings",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+        )
     }
 }
 
@@ -172,6 +196,7 @@ fun TextItem(
             settingValue = newValue
             settingItemUpdater(newValue)
         },
+        shape = MaterialTheme.shapes.extraLarge,
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
@@ -183,11 +208,9 @@ fun TextItem(
 
 @Composable
 fun SettingSectionTitle(text: String) {
-    Text(
+    ExpressiveSectionTitle(
         text = text,
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 4.dp, top = 20.dp, bottom = 8.dp),
+        modifier = Modifier.padding(start = 4.dp, top = 22.dp, bottom = 10.dp),
     )
 }
 
@@ -196,7 +219,7 @@ fun SwitchItem(settingItem: Boolean, hintText: String, enabled: Boolean = true, 
     var checked by remember { mutableStateOf(settingItem) }
 
     Surface(
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = Modifier
             .fillMaxWidth()
@@ -235,18 +258,16 @@ fun <T> SelectItem(
     var itemSelected by remember { mutableStateOf(settingItem) }
     var expanded by remember { mutableStateOf(false) }
 
-    val entries = enumClass.java.enumConstants
+    val entries = enumClass.java.enumConstants!!
     val currentEnum = entries.find { it.name == itemSelected }
 
-    Card(
+    Surface(
+        onClick = { expanded = true },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { expanded = true },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ),
+            .padding(vertical = 4.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
             modifier = Modifier
@@ -316,7 +337,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
                     settingValue = "$settingValue/"
                 }
             },
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.extraLarge,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp)
@@ -338,6 +359,8 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            shape = CircleShape,
+            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
         ) {
             Text("Check server at $settingValue")
         }
@@ -360,7 +383,9 @@ fun ButtonItem(hintText: String, onClickAction: () -> Unit) {
         onClick = onClickAction,
         modifier = Modifier
             .fillMaxWidth()
+            .height(52.dp)
             .padding(vertical = 4.dp),
+        shape = CircleShape,
     ) {
         Text(text = hintText)
     }

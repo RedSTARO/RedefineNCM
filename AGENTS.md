@@ -79,6 +79,31 @@ at `shared/.../player/PlayQueue.kt`.
 - Wrap network calls in `safeApiCall { … }` (in `data/api`). Cache to Room, expose via `Flow`.
 - Some inline Chinese comments document intent — preserve them when editing nearby code.
 
+## UI design direction
+
+The app intentionally uses an aggressive Material 3 Expressive direction across **all** pages,
+not only playlist detail. When changing UI, keep the visual language consistent with the
+playlist redesign from `39f947bdb140f4e8f8d69b14f2b1e1bf0a1ffde5`.
+
+- Use `MaterialTheme.colorScheme.surface` as the page base and `surfaceContainerHigh` /
+  `surfaceContainerHighest` for tonal panels and list rows.
+- Media/profile pages should use image-derived or primary-container gradient hero areas,
+  oversized rounded artwork/avatar treatment, bold headline typography, and clear tonal depth.
+- Use prominent primary pill actions and filled/tonal icon buttons for playback, search,
+  download, queue, comments, and settings actions.
+- Lists should prefer the connected-list shape language: large outer corners, tight inner
+  corners, tiny vertical gaps. Reuse `ui/component/Expressive.kt` (`connectedListItemShape`)
+  instead of rebuilding the shape logic locally.
+- Avoid reintroducing old isolated elevated `Card` rows for ordinary lists. Prefer clickable
+  `Surface` with M3 container roles unless a true standalone card is needed.
+- `NowPlayingActivity` is the most important screen for this style: keep the album-color
+  gradient hero, large rounded cover, tonal lyric panel, prominent transport controls, and
+  connected-list queue/comments sheets.
+- Keep the same direction on recommend, search, user playlist, settings, login, and mini-player
+  surfaces so the app does not regress into mixed visual systems.
+- Prefer color-scheme roles and image-extracted colors over hardcoded palettes. Use hardcoded
+  black/white only for contrast overlays or derived readable content color.
+
 ## Dependency status
 
 All versions live in `libs.versions.toml`; it is at the latest available across the board:

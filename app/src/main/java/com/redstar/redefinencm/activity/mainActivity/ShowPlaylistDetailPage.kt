@@ -45,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,6 +52,7 @@ import coil3.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.data.SongDetailSongs
 import com.redstar.redefinencm.data.api.safeApiCall
+import com.redstar.redefinencm.ui.component.connectedListItemShape
 import com.redstar.redefinencm.util.DownloadUtil
 import com.redstar.redefinencm.util.ImageParser
 import com.redstar.redefinencm.util.SettingProvider
@@ -111,7 +111,7 @@ fun ShowPlaylistDetailPage(
             SongListItem(
                 index = index,
                 song = song,
-                shape = groupedItemShape(index, songs.size),
+                shape = connectedListItemShape(index, songs.size),
                 onClick = {
                     if (BuildConfig.DEBUG) {
                         Log.d("showPlaylistDetail", "Selected Song ${song.name} with id ${song.id}")
@@ -311,20 +311,5 @@ private fun SongListItem(
                 }
             }
         }
-    }
-}
-
-/**
- * Connected-list corner shape: large rounded outer edges for the first/last item, tight inner
- * edges between items — the signature Material 3 Expressive grouped-list look.
- */
-private fun groupedItemShape(index: Int, count: Int): RoundedCornerShape {
-    val big = 28.dp
-    val small = 6.dp
-    return when {
-        count <= 1 -> RoundedCornerShape(big)
-        index == 0 -> RoundedCornerShape(topStart = big, topEnd = big, bottomStart = small, bottomEnd = small)
-        index == count - 1 -> RoundedCornerShape(topStart = small, topEnd = small, bottomStart = big, bottomEnd = big)
-        else -> RoundedCornerShape(small)
     }
 }

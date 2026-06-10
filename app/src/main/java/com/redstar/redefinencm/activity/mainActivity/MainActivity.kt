@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -103,7 +104,7 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                     ) { innerPadding ->
-                        Row() {
+                        Row {
                             if (widthClass != WindowWidthSizeClass.Compact) {
                                 ResponsiveNavigation(navController, items, currentRoute, widthClass)
                             }
@@ -183,7 +184,10 @@ fun ResponsiveNavigation(
 ) {
     if (widthClass == WindowWidthSizeClass.Compact) {
         // 底部导航栏
-        NavigationBar {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 0.dp,
+        ) {
             items.forEach { item ->
                 NavigationBarItem(
                     icon = { Icon(item.icon, contentDescription = item.label) },
@@ -200,7 +204,9 @@ fun ResponsiveNavigation(
         }
     } else {
         // 侧边导航栏
-        NavigationRail {
+        NavigationRail(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
             items.forEach { item ->
                 NavigationRailItem(
                     icon = { Icon(item.icon, contentDescription = item.label) },

@@ -13,7 +13,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -22,11 +24,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,9 +44,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,7 +96,10 @@ class LoginActivity : ComponentActivity() {
         setContent {
             val viewModel: LoginViewModel = viewModel()
             RedefineNCMTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ) { innerPadding ->
                     var gotServer by remember { mutableStateOf(false) }
 
                     LaunchedEffect(Dispatchers.IO) {
@@ -103,7 +116,16 @@ class LoginActivity : ComponentActivity() {
                             importSettingLauncher = importSettingLauncher
                         )
                     } else {
-                        ServerItem({ gotServer = true }) // This from SettingActivity
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            ServerItem({ gotServer = true }) // This from SettingActivity
+                        }
                     }
                 }
             }
@@ -121,15 +143,46 @@ fun LoginPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding),
+            .padding(innerPadding)
+            .background(MaterialTheme.colorScheme.surface)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
+        LoginHero()
         CookieLogin(viewModel)
-        ButtonItem("Import app setting") {
-            SettingProvider.startImportSetting(activity, importSettingLauncher)
+        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+            ButtonItem("Import app setting") {
+                SettingProvider.startImportSetting(activity, importSettingLauncher)
+            }
         }
         QrLogin(viewModel)
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun LoginHero() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.surface,
+                    ),
+                ),
+            ),
+        contentAlignment = Alignment.BottomStart,
+    ) {
+        Text(
+            text = "RedefineNCM",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
+        )
     }
 }
 
@@ -138,14 +191,20 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+    Column(
+        modifier = Modifier.padding(20.dp),
     ) {
         Text(
             text = "用户登录",
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.padding(bottom = 8.dp),
         )
         Text(
@@ -157,16 +216,17 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
             label = { Text("Cookie") },
             value = viewModel.cookie,
             onValueChange = { viewModel.updateCookie(it) },
+            shape = MaterialTheme.shapes.extraLarge,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
                 .height(64.dp), // So fixed even long cookie text
         )
-        Button(
+        FilledTonalButton(
             onClick = {
                 if (viewModel.cookie.isBlank()) {
                     viewModel.cookieLoginErrorMessage = "Cookie 不能为空"
-                    return@Button
+                    return@FilledTonalButton
                 }
                 viewModel.cookieLoginLoading = true
                 viewModel.cookieLoginErrorMessage = ""
@@ -187,6 +247,8 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
+            shape = CircleShape,
+            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
         ) {
             if (viewModel.cookieLoginLoading) {
                 CircularProgressIndicator(
@@ -204,6 +266,7 @@ fun CookieLogin(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(top = 8.dp),
             )
         }
+    }
     }
 }
 
@@ -236,16 +299,32 @@ fun QrLogin(viewModel: LoginViewModel) {
     }
 
     // UI 渲染
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         viewModel.qrLoginBitmap?.asImageBitmap()?.let {
-            Image(bitmap = it, contentDescription = "QR Code", modifier = Modifier.size(300.dp))
+            Image(
+                bitmap = it,
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .size(260.dp)
+                    .clip(MaterialTheme.shapes.large),
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = viewModel.qrLoginScanStatus, fontSize = 18.sp)
+    }
     }
 
     // 轮询检查扫码状态
