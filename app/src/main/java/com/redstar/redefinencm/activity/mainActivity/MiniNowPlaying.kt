@@ -22,9 +22,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,15 +59,21 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
 //    var textColor by remember { mutableStateOf(initialColor.onPrimary) }
     val mediaController by viewModel.mediaController.collectAsState()
 
+    // M3 contrast rule: derive a readable content colour from the album-art container colour.
+    val contentColor = if (themeColor.luminance() > 0.5f) Color.Black else Color.White
+
     Card(
         modifier = Modifier
             .size(width = 250.dp, height = 100.dp)
             .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = themeColor,
+            contentColor = contentColor,
         ),
     ) {
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -138,6 +148,7 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                     }
                 },
             )
+        }
         }
     }
 }

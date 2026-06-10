@@ -72,6 +72,11 @@ class MainViewModel() : ViewModel() {
     var recommendResource = MutableStateFlow<RecommendResourceEntity?>(null)
     var recommendSongs = MutableStateFlow<RecommendSongsEntity?>(null)
 
+    // Search
+    val searchResults = MutableStateFlow<List<SongDetailSongs>>(emptyList())
+    val searchSuggestions = MutableStateFlow<List<String>>(emptyList())
+    val searchLoading = MutableStateFlow(false)
+
     init {
         fetchUID()
         initMediaController()
@@ -183,6 +188,42 @@ class MainViewModel() : ViewModel() {
                 recommendSongs.value = detail
             }
         }
+    }
+
+    /** Execute a full song search and publish results. */
+    fun search(keyword: String) {
+        val query = keyword.trim()
+        if (query.isEmpty()) {
+            searchResults.value = emptyList()
+            return
+        }
+        searchSuggestions.value = emptyList()
+        viewModelScope.launch {
+            searchLoading.value = true
+            val response = safeApiCall { retrofit.search(query) }
+            searchResults.value = response?.result?.songs ?: emptyList()
+            searchLoading.value = false
+        }
+    }
+
+    /** Fetch keyword predictions while typing (only called when the setting is enabled). */
+    fun fetchSearchSuggestions(keyword: String) {
+        val query = keyword.trim()
+        if (query.isEmpty()) {
+            searchSuggestions.value = emptyList()
+            return
+        }
+        viewModelScope.launch {
+            val response = safeApiCall { retrofit.searchSuggest(query) }
+            searchSuggestions.value =
+                response?.result?.allMatch?.map { it.keyword } ?: emptyList()
+        }
+    }
+
+    fun clearSearch() {
+        searchResults.value = emptyList()
+        searchSuggestions.value = emptyList()
+        searchLoading.value = false
     }
 
     fun onPlaySingleSongClick(song: SongDetailSongs) {

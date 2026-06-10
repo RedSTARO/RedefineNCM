@@ -15,6 +15,8 @@ import com.redstar.redefinencm.data.api.data.PlaylistTrackAll
 import com.redstar.redefinencm.data.api.data.PlaylistUpdatePlayCount
 import com.redstar.redefinencm.data.api.data.RecommendResource
 import com.redstar.redefinencm.data.api.data.RecommendSongs
+import com.redstar.redefinencm.data.api.data.SearchResult
+import com.redstar.redefinencm.data.api.data.SearchSuggest
 import com.redstar.redefinencm.data.api.data.SongDetail
 import com.redstar.redefinencm.data.api.data.SongUrlV1
 import com.redstar.redefinencm.data.api.data.UserAccount
@@ -68,6 +70,18 @@ interface NCMApi {
 
     @GET("/song/detail")
     suspend fun songDetail(@Query("ids") ids: List<Long>): SongDetail
+
+    @GET("/cloudsearch")
+    suspend fun search(
+        @Query("keywords") keywords: String,
+        @Query("limit") limit: Int = 30,
+    ): SearchResult
+
+    @GET("/search/suggest")
+    suspend fun searchSuggest(
+        @Query("keywords") keywords: String,
+        @Query("type") type: String = "mobile",
+    ): SearchSuggest
 
     @GET("/recommend/songs")
     suspend fun recommendSongs(): RecommendSongs

@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -26,6 +28,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,15 +92,27 @@ class SettingActivity : ComponentActivity() {
 
 @Composable
 fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLauncher<Intent>) {
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
         ) {
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
+            )
+
+            SettingSectionTitle("Server")
             ServerItem()
-            Spacer(modifier = Modifier.height(16.dp))
-            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingSectionTitle("Account")
             TextItem(SettingProvider.cookie, "Account Cookie") { SettingProvider.updateCookie(it) }
+
+            SettingSectionTitle("Playback")
             SelectItem(
                 SettingProvider.onlinePlayQuality,
                 "Music Quality Online",
@@ -113,10 +128,6 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
                 "Replace playlist when click single songs"
             ) { SettingProvider.updateReplacePlaylist(it) }
             SwitchItem(
-                SettingProvider.checkUpdate,
-                "Check update when app start"
-            ) { SettingProvider.updateCheckUpdate(it) }
-            SwitchItem(
                 SettingProvider.adaptOriginalAndroidLyric,
                 "Adapt original Android Live Update lyric"
             ) { SettingProvider.updateAdaptOriginalAndroidLyric(it) }
@@ -124,11 +135,23 @@ fun SettingPage(activity: Activity, importSettingLauncher: ActivityResultLaunche
                 SettingProvider.showDownloadStatus,
                 "Show download status in playlist",
             ) { SettingProvider.updateShowDownloadStatus(it) }
+            SwitchItem(
+                SettingProvider.searchPrediction,
+                "Search prediction (suggestions while typing)",
+            ) { SettingProvider.updateSearchPrediction(it) }
 
+            SettingSectionTitle("General")
+            SwitchItem(
+                SettingProvider.checkUpdate,
+                "Check update when app start"
+            ) { SettingProvider.updateCheckUpdate(it) }
+
+            SettingSectionTitle("Backup")
             ButtonItem("Export app setting") { SettingProvider.exportAppSetting() }
             ButtonItem("Import app setting") {
                 SettingProvider.startImportSetting(activity, importSettingLauncher)
             }
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -159,19 +182,46 @@ fun TextItem(
 
 
 @Composable
+fun SettingSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 4.dp, top = 20.dp, bottom = 8.dp),
+    )
+}
+
+@Composable
 fun SwitchItem(settingItem: Boolean, hintText: String, enabled: Boolean = true, settingItemUpdater: (Boolean) -> Unit) {
     var checked by remember { mutableStateOf(settingItem) }
 
-    Row {
-        Text(text = hintText)
-        Switch(
-            checked = checked,
-            onCheckedChange = {
-                checked = it
-                settingItemUpdater(checked)
-            },
-            enabled = enabled
-        )
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = hintText,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(16.dp))
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+                    settingItemUpdater(checked)
+                },
+                enabled = enabled,
+            )
+        }
     }
 }
 
@@ -191,34 +241,35 @@ fun <T> SelectItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
+            .padding(vertical = 4.dp)
             .clickable { expanded = true },
-        shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
     ) {
-        Spacer(Modifier.padding(2.5.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(Modifier.padding(5.dp))
-            Text(
-                text = currentEnum?.toString() ?: hintText,
-                color = if (currentEnum != null) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                },
-                modifier = Modifier.weight(1f),
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = hintText,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = currentEnum?.toString() ?: "Not set",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "More options")
             }
         }
-        Spacer(Modifier.padding(2.5.dp))
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -254,7 +305,7 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
         settingValue = DataStoreManager.getStringItem(settingItemKey, "")
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
         // 处理 TextField 输入框更新
         OutlinedTextField(
             label = { Text(hintText) },
@@ -265,25 +316,29 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
                     settingValue = "$settingValue/"
                 }
             },
+            shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 12.dp)
                 .height(64.dp), // 保证文本框固定高度
             singleLine = true, // 确保文本框单行显示
         )
-        Button(onClick = {
-            coroutineScope.launch(Dispatchers.IO) {
-                try {
-                    if (BuildConfig.DEBUG) {
-                        Log.d("SettingActivity", "Save server at $settingValue")
+        FilledTonalButton(
+            onClick = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    try {
+                        if (BuildConfig.DEBUG) {
+                            Log.d("SettingActivity", "Save server at $settingValue")
+                        }
+                        status = checkServerAvailable(settingValue)
+                        data = checkServerVersion(settingValue)
+                    } catch (e: Exception) {
+                        data = e.message.toString()
                     }
-                    status = checkServerAvailable(settingValue)
-                    data = checkServerVersion(settingValue)
-                } catch (e: Exception) {
-                    data = e.message.toString()
                 }
-            }
-        }) {
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
             Text("Check server at $settingValue")
         }
 
@@ -301,7 +356,12 @@ fun ServerItem(gotServerCallback: (settingValue: String) -> Unit = {}) {
 
 @Composable
 fun ButtonItem(hintText: String, onClickAction: () -> Unit) {
-    Button(onClick = onClickAction) {
+    FilledTonalButton(
+        onClick = onClickAction,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+    ) {
         Text(text = hintText)
     }
 }

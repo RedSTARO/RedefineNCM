@@ -23,6 +23,7 @@ object SettingProvider {
     var checkUpdate = false
     var adaptOriginalAndroidLyric = false
     var showDownloadStatus = false
+    var searchPrediction = true
 
     private const val FILE_NAME = "RedefineNCM_app_settings.json"
 
@@ -81,6 +82,13 @@ object SettingProvider {
         }
     }
 
+    fun updateSearchPrediction(newStatus: Boolean) {
+        searchPrediction = newStatus
+        CoroutineScope(Dispatchers.IO).launch {
+            DataStoreManager.setBooleanItem("searchPrediction", searchPrediction)
+        }
+    }
+
     fun initSetting() {
         runBlocking {
             cookie = DataStoreManager.getStringItem("cookie", "")
@@ -92,6 +100,7 @@ object SettingProvider {
             checkUpdate = DataStoreManager.getBooleanItem("checkUpdate", false)
             showDownloadStatus = DataStoreManager.getBooleanItem("showDownloadStatus", false)
             adaptOriginalAndroidLyric = DataStoreManager.getBooleanItem("adaptOriginalAndroidLyric", false)
+            searchPrediction = DataStoreManager.getBooleanItem("searchPrediction", true)
         }
     }
 

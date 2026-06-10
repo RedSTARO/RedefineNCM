@@ -8,15 +8,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -87,6 +94,7 @@ fun RecommendPage(
             val animatedVisibilityScope = this
             SearchDemoPage(
                 onBack = { showSearch = false },
+                viewModel = viewModel,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
             )
@@ -102,8 +110,11 @@ fun SearchBox(
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     with(sharedTransitionScope) {
-        Card(
+        // Expressive search field: fully-rounded pill, tonal container, leading icon.
+        Surface(
             onClick = onClick,
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
             modifier = Modifier
                 .sharedBounds(
                     rememberSharedContentState(SharedKeys.search()),
@@ -111,10 +122,22 @@ fun SearchBox(
                 )
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(4.dp),
         ) {
-            Box(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Search", fontSize = 16.sp)
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.size(12.dp))
+                Text(
+                    text = "Search songs, playlists…",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -126,8 +149,9 @@ fun RecommendSquareCard(picUrl: String, text: String, onClick: () -> Unit) {
         onClick = { onClick() },
         modifier = Modifier
             .padding(8.dp)
-            .size(150.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
+            .size(160.dp),
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Box(Modifier.fillMaxSize()) {
             AsyncImage(
@@ -186,15 +210,14 @@ fun <T> SectionWithLazyRow(
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
             text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp),
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
         )
         if (items.isEmpty()) {
             Text(
                 text = "No data available.",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(8.dp),
             )
         } else {

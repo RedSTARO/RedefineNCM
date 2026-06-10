@@ -18,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -136,14 +138,14 @@ fun ShowPlaylistDetailPage(
                 Modifier.fillMaxWidth(),
                 Alignment.Center,
             ) {
-                Row {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(onClick = {
                         viewModel.onPlaySingleSongInPlaylistClick(songlistID, 0)
                     }) {
                         Text(text = "播放全部")
                     }
 
-                    Button(onClick = { viewModel.onDownloadPlaylistClick(songlistID) }) {
+                    FilledTonalButton(onClick = { viewModel.onDownloadPlaylistClick(songlistID) }) {
                         Text(text = "下载全部")
                     }
                 }
@@ -156,9 +158,12 @@ fun ShowPlaylistDetailPage(
                     modifier = Modifier
                         .fillMaxWidth() // 让卡片宽度占满
                         .height(120.dp)
-                        .padding(horizontal = 16.dp, vertical = 8.dp), // 添加间距
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // 提供阴影
-                    shape = RoundedCornerShape(12.dp), // 圆角
+                        .padding(horizontal = 16.dp, vertical = 6.dp), // 添加间距
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ),
                     onClick = {
                         if (BuildConfig.DEBUG) {
                             Log.d(

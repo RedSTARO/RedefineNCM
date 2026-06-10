@@ -36,8 +36,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.ShuffleOn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -281,33 +284,19 @@ fun ProgressBar(
         0f
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(24.dp),
-    ) {
-        LinearProgressIndicator(
-            progress = { progress.coerceIn(0f, 1f) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-        )
-
-        Slider(
-            value = progress.coerceIn(0f, 1f),
-            onValueChange = { percent ->
-                onSeekChanged((percent * songLength).toLong())
-            },
-            colors = SliderDefaults.colors(
-                thumbColor = Color.Transparent,
-                activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-        )
-    }
+    // Clean M3 slider scrubber (replaces the old transparent-slider-over-progress hack).
+    Slider(
+        value = progress.coerceIn(0f, 1f),
+        onValueChange = { percent ->
+            onSeekChanged((percent * songLength).toLong())
+        },
+        colors = SliderDefaults.colors(
+            thumbColor = MaterialTheme.colorScheme.primary,
+            activeTrackColor = MaterialTheme.colorScheme.primary,
+            inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable
@@ -331,11 +320,14 @@ fun PlaybackControlButtons(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onShuffleClick) {
+        // Shuffle as an expressive filled toggle button (clear on/off emphasis).
+        FilledIconToggleButton(
+            checked = currentRandomStatus,
+            onCheckedChange = { onShuffleClick() },
+        ) {
             Icon(
                 imageVector = if (currentRandomStatus) Icons.Default.ShuffleOn else Icons.Default.Shuffle,
                 contentDescription = "Shuffle",
-                tint = if (currentRandomStatus) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             )
         }
         IconButton(onClick = onPervClick) {
@@ -345,14 +337,20 @@ fun PlaybackControlButtons(
                 modifier = Modifier.size(36.dp),
             )
         }
-        IconButton(
+        // Prominent primary play/pause button — the expressive focal point of the transport row.
+        FilledIconButton(
             onClick = onPauseClick,
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(72.dp),
+            shape = MaterialTheme.shapes.large,
+            colors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
             Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play/Pause",
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(40.dp),
             )
         }
         IconButton(onClick = onNextClick) {
