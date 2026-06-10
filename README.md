@@ -1,5 +1,11 @@
 # RedefineNCM
 
+> [!IMPORTANT]
+> This repository is deprecated and no longer maintained.
+>
+> RedefineNCM has migrated to the Kotlin Multiplatform version:
+> https://github.com/RedSTARO/RedefineNCM_KMP
+
 RedefineNCM is an Android music app that provides a smooth music playback experience.
 
 ## Features
