@@ -66,7 +66,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.data.CommentMusicComments
 import com.redstar.redefinencm.data.api.data.UserDetailProfile

@@ -37,8 +37,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.activity.NowPlayingActivity
 import com.redstar.redefinencm.util.ImageParser

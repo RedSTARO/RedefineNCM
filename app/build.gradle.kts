@@ -95,11 +95,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.exoplayer)
-    implementation(libs.exoplayer.common)
-    implementation(libs.exoplayer.core)
-    implementation(libs.extension.mediasession)
-    implementation(libs.extension.okhttp)
+    // Legacy ExoPlayer 2.x (com.google.android.exoplayer) removed: superseded by
+    // androidx.media3 below, which is the only player API actually used in source.
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -112,6 +109,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.dash)

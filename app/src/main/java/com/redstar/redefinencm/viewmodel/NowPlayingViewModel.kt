@@ -90,11 +90,51 @@ class NowPlayingViewModel : ViewModel() {
         }
     }
 
-    private fun updateNowPlayingMediaIndex(){
-        // 当前播放项变化时更新 currentMediaIndexInList
+    /**
+     * 依据当前 timeline（按播放顺序，含随机模式）重建可见播放列表、窗口顺序索引，
+     * 并同步刷新当前播放项在列表中的高亮位置。
+     *
+     * 必须保证 [playList]、[playOrderWindowIndices] 与 [currentMediaIndexInList]
+     * 始终来自同一次重建，避免随机模式下三者错位导致高亮错条目。
+     */
+    private fun rebuildPlaylistFromTimeline() {
         val player = mediaController.value ?: return
-        val indices = playOrderWindowIndices.value
+        val timeline = player.currentTimeline
+
+        if (timeline.isEmpty) {
+            playList.value = emptyList()
+            playOrderWindowIndices.value = emptyList()
+            currentMediaIndexInList.value = "-1"
+            return
+        }
+
+        val shuffle = player.shuffleModeEnabled
+
+        val items = mutableListOf<MediaItem>()
+        val indices = mutableListOf<Int>()
+
+        var idx = timeline.getFirstWindowIndex(shuffle)
+        while (idx != androidx.media3.common.C.INDEX_UNSET) {
+            items += player.getMediaItemAt(idx)
+            indices += idx
+            idx = timeline.getNextWindowIndex(idx, Player.REPEAT_MODE_OFF, shuffle)
+        }
+
+        playList.value = items
+        playOrderWindowIndices.value = indices
+        // 高亮位置直接由本次重建出的 indices 计算，绝不读取旧的缓存索引
         currentMediaIndexInList.value = indices.indexOf(player.currentMediaItemIndex).toString()
+    }
+
+    private fun updateNowPlayingMediaIndex() {
+        // 当前播放项变化时刷新高亮；若顺序索引还未建立则先重建，保证未打开列表也能正确高亮
+        val player = mediaController.value ?: return
+        if (playOrderWindowIndices.value.isEmpty()) {
+            rebuildPlaylistFromTimeline()
+            return
+        }
+        currentMediaIndexInList.value =
+            playOrderWindowIndices.value.indexOf(player.currentMediaItemIndex).toString()
     }
 
     private fun initMediaController() {
@@ -118,11 +158,24 @@ class NowPlayingViewModel : ViewModel() {
                         updateNowPlayingMediaIndex()
                     }
 
+                    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+                        // 切换随机模式会改变播放顺序，必须整体重建列表与高亮
+                        shuffleStatus.value = shuffleModeEnabled
+                        rebuildPlaylistFromTimeline()
+                    }
+
+                    override fun onTimelineChanged(timeline: androidx.media3.common.Timeline, reason: Int) {
+                        // 队列内容/顺序变化时保持列表与高亮同步
+                        rebuildPlaylistFromTimeline()
+                    }
+
                 })
 
                 nowPlayingMetadata.value = controller.mediaMetadata
                 nowPayingIsPlaying.value = controller.isPlaying
                 shuffleStatus.value = controller.shuffleModeEnabled
+                // 控制器就绪时队列可能已存在（如恢复播放状态），立即重建以正确高亮
+                rebuildPlaylistFromTimeline()
             } catch (e: Exception) {
                 Log.e("NowPlayingViewModel", "Failed to init MediaController: ${e.message}")
             }
@@ -180,41 +233,13 @@ class NowPlayingViewModel : ViewModel() {
     }
 
     fun onPlaylistClick() {
-        val player = mediaController.value ?: return
-        val timeline = player.currentTimeline
-
-        if (timeline.isEmpty) {
-            playList.value = emptyList()
-            playOrderWindowIndices.value = emptyList()
-            currentMediaIndexInList.value = "-1"
-            return
-        }
-
-        val shuffle = player.shuffleModeEnabled
-
-        val items = mutableListOf<MediaItem>()
-        val indices = mutableListOf<Int>()
-
-        var idx = timeline.getFirstWindowIndex(shuffle)
-        while (idx != androidx.media3.common.C.INDEX_UNSET) {
-            items += player.getMediaItemAt(idx)
-            indices += idx
-
-            idx = timeline.getNextWindowIndex(
-                idx,
-                Player.REPEAT_MODE_OFF,
-                shuffle
-            )
-        }
-
-        playList.value = items
-        playOrderWindowIndices.value = indices
+        rebuildPlaylistFromTimeline()
     }
 
 
-
     fun onShuffleClick(status: Boolean) {
-        shuffleStatus.value = status
+        // 仅切换模式；列表与高亮的刷新交由 onShuffleModeEnabledChanged 统一处理，
+        // 确保 playList 与 currentMediaIndexInList 来自同一次重建
         mediaController.value?.setShuffleModeEnabled(status)
     }
 }

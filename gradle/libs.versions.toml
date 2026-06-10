@@ -1,7 +1,7 @@
 [versions]
-agp = "9.0.0"
+agp = "9.0.1"
 cloudy = "0.5.0"
-coilCompose = "2.7.0"
+coil3 = "3.0.4"
 converterGson = "3.0.0"
 datastorePreferences = "1.2.0"
 hiltCompiler = "2.59.1"
@@ -14,11 +14,6 @@ kotlinxCoroutinesGuava = "1.10.2"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.3"
 composeBom = "2026.01.01"
-exoplayer = "2.19.1"
-exoplayerCommon = "2.19.1"
-exoplayerCore = "2.19.1"
-extensionMediasession = "2.19.1"
-extensionOkhttp = "2.19.1"
 material3 = "1.4.0"
 material3WindowSizeClass = "1.4.0"
 materialIconsCore = "1.7.8"
@@ -50,7 +45,8 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRunt
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil3" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -67,11 +63,6 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation" }
-exoplayer = { group = "com.google.android.exoplayer", name = "exoplayer", version.ref = "exoplayer" }
-exoplayer-common = { group = "com.google.android.exoplayer", name = "exoplayer-common", version.ref = "exoplayerCommon" }
-exoplayer-core = { group = "com.google.android.exoplayer", name = "exoplayer-core", version.ref = "exoplayerCore" }
-extension-mediasession = { group = "com.google.android.exoplayer", name = "extension-mediasession", version.ref = "extensionMediasession" }
-extension-okhttp = { group = "com.google.android.exoplayer", name = "extension-okhttp", version.ref = "extensionOkhttp" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinxCoroutinesGuava" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }

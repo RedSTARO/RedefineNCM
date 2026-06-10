@@ -37,7 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.redstar.redefinencm.BuildConfig
 import com.redstar.redefinencm.data.api.safeApiCall
 import com.redstar.redefinencm.util.DownloadUtil
