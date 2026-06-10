@@ -2,15 +2,16 @@ package com.redstar.redefinencm.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialExpressiveTheme
-import androidx.compose.material3.MotionScheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -25,14 +26,19 @@ private val LightColorScheme = lightColorScheme(
 )
 
 /**
- * App theme built on **Material 3 Expressive**.
- *
- * Uses [MaterialExpressiveTheme] so every component picks up the expressive defaults:
- * the spatial [MotionScheme] (springy, overshooting transitions) plus the expressive shape
- * and typography scales. On Android 12+ we keep dynamic color; otherwise we fall back to the
- * brand color schemes above.
+ * Material 3 **Expressive**-flavoured shape scale: rounder, larger corner radii than the
+ * baseline M3 shapes, which is a core expressive trait. (The dedicated `MaterialExpressiveTheme`
+ * / `MotionScheme` APIs are still `internal` in the material3 version pinned here, so we express
+ * the style through the public typography + shape scales instead.)
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private val ExpressiveShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(20.dp),
+    large = RoundedCornerShape(28.dp),
+    extraLarge = RoundedCornerShape(36.dp),
+)
+
 @Composable
 fun RedefineNCMTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -50,11 +56,10 @@ fun RedefineNCMTheme(
         else -> LightColorScheme
     }
 
-    MaterialExpressiveTheme(
+    MaterialTheme(
         colorScheme = colorScheme,
-        // Expressive, physics-based motion for a livelier, springy feel.
-        motionScheme = MotionScheme.expressive(),
         typography = ExpressiveTypography,
+        shapes = ExpressiveShapes,
         content = content,
     )
 }

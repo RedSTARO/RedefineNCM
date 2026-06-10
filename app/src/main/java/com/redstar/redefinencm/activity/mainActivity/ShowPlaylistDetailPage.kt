@@ -90,7 +90,7 @@ fun ShowPlaylistDetailPage(
                         .clip(RoundedCornerShape(12.dp)), // 让封面有圆角
                     onSuccess = { result ->
                         themeColor =
-                            ImageParser.imageThemeColor(result.result.drawable.toBitmap())
+                            ImageParser.imageThemeColor((result.result.image as coil3.BitmapImage).bitmap)
                         if (BuildConfig.DEBUG) {
                             Log.d("AlbumArt", "Image theme color: $themeColor")
                         }

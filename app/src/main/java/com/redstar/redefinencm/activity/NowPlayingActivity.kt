@@ -188,7 +188,7 @@ fun SongDetails(metadata: MediaMetadata?, onShowLyricClick: () -> Unit) {
                 .fillMaxSize()
                 .clickable(onClick = { onShowLyricClick() }),
             onSuccess = { result ->
-                themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
+                themeColor = ImageParser.imageThemeColor((result.result.image as coil3.BitmapImage).bitmap)
                 if (BuildConfig.DEBUG) {
                     Log.d("AlbumArt", "Image theme color: $themeColor")
                 }

@@ -126,7 +126,7 @@ fun MiniNowPlaying(context: Context, viewModel: MainViewModel) {
                         )
                     }),
                 onSuccess = { result ->
-                    themeColor = ImageParser.imageThemeColor(result.result.drawable.toBitmap())
+                    themeColor = ImageParser.imageThemeColor((result.result.image as coil3.BitmapImage).bitmap)
 //                    textColor = ImageParser.getContrastingTextColor(textColor)
                     if (BuildConfig.DEBUG) {
                         Log.d("AlbumArt", "Image theme color: $themeColor")
