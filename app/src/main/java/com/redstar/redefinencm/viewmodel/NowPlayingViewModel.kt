@@ -57,7 +57,8 @@ class NowPlayingViewModel : ViewModel() {
     init {
         initMediaController()
         initPlayingStatusSync()
-        updateNowPlayingMediaIndex()
+        // Initial highlight will be set by rebuildPlaylistFromTimeline() once the
+        // controller connects (called at the end of initMediaController).
     }
 
     private fun initPlayingStatusSync() {
@@ -126,15 +127,13 @@ class NowPlayingViewModel : ViewModel() {
         currentMediaIndexInList.value = indices.indexOf(player.currentMediaItemIndex).toString()
     }
 
-    private fun updateNowPlayingMediaIndex() {
-        // 当前播放项变化时刷新高亮；若顺序索引还未建立则先重建，保证未打开列表也能正确高亮
-        val player = mediaController.value ?: return
-        if (playOrderWindowIndices.value.isEmpty()) {
-            rebuildPlaylistFromTimeline()
-            return
-        }
-        currentMediaIndexInList.value =
-            playOrderWindowIndices.value.indexOf(player.currentMediaItemIndex).toString()
+    /**
+     * 当前播放项变化时强制整体重建，保证随机模式下 playList、playOrderWindowIndices 与
+     * currentMediaIndexInList 始终来自同一次 timeline 遍历。缓存索引在随机模式下可能因
+     * ExoPlayer 内部重排而失效，因此每次 track transition 都完整重建以杜绝高亮错位。
+     */
+    private fun refreshOnTrackTransition() {
+        rebuildPlaylistFromTimeline()
     }
 
     private fun initMediaController() {
@@ -155,7 +154,8 @@ class NowPlayingViewModel : ViewModel() {
                     }
 
                     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                        updateNowPlayingMediaIndex()
+                        // 每次切歌都完整重建列表与高亮，避免随机模式下缓存索引失效
+                        refreshOnTrackTransition()
                     }
 
                     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {

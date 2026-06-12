@@ -16,9 +16,11 @@ private val LightColorScheme = LightColors
 
 /**
  * Material 3 **Expressive**-flavoured shape scale: rounder, larger corner radii than the
- * baseline M3 shapes, which is a core expressive trait. (The dedicated `MaterialExpressiveTheme`
- * / `MotionScheme` APIs are still `internal` in the material3 version pinned here, so we express
- * the style through the public typography + shape scales instead.)
+ * baseline M3 shapes, which is a core expressive trait. The dedicated `MaterialExpressiveTheme`
+ * / `MotionScheme` APIs are `internal` in the pinned material3 1.4.0 and only become
+ * experimental-public from material3 1.5.0-alpha+, so this app expresses the style through the
+ * public typography + shape scales instead. When deps move to material3 1.5.0-alpha+, switch to
+ * `MaterialExpressiveTheme(... motionScheme = MotionScheme.expressive() ...)` as the KMP repo does.
  */
 private val ExpressiveShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),

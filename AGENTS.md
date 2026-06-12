@@ -50,15 +50,30 @@ A Kotlin Multiplatform port of this app lives in the sibling `../RedefineNCM_KMP
 3. `NowPlayingViewModel` connects to `PlaybackService` via a `MediaController` and mirrors
    player state into `StateFlow`s.
 
-### Shuffle / queue ordering invariant (regression-prone)
+### Shuffle / queue ordering invariant (regression-prone) — FIXED
 
 The visible queue (`playList`), the window-order index list (`playOrderWindowIndices`), and
 the current-item highlight (`currentMediaIndexInList`) **must always be rebuilt together from
-the current `Timeline`** — see `NowPlayingViewModel.rebuildPlaylistFromTimeline()`. Any code
-path that changes order (shuffle toggle, `onTimelineChanged`, `onMediaItemTransition`) must
-go through that one rebuild. Reading the highlight against a cached index list is the original
-bug; do not reintroduce it. The pure, unit-tested model of this logic lives in the KMP repo
-at `shared/.../player/PlayQueue.kt`.
+the current `Timeline`** — see `NowPlayingViewModel.rebuildPlaylistFromTimeline()`.
+
+**The bug:** `onMediaItemTransition` previously called `updateNowPlayingMediaIndex()` which
+only recomputed the highlight from *cached* `playOrderWindowIndices`. Under shuffle, ExoPlayer
+can regenerate its internal permutation without firing `onTimelineChanged`, rendering the
+cached indices stale and causing the highlight to point at the wrong row.
+
+**The fix (applied):** `onMediaItemTransition` now calls `refreshOnTrackTransition()` which
+always delegates to `rebuildPlaylistFromTimeline()`. This ensures every track change triggers
+a full rebuild of all three values from the current Timeline, so they can never disagree.
+
+The shuffle toggle (`onShuffleModeEnabledChanged`) and timeline changes
+(`onTimelineChanged`) also go through `rebuildPlaylistFromTimeline()` — the same single
+rebuild path. Do not reintroduce separate update paths that read one value from cache and
+another from the timeline.
+
+The pure, unit-tested model of this logic lives in the KMP repo at
+`shared/.../player/PlayQueue.kt`, with the regression suite in
+`shared/src/commonTest/.../player/PlayQueueTest.kt`. (`NowPlayingViewModel`'s
+`rebuildPlaylistFromTimeline()` is the simplified queue+index form still in use there.)
 
 ## Build & run
 
@@ -95,20 +110,55 @@ at `shared/.../player/PlayQueue.kt`.
   and small vertical gaps. Reuse `ui/component/Expressive.kt` (`connectedListItemShape`).
 - Avoid old isolated elevated `Card` rows for ordinary lists. Prefer clickable `Surface` with
   Material 3 container roles unless a standalone card is actually needed.
+- NowPlaying: hero gradient derived from album art, oversized rounded cover, bold marquee
+  title, M3 Expressive shapes on all interactive elements.
+- Playlist detail: album-color gradient header with prominent pill "Play All" button,
+  connected-list song rows with download status indicators.
+- User page: blurred background hero with avatar, connected-list playlists with special
+  badges for "Liked Songs" and "Private Radar".
+- Search: shared-element transition from the search pill to the full search bar, connected-list
+  results and suggestions with album art thumbnails.
+- Settings: gradient hero header, tonal surface rows with consistent shapes, pill-shaped
+  action buttons.
+- Mini player FAB: image-derived color with adaptive content luminance, oversized rounded
+  shape, compact playback controls.
 
 ## Dependency status
 
-All versions live in `libs.versions.toml`; it is at the latest available across the board:
-AGP 9.0.1, Kotlin 2.3.0, Compose BOM 2026.01.01, media3 1.9.1, Room 2.8.4, OkHttp 5.3.2,
-Retrofit 3.0.0, **Coil 3.0.4** (migrated from Coil 2 — Coil 3 splits the network fetcher into
-`coil-network-okhttp`). Dead legacy ExoPlayer 2.x was removed (superseded by media3). When
-bumping, keep Kotlin / KSP / Compose-compiler versions in lockstep — they are tightly coupled.
+All versions live in `libs.versions.toml`. **Verified against Maven Central / release notes
+2026-06-11** — this repo was already on latest across the board except two libs, now bumped:
+- **Coil 3.4.0 → 3.5.0** ✓ (Coil 3 splits the network fetcher into `coil-network-okhttp`).
+- **OkHttp 5.3.2 → 5.4.0** ✓ (compatible with the pinned Retrofit 3.0.0, which requires OkHttp 5.x).
+
+Confirmed already-latest and intentionally left: AGP 9.2.0, Kotlin 2.4.0, Compose BOM 2026.05.x,
+media3 1.10.1 (latest), Retrofit 3.0.0 (latest). **Room stays on 2.8.x:** Room 2.x is in
+maintenance mode and **Room 3.0 is a breaking, KMP-focused alpha** (`androidx.room3.*` namespace)
+— do NOT adopt it here. Hilt 2.59.1 not re-verified this pass. When bumping, keep Kotlin / KSP /
+Compose-compiler in lockstep — they are tightly coupled.
+
+> Note on M3 Expressive: `MaterialExpressiveTheme`/`MotionScheme` are `internal` in material3
+> 1.4.0 (the Compose-BOM-managed version here) and only become experimental-public from
+> material3 1.5.0-alpha+. This app already applies an Expressive look via the public shape +
+> typography scales + dynamic color (`ui/theme/`). Switching to `MaterialExpressiveTheme`
+> requires moving material3 to 1.5.0-alpha+ (and managing the Compose-BOM conflict) — deferred.
+
+**Convergence with the KMP repo (goal #4):** **Kotlin is now converged at 2.4.0** in both repos
+(the KMP repo was bumped 2.3.21→2.4.0 and build-verified, 2026-06-11). **AGP differs:** this repo
+is on 9.2.0, the KMP repo stays on 9.0.1 — bumping the KMP repo to AGP 9.2.0 requires Gradle ≥9.4.1
+and then breaks on aapt2:9.2.0 resolution + config-cache serialization (tested), so it's deferred
+there (see `../RedefineNCM_KMP/AGENTS.md`). coroutines/serialization are KMP-only (this repo uses
+Gson/none), so nothing to converge there.
 
 ## Gotchas
 
-- The project pins very recent / pre-release toolchain versions (AGP 9, Kotlin 2.3,
-  Compose BOM 2026.01). Verify a matching Android Gradle/JDK before assuming a red build is
+- The project pins very recent / pre-release toolchain versions (AGP 9, Kotlin 2.4,
+  Compose BOM 2026.05). Verify a matching Android Gradle/JDK before assuming a red build is
   your change.
 - `usesCleartextTraffic="true"` is intentional (self-hosted HTTP API).
 - DB access is via a hand-rolled `DatabaseProvider` singleton, **not** Hilt, despite the
   `hilt-android` dependency being present.
+- **Shuffle regression guard:** Any change to playback state listeners must ensure the
+  invariant that `playList`, `playOrderWindowIndices`, and `currentMediaIndexInList` are
+  always updated together from the current Timeline via `rebuildPlaylistFromTimeline()`.
+  The KMP repo's `PlayQueueTest` is the regression suite for this behavior
+  (see `../RedefineNCM_KMP/AGENTS.md`).
